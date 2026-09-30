@@ -1,0 +1,765 @@
+/* ==========================================================================
+   HOJA DE ESTILOS - IMAGENOLOGÍA VETERINARIA
+   Archivo: css/estilo-home.css
+   ========================================================================== */
+
+/* Variables globales de color derivadas del logo y tarjeta de negocio */
+:root {
+    --primary-dark: #030b30;       /* Azul marino profundo (fondo general) */
+    --primary-navy: #091238;       /* Azul marino secundario */
+    --accent-blue: #3a86ad;       /* Azul intermedio (UI & botones) */
+    --light-blue: #62a3c7;        /* Azul claro / destellos de transductor */
+    --accent-teal: #2db3be;        /* Verde agua / acentos médicos */
+    --whatsapp-color: #25d366;     /* Verde institucional WhatsApp */
+    --text-light: #f1f5f9;         /* Texto principal claro */
+    --text-muted: #94a3b8;         /* Texto secundario / leyendas */
+    --card-bg: #0f1942;            /* Fondo de tarjetas informativas */
+    --card-border: #1e2d66;        /* Bordes de tarjetas */
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+}
+
+/* Reset Global & Anti-Scroll Horizontal */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--primary-dark);
+    color: var(--text-light);
+    line-height: 1.6;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Contenedor fluido seguro contra desbordamiento */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Clases Útiles Generales */
+.section-padding {
+    padding: 90px 0;
+}
+
+.section-navy {
+    background-color: var(--primary-navy);
+}
+
+.section-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 50px auto;
+}
+
+.section-subtitle {
+    color: var(--light-blue);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+}
+
+.section-description {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+}
+
+.section-desc-space {
+    margin-top: 15px;
+}
+
+.section-desc-space-sm {
+    margin-top: 10px;
+}
+
+/* Componentes Reusables: Botones */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 26px;
+    border-radius: 6px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--light-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(58, 134, 173, 0.35);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border-color: var(--accent-blue);
+    color: #ffffff;
+}
+
+.btn-outline:hover {
+    background-color: rgba(58, 134, 173, 0.15);
+    border-color: var(--light-blue);
+}
+
+.btn-whatsapp {
+    background-color: var(--whatsapp-color);
+    color: #ffffff;
+}
+
+.btn-whatsapp:hover {
+    background-color: #20ba5a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 211, 102, 0.3);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+/* ==========================================================================
+   BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================================================== */
+.navbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(3, 11, 48, 0.94);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid var(--card-border);
+    padding: 15px 0;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: #ffffff;
+    line-height: 1.1;
+}
+
+.logo-subtitle {
+    font-family: var(--font-heading);
+    font-weight: 400;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    color: var(--light-blue);
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-link {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+.nav-link:hover {
+    color: var(--light-blue);
+}
+
+.nav-btn-header {
+    padding: 8px 18px;
+    font-size: 0.88rem;
+}
+
+.menu-toggle, .hamburger {
+    display: none;
+}
+
+/* ==========================================================================
+   SECCIÓN HERO
+   ========================================================================== */
+.hero {
+    padding: 80px 0 100px 0;
+    background: radial-gradient(circle at top right, #0f1f5c 0%, var(--primary-dark) 60%);
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(58, 134, 173, 0.15);
+    border: 1px solid var(--accent-blue);
+    color: var(--light-blue);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.hero-title {
+    font-size: 2.8rem;
+    line-height: 1.25;
+    margin-bottom: 20px;
+}
+
+.hero-title span {
+    color: var(--light-blue);
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 35px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.hero-image-wrapper {
+    position: relative;
+}
+
+.hero-card-frame {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.hero-img {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+}
+
+.hero-floating-badge {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background-color: rgba(15, 25, 66, 0.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--card-border);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.floating-icon {
+    width: 42px;
+    height: 42px;
+    background-color: var(--accent-blue);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.floating-text h4 {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.floating-text p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   SECCIÓN NOSOTROS (EXPOSICIÓN CLINICA)
+   ========================================================================== */
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.about-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 35px;
+}
+
+.about-features {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.feature-item {
+    display: flex;
+    gap: 18px;
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    background-color: rgba(58, 134, 173, 0.15);
+    border: 1px solid var(--accent-blue);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--light-blue);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.feature-content h4 {
+    font-size: 1.05rem;
+    margin-bottom: 5px;
+}
+
+.feature-content p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   SECCIÓN SERVICIOS Y TARIFICATORIO
+   ========================================================================== */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.pricing-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 35px 25px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+}
+
+.pricing-card.featured {
+    border-color: var(--accent-blue);
+    box-shadow: 0 10px 30px rgba(58, 134, 173, 0.15);
+}
+
+.popular-tag {
+    position: absolute;
+    top: -14px;
+    right: 20px;
+    background-color: var(--accent-blue);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.pricing-header {
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.pricing-title {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+}
+
+.pricing-price {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: var(--font-heading);
+}
+
+.pricing-price span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.pricing-features {
+    list-style: none;
+    margin-bottom: 30px;
+    flex-grow: 1;
+}
+
+.pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.pricing-features li i {
+    color: var(--light-blue);
+}
+
+/* ==========================================================================
+   SECCIÓN TESTIMONIOS
+   ========================================================================== */
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.testimonial-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.testimonial-stars {
+    color: #f59e0b;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+}
+
+.testimonial-text {
+    font-style: italic;
+    color: var(--text-light);
+    font-size: 0.92rem;
+    margin-bottom: 25px;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--accent-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.author-info h4 {
+    font-size: 0.9rem;
+}
+
+.author-info p {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   SECCIÓN CONTACTO Y UBICACIÓN
+   ========================================================================== */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.contact-info-box {
+    display: flex;
+    flex-direction: flex-start;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.info-icon {
+    width: 45px;
+    height: 45px;
+    background-color: rgba(58, 134, 173, 0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--light-blue);
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.info-details h4 {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.info-details a, .info-details p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.info-details a:hover {
+    color: var(--light-blue);
+}
+
+.contact-subtext {
+    font-size: 0.82rem;
+    color: var(--light-blue);
+    margin-top: 4px;
+}
+
+.map-wrapper {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.map-placeholder i {
+    font-size: 2.8rem;
+    color: var(--accent-blue);
+    margin-bottom: 15px;
+}
+
+.map-city {
+    margin-top: 8px;
+}
+
+.map-note {
+    font-size: 0.85rem;
+    margin-top: 15px;
+    color: var(--light-blue);
+}
+
+.map-btn {
+    margin-top: 20px;
+    font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   PIE DE PÁGINA (FOOTER)
+   ========================================================================== */
+.footer {
+    background-color: #020720;
+    border-top: 1px solid var(--card-border);
+    padding: 60px 0 30px 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-about p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin-top: 15px;
+}
+
+.footer-title {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+.footer-links a:hover {
+    color: var(--light-blue);
+}
+
+.footer-contact-info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.footer-contact-space {
+    margin-bottom: 15px;
+}
+
+.footer-btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 25px;
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+/* ==========================================================================
+   DISEÑO RESPONSIVO
+   ========================================================================== */
+@media (max-width: 992px) {
+    .hero-grid, .about-grid, .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pricing-grid, .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+    }
+
+    .hamburger span {
+        width: 25px;
+        height: 3px;
+        background-color: var(--text-light);
+        border-radius: 2px;
+    }
+
+    .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--primary-dark);
+        border-bottom: 1px solid var(--card-border);
+        flex-direction: column;
+        padding: 20px;
+        display: none;
+    }
+
+    .menu-toggle:checked ~ .nav-menu {
+        display: flex;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
