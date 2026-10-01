@@ -344,7 +344,7 @@ img {
 
 .footer-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
     gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
     margin-bottom: 2.5rem;
 }
@@ -405,6 +405,11 @@ img {
 }
 
 /* ---------- SERVICIOS ---------- */
+.servicios{
+    background-image: linear-gradient(rgba(3, 11, 48, 0.65), rgba(3, 11, 48, 0.85)), url("../img/diagnostico-por-imagen.webp");
+    background-size: cover;
+    background-position: center;
+}
 .servicios-grid {
     display: flex;
     flex-wrap: wrap;                       /* si no caben, bajan a otra fila */
@@ -426,6 +431,7 @@ img {
 .servicio-card:hover {
     transform: translateY(-4px);
     border-color: var(--color-acento-azul);
+    box-shadow: 0 10px 25px var(--color-fondo-insignia-hero);
 }
 
 .servicio-card p {
@@ -443,4 +449,131 @@ img {
 
 .servicio-card .btn {
     margin-top: auto;                      /* el botón siempre queda abajo */
+}
+
+
+/* ==========================================================================
+   9. FILTROS DE ESCALA (ADAPTACIÓN A TODAS LAS RESOLUCIONES)
+   ========================================================================== */
+
+/* Pantallas ultra anchas (4K / TV) */
+@media (min-width: 2200px) {
+    html { font-size: 125%; }
+}
+
+/* Monitores grandes (Full HD ancho / 2K) */
+@media (min-width: 1600px) and (max-width: 2199px) {
+    html { font-size: 112.5%; }
+}
+
+/* Laptops pequeñas: menú más compacto para que quepa completo */
+@media (max-width: 1100px) {
+    .nav-link { font-size: 0.86rem; }
+    .nav-btn-header { padding: 0.5rem 0.875rem; font-size: 0.84rem; }
+    .logo-title { font-size: 1.05rem; }
+}
+
+/* Tabletas y menor: menú hamburguesa, tarjetas en dos columnas y pie en 2 columnas */
+@media (max-width: 992px) {
+    .servicio-card {
+        flex-basis: calc(50% - var(--espacio-entre-tarjetas));
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+
+    .hamburger span {
+        width: 1.5625rem;
+        height: 3px;
+        background-color: var(--color-texto-principal);
+        border-radius: 2px;
+    }
+
+    .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--color-fondo-pagina);
+        border-bottom: 1px solid var(--color-borde-tarjeta);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+        padding: 1rem var(--relleno-lateral-contenedor) 1.5rem;
+        display: none;
+        max-height: calc(100vh - var(--alto-barra-navegacion));
+        max-height: calc(100dvh - var(--alto-barra-navegacion));
+        overflow-y: auto;
+    }
+
+    .menu-toggle:checked ~ .nav-menu {
+        display: flex;
+    }
+
+    .nav-link {
+        font-size: 1rem;
+        padding: 0.75rem 0.25rem;
+        border-bottom: 1px solid var(--color-linea-inferior-pie);
+    }
+
+    .nav-btn-header {
+        margin-top: 0.75rem;
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.125rem;
+    }
+}
+
+/* Móviles: pie en una columna y tarjetas de servicio apiladas */
+@media (max-width: 576px) {
+    .servicio-card {
+        flex-basis: 100%;
+    }
+
+    .footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Móviles muy pequeños (320–380 px): marca compacta */
+@media (max-width: 380px) {
+    .logo-title { font-size: 0.95rem; letter-spacing: 1px; }
+    .logo-subtitle { font-size: 0.72rem; letter-spacing: 1.5px; }
+    .logo-icon svg { width: 34px; height: 34px; }
+    .brand-logo { gap: 0.5rem; }
+    .btn { padding: 0.75rem 1rem; font-size: 0.9rem; }
+}
+
+/* Pantallas bajas (móvil horizontal): menos espacio vertical */
+@media (max-height: 520px) and (orientation: landscape) {
+    .section-padding {
+        padding: 2.5rem 0;
+    }
+}
+
+/* Pantallas táctiles: sin saltos al tocar los botones */
+@media (hover: none) {
+    .btn-primary:hover,
+    .btn-whatsapp:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* Usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    *, *::before, *::after {
+        transition: none !important;
+    }
 }

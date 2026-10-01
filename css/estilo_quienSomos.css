@@ -397,6 +397,7 @@ img {
 
 .mvv-card:hover {
     transform: translateY(-5px);
+    border-color: var(--color-acento-azul);
     box-shadow: 0 10px 25px var(--color-fondo-insignia-hero);
 }
 
