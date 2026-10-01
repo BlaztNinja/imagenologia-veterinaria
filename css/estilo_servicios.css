@@ -403,3 +403,44 @@ img {
     color: var(--color-texto-secundario);
     font-size: 0.82rem;
 }
+
+/* ---------- SERVICIOS ---------- */
+.servicios-grid {
+    display: flex;
+    flex-wrap: wrap;                       /* si no caben, bajan a otra fila */
+    gap: var(--espacio-entre-tarjetas);
+}
+
+.servicio-card {
+    flex: 1 1 16rem;                       /* crece igual, mínimo 16rem de ancho */
+    display: flex;
+    flex-direction: column;                /* contenido de arriba hacia abajo */
+    gap: 0.875rem;
+    padding: 1.5rem;
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    transition: var(--transicion-estandar);
+}
+
+.servicio-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-acento-azul);
+}
+
+.servicio-card p {
+    color: var(--color-texto-secundario);
+    font-size: 0.95rem;
+}
+
+.servicio-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.servicio-card .btn {
+    margin-top: auto;                      /* el botón siempre queda abajo */
+}
