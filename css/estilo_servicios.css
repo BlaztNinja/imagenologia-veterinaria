@@ -1,0 +1,334 @@
+:root {
+
+    /* ---------- COLORES DE FONDO ---------- */
+    --color-fondo-pagina: #030b30;                    /* Fondo general de toda la página (body), base del degradado del hero y del menú móvil desplegado */
+    --color-fondo-seccion-alterna: #091238;           /* Fondo de las secciones alternas (clase .section-navy); separa visualmente un bloque del siguiente */
+    --color-fondo-hero-luz: #0f1f5c;                  /* Tono más claro que ilumina la esquina superior derecha del degradado del hero */
+    --color-fondo-barra-navegacion: rgba(3, 11, 48, 0.94); /* Fondo semitransparente de la barra de navegación superior */
+    --color-fondo-pie-pagina: #020720;                /* Fondo del pie de página, un tono más oscuro que el resto */
+    --color-fondo-tarjeta: #0f1942;                   /* Fondo de las tarjetas de contenido (testimonios y futuras tarjetas) */
+    --color-fondo-etiqueta-flotante: rgba(15, 25, 66, 0.92); /* Fondo de la etiqueta flotante que se apoya sobre la imagen del hero */
+    --color-fondo-insignia-hero: rgba(58, 134, 173, 0.15);   /* Fondo de la insignia "Ecografía Clínica Especializada" del hero */
+    --color-fondo-boton-contorno-hover: rgba(58, 134, 173, 0.15); /* Fondo que aparece al pasar el cursor sobre un botón de solo contorno */
+
+    /* ---------- COLORES DE BORDES Y LÍNEAS ---------- */
+    --color-borde-tarjeta: #1e2d66;                   /* Borde de tarjetas, barra de navegación, marco de la imagen del hero y pie de página */
+    --color-linea-inferior-pie: rgba(255, 255, 255, 0.05); /* Línea fina que separa el copyright del resto del pie de página */
+
+    /* ---------- COLORES DE ACENTO (botones, resaltados, iconos) ---------- */
+    --color-acento-azul: #3a86ad;                     /* Botón principal, borde de botones de contorno, borde de la insignia del hero, icono flotante y avatar de testimonios */
+    --color-acento-azul-claro: #62a3c7;               /* Subtítulos de sección, texto resaltado del título del hero, texto de la insignia y color de enlaces al pasar el cursor */
+    --color-acento-turquesa: #2db3be;                 /* Reservado para acentos médicos; actualmente sin uso en la página de inicio */
+    --color-boton-whatsapp: #25d366;                  /* Botones de WhatsApp (hero y pie de página), verde institucional */
+    --color-boton-whatsapp-hover: #20ba5a;            /* Botón de WhatsApp al pasar el cursor */
+    --color-estrellas-testimonio: #f59e0b;            /* Estrellas de calificación de las tarjetas de testimonios */
+
+    /* ---------- COLORES DE SOMBRAS ---------- */
+    --color-sombra-boton-principal: rgba(58, 134, 173, 0.35); /* Resplandor del botón principal al pasar el cursor */
+    --color-sombra-boton-whatsapp: rgba(37, 211, 102, 0.3);   /* Resplandor del botón de WhatsApp al pasar el cursor */
+    --color-sombra-imagen-hero: rgba(0, 0, 0, 0.4);           /* Sombra que da profundidad al marco de la imagen del hero */
+
+    /* ---------- COLORES DE TEXTO ---------- */
+    --color-texto-principal: #f1f5f9;                 /* Texto de lectura general (párrafos, enlaces del menú, citas de testimonios) */
+    --color-texto-secundario: #94a3b8;                /* Texto de apoyo: descripciones, leyendas, enlaces del pie de página */
+    --color-texto-titulos: #ffffff;                   /* Títulos (h1 a h6) y nombre de la marca */
+    --color-texto-sobre-acento: #ffffff;              /* Texto que va encima de botones y elementos de color de acento */
+
+    /* ---------- TIPOGRAFÍA: FAMILIAS ---------- */
+    --fuente-titulos: 'Montserrat', sans-serif;       /* Títulos, marca, botones y datos destacados */
+    --fuente-cuerpo: 'Open Sans', sans-serif;         /* Párrafos y texto corrido */
+
+    /* ---------- TIPOGRAFÍA: TAMAÑOS FLUIDOS (se adaptan solos al ancho de pantalla) ---------- */
+    --tamano-titulo-hero: clamp(1.9rem, 1.25rem + 2.8vw, 3.1rem);      /* Título principal (h1) de la portada */
+    --tamano-titulo-seccion: clamp(1.6rem, 1.2rem + 1.7vw, 2.4rem);    /* Título (h2) de cada sección */
+    --tamano-texto-hero: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);       /* Párrafo descriptivo del hero */
+    --tamano-texto-seccion: clamp(0.95rem, 0.92rem + 0.2vw, 1.05rem);  /* Descripción bajo el título de cada sección */
+
+    /* ---------- MEDIDAS DE ESTRUCTURA ---------- */
+    --ancho-maximo-contenedor: 75rem;                 /* Ancho máximo del contenido (1200 px a tamaño normal; crece en pantallas muy grandes) */
+    --relleno-lateral-contenedor: clamp(1rem, 0.6rem + 1.6vw, 1.5rem); /* Margen interior izquierdo y derecho del contenedor */
+    --relleno-vertical-seccion: clamp(3.25rem, 2rem + 4.5vw, 5.625rem); /* Espacio arriba y abajo de cada sección (clase .section-padding) */
+    --relleno-hero-superior: clamp(2.5rem, 1.5rem + 4vw, 5rem);        /* Espacio sobre el contenido del hero */
+    --relleno-hero-inferior: clamp(3rem, 2rem + 4.5vw, 6.25rem);       /* Espacio bajo el contenido del hero */
+    --espacio-entre-columnas: clamp(1.5rem, 0.5rem + 3.5vw, 3.125rem); /* Separación entre columnas de las cuadrículas (hero) */
+    --espacio-entre-tarjetas: clamp(1.25rem, 0.8rem + 1.6vw, 1.875rem);/* Separación entre tarjetas (testimonios) */
+    --alto-barra-navegacion: 4.5rem;                  /* Altura aproximada de la barra superior; evita que tape los títulos al navegar por anclas */
+    --alto-maximo-imagen-hero: 26.25rem;              /* Altura máxima de la imagen principal del hero */
+
+    /* ---------- MEDIDAS DE FORMA ---------- */
+    --radio-borde-boton: 0.375rem;                    /* Redondeo de las esquinas de los botones */
+    --radio-borde-tarjeta: 0.75rem;                   /* Redondeo de las esquinas de las tarjetas */
+    --radio-borde-imagen-hero: 1rem;                  /* Redondeo del marco de la imagen del hero */
+    --radio-borde-insignia: 1.25rem;                  /* Redondeo tipo píldora de la insignia del hero y de las etiquetas */
+
+    /* ---------- ANIMACIONES ---------- */
+    --transicion-estandar: all 0.3s ease;             /* Transición suave usada en enlaces, botones y tarjetas */
+}
+
+/* ==========================================================================
+   2. REINICIO GLOBAL Y BASE DE ESCALA
+   ========================================================================== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;                                  /* Base de la escala: todas las medidas en rem crecen o se reducen desde aquí */
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--alto-barra-navegacion); /* Las anclas (#testimonios, etc.) quedan visibles bajo la barra fija */
+    overflow-x: hidden;                               /* Evita el desplazamiento horizontal */
+    width: 100%;
+    -webkit-text-size-adjust: 100%;                   /* Impide que el móvil agrande el texto por su cuenta */
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--fuente-cuerpo);
+    background-color: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    line-height: 1.6;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;                                 /* Recorta lo que se salga sin romper la barra fija (sticky) */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fuente-titulos);
+    color: var(--color-texto-titulos);
+    font-weight: 700;
+    overflow-wrap: break-word;                        /* Los títulos largos nunca desbordan su caja */
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transicion-estandar);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 3px;
+}
+
+
+/* ==========================================================================
+   3. CONTENEDOR Y UTILIDADES DE SECCIÓN
+   ========================================================================== */
+.container {
+    width: 100%;
+    max-width: var(--ancho-maximo-contenedor);
+    margin: 0 auto;
+    padding-left: max(var(--relleno-lateral-contenedor), env(safe-area-inset-left));   /* Respeta el "notch" de los móviles */
+    padding-right: max(var(--relleno-lateral-contenedor), env(safe-area-inset-right));
+}
+
+.section-padding {
+    padding: var(--relleno-vertical-seccion) 0;
+}
+
+.section-navy {
+    background-color: var(--color-fondo-seccion-alterna);
+}
+
+.section-header {
+    text-align: center;
+    max-width: 43.75rem;
+    margin: 0 auto clamp(2rem, 1rem + 3vw, 3.125rem) auto;
+}
+
+.section-subtitle {
+    color: var(--color-acento-azul-claro);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-size: var(--tamano-titulo-seccion);
+    margin-bottom: 1rem;
+}
+
+.section-description {
+    color: var(--color-texto-secundario);
+    font-size: var(--tamano-texto-seccion);
+}
+
+.section-desc-space {
+    margin-top: 1rem;
+}
+
+.section-desc-space-sm {
+    margin-top: 0.625rem;
+}
+
+
+/* ==========================================================================
+   4. BOTONES REUTILIZABLES
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;                              /* Área táctil cómoda en móviles */
+    padding: 0.75rem 1.625rem;
+    border-radius: var(--radio-borde-boton);
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: var(--transicion-estandar);
+}
+
+.btn-primary {
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-acento-azul-claro);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-principal);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border-color: var(--color-acento-azul);
+    color: var(--color-texto-titulos);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    border-color: var(--color-acento-azul-claro);
+}
+
+.btn-whatsapp {
+    background-color: var(--color-boton-whatsapp);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-whatsapp:hover {
+    background-color: var(--color-boton-whatsapp-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-whatsapp);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+
+/* ==========================================================================
+   5. BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================================================== */
+.navbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-fondo-barra-navegacion);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid var(--color-borde-tarjeta);
+    padding: 0.9375rem 0;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;                                   /* La marca nunca se aplasta */
+}
+
+.logo-icon {
+    flex-shrink: 0;
+}
+
+.logo-icon > img{
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: var(--color-texto-titulos);
+    line-height: 1.1;
+}
+
+.logo-subtitle {
+    font-family: var(--fuente-titulos);
+    font-weight: 400;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 0.2rem + 1.7vw, 1.5625rem);   /* La separación entre enlaces se ajusta al ancho */
+}
+
+.nav-link {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--color-texto-principal);
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-btn-header {
+    padding: 0.5rem 1.125rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+/* Casilla oculta que abre el menú móvil (sigue siendo accesible con teclado) */
+.menu-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hamburger {
+    display: none;
+}
+
+.menu-toggle:focus-visible + .hamburger {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
