@@ -288,6 +288,12 @@ img {
     flex-shrink: 0;
 }
 
+.logo-icon > img{
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
 .logo-text {
     display: flex;
     flex-direction: column;
