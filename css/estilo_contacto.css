@@ -68,11 +68,56 @@
 }
 
 .formulario {
-    width: 100%;
-    height: 32rem;
+    display: grid;
+    gap: 1rem;
+    background: #0f1942;
     border: 1px solid #1e2d66;
     border-radius: 0.75rem;
-    background: #ffffff;
+    padding: 1.25rem;
+}
+
+.campo {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.campo label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+    background: #030b30;
+    color: #f1f5f9;
+    border: 1px solid #1e2d66;
+    border-radius: 0.375rem;
+    padding: 0.7rem 0.85rem;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+}
+
+.campo textarea {
+    resize: vertical;
+    min-height: 6rem;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    outline: 2px solid #3a86ad;
+    border-color: #3a86ad;
+}
+
+.formulario .btn {
+    justify-self: start;
+    border: none;
+}
+
+.formulario-aviso {
+    margin: 0;
+    color: #62a3c7;
 }
 
 .contacto-whatsapp {
