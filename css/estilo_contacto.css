@@ -52,6 +52,29 @@
     color: #f1f5f9;
 }
 
+.deja-datos {
+    max-width: 36rem;
+    margin-top: 1.5rem;
+}
+
+.deja-datos h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.4rem;
+}
+
+.deja-datos p {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.formulario {
+    width: 100%;
+    height: 32rem;
+    border: 1px solid #1e2d66;
+    border-radius: 0.75rem;
+    background: #ffffff;
+}
+
 .contacto-whatsapp {
     display: inline-block;
     margin-top: 1.5rem;
