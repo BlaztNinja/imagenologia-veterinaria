@@ -72,57 +72,26 @@
 
             <div class="deja-datos">
                 <h2>Deja tus datos</h2>
-                <p>Completa el formulario con tu nombre, teléfono o correo y el motivo de la consulta.</p>
-                <iframe
-                    class="formulario"
-                    title="Formulario para dejar tus datos"
-                    src="https://docs.google.com/forms/d/e/1FAIpQLSeUOtgTdkukuFFcnXOSYGk5lxzM9O8PxwREpkxYuHld2ni0fQ/viewform?embedded=true">
-                </iframe>
-            </div>
-
-            <a class="contacto-whatsapp" href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank">Agendar por WhatsApp</a>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-about">
-                    <a href="home.html" class="brand-logo">
-                        <div class="logo-text">
-                            <span class="logo-title">IMAGENOLOGIA</span>
-                            <span class="logo-subtitle">VETERINARIA</span>
-                        </div>
-                    </a>
-                    <p>Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.</p>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Navegación</h4>
-                    <ul class="footer-links">
-                        <li><a href="home.html">Inicio</a></li>
-                        <li><a href="quienSomos.html">Quienes Somos</a></li>
-                        <li><a href="servicios.html">Servicios</a></li>
-                        <li><a href="contacto.html">Contactenos</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Contacto Rápido</h4>
-                    <p class="footer-contact-info">WhatsApp: +503 7722 2775</p>
-                    <p class="footer-contact-info footer-contact-space">ecografia@imagenologiaveterinaria.com</p>
-                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
-                        <i class="fa-brands fa-whatsapp"></i> Chat Directo
-                    </a>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2026 Imagenología Veterinaria. Todos los derechos reservados.</p>
-                <p>Diagnóstico Ecográfico Especializado</p>
-            </div>
-        </div>
-    </footer>
+                <p>Completa el formulario con tu nombre, teléfono, correo y el motivo de la consulta.</p>
+                <form class="formulario" id="formulario-contacto">
+                    <div class="campo">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" required autocomplete="name" placeholder="Tu nombre">
+                    </div>
+                    <div class="campo">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" required autocomplete="tel" placeholder="Tu número de teléfono">
+                    </div>
+                    <div class="campo">
+                        <label for="correo">Correo</label>
+                        <input type="email" id="correo" name="correo" required autocomplete="email" placeholder="tu@correo.com">
+                    </div>
+                    <div class="campo">
+                        <label for="motivo">Motivo de la consulta</label>
+                        <textarea id="motivo" name="motivo" required rows="4" placeholder="Cuéntanos en qué podemos ayudarte"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar datos</button>
+                   
 
 </body>
 </html>
