@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Backoffice | Imagenología Veterinaria</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script type="module" src="../js/admin.js"></script>
+</head>
+<body>
+    <header class="encabezado">
+        <div>
+            <p class="marca">Imagenología Veterinaria</p>
+            <h1>Administración de contenido</h1>
+        </div>
+        <a href="../index.html">Ver sitio público</a>
+    </header>
+
+    <main>
+        <p id="mensaje" role="status" aria-live="polite">
+            Comprobando sesión…
+        </p>
+
+        <section id="acceso" class="panel acceso" hidden>
+            <h2>Acceso del personal</h2>
+
+            <form id="form-login">
+                <label for="email">Correo electrónico</label>
+                <input id="email" name="email" type="email"
+                       autocomplete="username" required>
+
+                <label for="password">Contraseña</label>
+                <input id="password" name="password" type="password"
+                       autocomplete="current-password" required>
+
+                <button type="submit">Ingresar</button>
+            </form>
+        </section>
+
+        <section id="backoffice" hidden>
+            <div class="barra">
+                <p id="usuario"></p>
+                <button id="logout" type="button" class="secundario">
+                    Cerrar sesión
+                </button>
+            </div>
+
+            <div class="panel">
+                <div class="barra">
+                    <h2>Contenido de la clínica</h2>
+                    <button id="recargar" type="button" class="secundario">
+                        Recargar listas
+                    </button>
+                </div>
+
+                <h3>Servicios</h3>
+                <ul id="lista-servicios" class="lista"></ul>
+
+                <h3>Requisitos del paciente</h3>
+                <ul id="lista-requisitos" class="lista"></ul>
+            </div>
+
+            <section id="editor" class="panel" hidden>
+                <h2 id="titulo-editor">Editar contenido</h2>
+
+                <form id="form-editor">
+                    <fieldset id="campos-editor">
+                        <label for="nombre">Nombre o título</label>
+                        <input id="nombre" name="nombre" type="text"
+                               maxlength="150" required>
+
+                        <label for="descripcion">Descripción o indicaciones</label>
+                        <textarea id="descripcion" name="descripcion"
+                                  rows="5" maxlength="3000" required></textarea>
+
+                        <div id="campos-servicio">
+                            <label for="precio">Precio en USD</label>
+                            <input id="precio" name="precio" type="number"
+                                   min="0" max="99999999.99" step="0.01">
+
+                            <label for="detalles">Detalles del servicio</label>
+                            <textarea id="detalles" name="detalles"
+                                      rows="5"
+                                      aria-describedby="ayuda-detalles"></textarea>
+                            <small id="ayuda-detalles">
+                                Escribí un detalle por línea.
+                            </small>
+                        </div>
+
+                        <div class="acciones">
+                            <button type="submit">Guardar cambios</button>
+                            <button id="cancelar" type="button"
+                                    class="secundario">Cancelar</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </section>
+        </section>
+
+        <noscript>Activá JavaScript para utilizar el backoffice.</noscript>
+    </main>
+</body>
+</html>
