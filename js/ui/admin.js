@@ -37,6 +37,7 @@ let sesionRevision = 0;
 
 function mostrarMensaje(texto, error = false) {
     elementos.mensaje.textContent = texto;
+    elementos.mensaje.hidden = !texto;
     elementos.mensaje.classList.toggle("error", error);
 }
 
@@ -171,7 +172,7 @@ async function acceder() {
 
         if (!personal) {
             mostrarAcceso();
-            mostrarMensaje("Ingresá con tu cuenta del personal.");
+            mostrarMensaje("");
             return;
         }
 

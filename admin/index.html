@@ -4,25 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Backoffice | Imagenología Veterinaria</title>
-    <link rel="stylesheet" href="../css/admin.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="../css/estilo_home.css">
+    <link rel="stylesheet" href="../css/admin.css"> 
+
     <script type="module" src="../js/ui/admin.js"></script>
 </head>
 <body>
-    <header class="encabezado">
-        <div>
-            <p class="marca">Imagenología Veterinaria</p>
-            <h1>Administración de contenido</h1>
-        </div>
-        <a href="../index.html">Ver sitio público</a>
-    </header>
+    <header class="navbar">
+    <div class="container navbar-container admin-navbar">
+        <a href="../index.html" class="brand-logo"
+           aria-label="Imagenología Veterinaria, ir al sitio público">
+            <div class="logo-icon">
+                <img
+                    src="../img/logo-imagenologia-veterinaria.png"
+                    alt=""
+                    width="40"
+                    height="40"
+                >
+            </div>
 
-    <main>
+            <div class="logo-text">
+                <span class="logo-title">IMAGENOLOGIA</span>
+                <span class="logo-subtitle">VETERINARIA</span>
+            </div>
+        </a>
+
+        <a href="../index.html" class="btn btn-outline admin-volver">
+            Volver al sitio público
+        </a>
+    </div>
+</header>
+
+    <main class="container admin-contenido">
+        <div class="admin-introduccion">
+            <span class="section-subtitle">Administración</span>
+            <h1 class="section-title">Contenido de la clínica</h1>
+            <p class="section-description">
+                Gestioná los servicios y los requisitos del paciente.
+            </p>
+        </div>
+
         <p id="mensaje" role="status" aria-live="polite">
             Comprobando sesión…
         </p>
 
         <section id="acceso" class="panel acceso" hidden>
             <h2>Acceso del personal</h2>
+            <p class="admin-ayuda">
+                Ingresá con tu cuenta del personal.
+            </p>
 
             <form id="form-login">
                 <label for="email">Correo electrónico</label>

@@ -1,207 +1,300 @@
-:root {
-    font-family: Arial, Helvetica, sans-serif;
-    color: #183b45;
-    background: #f1f6f7;
-    line-height: 1.5;
-}
-
-* {
-    box-sizing: border-box;
-}
+/* Los colores y las fuentes provienen de estilo_home.css. */
 
 [hidden] {
     display: none !important;
 }
 
-body {
-    margin: 0;
+.admin-contenido {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
 }
 
-.encabezado {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem max(1rem, calc((100vw - 1100px) / 2));
-    background: #103f4a;
-    color: white;
+.admin-introduccion {
+    margin-bottom: 2rem;
 }
 
-.encabezado a {
-    color: white;
+.admin-introduccion .section-title {
+    margin-bottom: 0.75rem;
 }
 
-.marca {
-    margin: 0;
-    color: #b9e5df;
-}
+/* Paneles */
 
-h1 {
-    font-size: clamp(1.4rem, 3vw, 2rem);
-    margin: 0.3rem 0;
-}
-
-h2,
-h3 {
-    margin-top: 0;
-}
-
-main {
-    width: min(1100px, calc(100% - 2rem));
-    margin: 1.5rem auto;
-}
-
-.panel {
-    padding: 1.5rem;
+.admin-contenido .panel {
+    padding: clamp(1rem, 3vw, 2rem);
     margin-bottom: 1.5rem;
-    border: 1px solid #cfdee1;
-    border-radius: 12px;
-    background: white;
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
 }
 
-.acceso {
-    max-width: 440px;
+.admin-contenido .acceso {
+    max-width: 30rem;
     margin: 2rem auto;
 }
 
-label {
+.admin-contenido h2 {
+    margin-bottom: 1rem;
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+}
+
+.admin-contenido h3 {
+    margin-bottom: 0.75rem;
+    color: var(--color-acento-azul-claro);
+    font-size: 1.1rem;
+}
+
+/* Formularios */
+
+.admin-contenido label {
     display: block;
-    margin: 1rem 0 0.4rem;
-    font-weight: bold;
+    margin: 1rem 0 0.5rem;
+    color: var(--color-texto-principal);
+    font-weight: 600;
 }
 
-input,
-textarea {
+.admin-contenido input,
+.admin-contenido textarea {
+    display: block;
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #8eaab1;
-    border-radius: 6px;
-    background: white;
-    color: #183b45;
+    padding: 0.8rem 1rem;
+    background-color: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
     font: inherit;
+    color-scheme: dark;
 }
 
-textarea {
+.admin-contenido input::placeholder,
+.admin-contenido textarea::placeholder {
+    color: var(--color-texto-secundario);
+}
+
+.admin-contenido input:focus,
+.admin-contenido textarea:focus {
+    border-color: var(--color-acento-azul-claro);
+}
+
+.admin-contenido textarea {
+    min-height: 8rem;
     resize: vertical;
 }
 
-button {
-    padding: 0.7rem 1rem;
-    border: 1px solid #176b68;
-    border-radius: 6px;
-    background: #176b68;
-    color: white;
-    font: inherit;
-    font-weight: bold;
-    cursor: pointer;
+.admin-contenido fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 
-button:disabled {
+.admin-contenido small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--color-texto-secundario);
+}
+
+/* Botones administrativos */
+
+.admin-contenido button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+    border: 2px solid transparent;
+    border-radius: var(--radio-borde-boton);
+    font-family: var(--fuente-titulos);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transicion-estandar);
+}
+
+.admin-contenido button:hover:not(:disabled) {
+    background-color: var(--color-acento-azul-claro);
+    color: var(--color-fondo-pagina);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-principal);
+}
+
+.admin-contenido button.secundario {
+    background-color: transparent;
+    color: var(--color-texto-titulos);
+    border-color: var(--color-acento-azul);
+}
+
+.admin-contenido button.secundario:hover:not(:disabled) {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    border-color: var(--color-acento-azul-claro);
+    box-shadow: none;
+}
+
+.admin-contenido button:disabled {
     opacity: 0.6;
     cursor: wait;
 }
 
-button.secundario {
-    background: white;
-    color: #176b68;
-}
-
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-a:focus-visible {
-    outline: 3px solid #dd9a23;
-    outline-offset: 3px;
-}
-
-#form-login button {
+.admin-contenido #form-login button {
     width: 100%;
     margin-top: 1.5rem;
 }
 
-.barra,
-.acciones {
+/* Barra de sesión y acciones */
+
+.admin-contenido .barra,
+.admin-contenido .acciones {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 1rem;
 }
 
-.acciones {
+.admin-contenido .barra {
+    margin-bottom: 1.5rem;
+}
+
+.admin-contenido .barra h2 {
+    margin-bottom: 0;
+}
+
+.admin-contenido .acciones {
     justify-content: flex-start;
     margin-top: 1.5rem;
 }
 
-.lista {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 2rem;
+.admin-contenido #usuario {
+    min-width: 0;
+    color: var(--color-texto-secundario);
+    overflow-wrap: anywhere;
 }
 
-.lista > li {
+/* Listas de servicios y requisitos */
+
+.admin-contenido .lista {
+    padding: 0;
+    margin: 0 0 2rem;
+    list-style: none;
+}
+
+.admin-contenido .lista > li {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #e1eaec;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--color-borde-tarjeta);
 }
 
-.lista > li > div {
+.admin-contenido .lista > li > div {
     min-width: 0;
     overflow-wrap: anywhere;
 }
 
-.lista p {
-    margin: 0.4rem 0;
+.admin-contenido .lista strong {
+    color: var(--color-texto-titulos);
+    font-family: var(--fuente-titulos);
+}
+
+.admin-contenido .lista p {
+    margin: 0.5rem 0;
+    color: var(--color-texto-secundario);
     white-space: pre-line;
 }
 
-.lista button {
+.admin-contenido .lista ul {
+    margin-top: 0.75rem;
+    padding-left: 1.25rem;
+    color: var(--color-texto-secundario);
+    list-style: disc;
+}
+
+.admin-contenido .lista ul li + li {
+    margin-top: 0.35rem;
+}
+
+.admin-contenido .lista button {
     flex-shrink: 0;
 }
 
-fieldset {
-    padding: 0;
-    margin: 0;
-    border: 0;
-    min-width: 0;
+/* Mensajes */
+
+.admin-contenido #mensaje {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
+    overflow-wrap: anywhere;
 }
 
-#mensaje {
-    padding: 0.9rem 1rem;
-    background: #e1efed;
-    border-radius: 6px;
+.admin-contenido #mensaje.error {
+    background-color: #321b2a;
+    color: #ffd5d5;
+    border-color: #d77a88;
 }
 
-#mensaje.error {
-    background: #fff0ed;
-    color: #922c21;
+/* El control del menú solo se utiliza en móvil. */
+
+@media (min-width: 993px) {
+    .navbar .menu-toggle {
+        display: none;
+    }
 }
 
-small {
-    display: block;
-    margin-top: 0.4rem;
-    color: #526c73;
-}
+/* Adaptación del contenido administrativo */
 
 @media (max-width: 600px) {
-    .encabezado,
-    .barra,
-    .lista > li {
+    .admin-contenido .barra,
+    .admin-contenido .lista > li {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .panel {
-        padding: 1rem;
+    .admin-contenido .acciones {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .acciones {
-        flex-wrap: wrap;
+    .admin-contenido .lista button,
+    .admin-contenido .acciones button {
+        width: 100%;
+    }
+}
+
+/* Header administrativo */
+
+.admin-navbar {
+    flex-wrap: wrap;
+}
+
+.admin-volver {
+    flex-shrink: 0;
+}
+
+/* Indicación integrada en el formulario */
+
+.admin-contenido .acceso h2 {
+    margin-bottom: 0.5rem;
+}
+
+.admin-contenido .admin-ayuda {
+    margin-bottom: 1.5rem;
+    color: var(--color-texto-secundario);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+    .admin-navbar {
+        justify-content: center;
     }
 
-    .acciones button {
-        flex: 1;
+    .admin-volver {
+        width: 100%;
     }
 }
