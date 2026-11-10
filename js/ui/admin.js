@@ -129,11 +129,13 @@ function pintarLista(tipo, registros) {
             contenido.append(precio);
 
             const detalles = document.createElement("ul");
+
             registro.detalles.forEach((texto) => {
                 const detalle = document.createElement("li");
                 detalle.textContent = texto;
                 detalles.append(detalle);
             });
+
             contenido.append(detalles);
         }
 
@@ -149,6 +151,7 @@ function pintarLista(tipo, registros) {
 
 async function cargarListas() {
     const revision = sesionRevision;
+
     const [servicios, requisitos] = await Promise.all([
         listarContenido("servicios"),
         listarContenido("requisitos")
@@ -175,11 +178,13 @@ async function acceder() {
         elementos.acceso.hidden = true;
         elementos.backoffice.hidden = false;
         elementos.usuario.textContent = personal.email;
+
         mostrarMensaje("Cargando contenido…");
         await cargarListas();
         mostrarMensaje("Seleccioná el contenido que querés editar.");
     } catch (error) {
         mostrarMensaje(error.message, true);
+
         if (elementos.backoffice.hidden) {
             elementos.acceso.hidden = false;
         }
@@ -190,6 +195,7 @@ async function acceder() {
 
 elementos.login.addEventListener("submit", async (evento) => {
     evento.preventDefault();
+
     const boton = elementos.login.querySelector("button");
     boton.disabled = true;
     mostrarMensaje("Iniciando sesión…");
@@ -211,10 +217,12 @@ elementos.login.addEventListener("submit", async (evento) => {
 
 elementos.formulario.addEventListener("submit", async (evento) => {
     evento.preventDefault();
+
     if (ocupado || !seleccion) return;
 
     const { tipo, registro } = seleccion;
     const valores = Object.fromEntries(new FormData(elementos.formulario));
+
     establecerOcupado(true);
     mostrarMensaje("Guardando cambios…");
 
