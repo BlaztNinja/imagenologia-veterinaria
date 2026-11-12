@@ -13,3 +13,6 @@ export function obtenerSupabase() {
     cliente ??= createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
     return cliente;
 }
+
+// Cliente compartido por los módulos del backoffice y de contacto.
+export const supabase = obtenerSupabase();
