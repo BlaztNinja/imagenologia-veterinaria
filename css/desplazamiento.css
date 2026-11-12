@@ -1,0 +1,25 @@
+/* Barra de desplazamiento compartida por todas las páginas del sitio. */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-acento-azul) var(--color-fondo-pagina);
+}
+
+::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background-color: var(--color-fondo-pagina);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-acento-azul);
+    border: 2px solid var(--color-fondo-pagina);
+    border-radius: var(--radio-borde-insignia);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-acento-azul-claro);
+}

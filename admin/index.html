@@ -20,8 +20,8 @@
 <body>
     <header class="navbar">
     <div class="container navbar-container admin-navbar">
-        <a href="../index.html" class="brand-logo"
-           aria-label="Imagenología Veterinaria, ir al sitio público">
+        <a href="#contenido-admin" class="brand-logo"
+           aria-label="Imagenología Veterinaria">
             <div class="logo-icon">
                 <img
                     src="../img/logo-imagenologia-veterinaria.png"
@@ -37,13 +37,15 @@
             </div>
         </a>
 
-        <a href="../index.html" class="btn btn-outline admin-volver">
-            Volver al sitio público
-        </a>
+        <div id="controles-admin" class="admin-controles" hidden>
+            <button id="ver-sitio" type="button" class="btn btn-outline">Ver sitio</button>
+            <button id="volver-admin" type="button" class="btn btn-outline" hidden>Volver al backoffice</button>
+            <button id="logout" type="button" class="btn btn-primary">Cerrar sesión</button>
+        </div>
     </div>
 </header>
 
-    <main class="container admin-contenido">
+    <main id="contenido-admin" class="container admin-contenido">
         <div class="admin-introduccion">
             <span class="section-subtitle">Administración</span>
             <h1 class="section-title">Contenido de la clínica</h1>
@@ -78,9 +80,6 @@
         <section id="backoffice" hidden>
             <div class="barra">
                 <p id="usuario"></p>
-                <button id="logout" type="button" class="secundario">
-                    Cerrar sesión
-                </button>
             </div>
 
             <section class="panel">
@@ -177,5 +176,10 @@
 
         <noscript>Activá JavaScript para utilizar el backoffice.</noscript>
     </main>
+    <section id="vista-previa" class="admin-vista-previa" aria-label="Vista previa del sitio público" hidden>
+        <span id="etiqueta-previa" class="admin-etiqueta-previa" hidden>Vista previa del sitio</span>
+        <iframe id="sitio-previo" title="Sitio público de Imagenología Veterinaria"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+    </section>
 </body>
 </html>

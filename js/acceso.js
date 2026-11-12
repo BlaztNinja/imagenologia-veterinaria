@@ -3,7 +3,6 @@ import { iniciarSesion, obtenerRol } from "./datos/autenticacion.js";
 const formulario = document.querySelector("#formulario-acceso");
 const boton = formulario.querySelector("button");
 const estado = document.querySelector("#estado-acceso");
-const avisoAdmin = document.querySelector("#aviso-admin");
 let procesando = false;
 
 formulario.addEventListener("submit", async (evento) => {
@@ -21,9 +20,7 @@ formulario.addEventListener("submit", async (evento) => {
 
         formulario.reset();
         if (rol === "admin") {
-            document.querySelector("#panel-acceso").hidden = true;
-            avisoAdmin.hidden = false;
-            avisoAdmin.querySelector("h1").focus();
+            window.location.replace("./admin/index.html");
             return;
         }
 

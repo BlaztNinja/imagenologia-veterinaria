@@ -1,5 +1,6 @@
 /* Variables compartidas del sitio. */
 :root {
+    --color-resplandor-vista-previa: rgba(45, 179, 190, 0.55);
 
     /* ---------- COLORES DE FONDO ---------- */
     --color-fondo-pagina: #030b30;                    /* Fondo general de toda la página (body), base del degradado del hero y del menú móvil desplegado */

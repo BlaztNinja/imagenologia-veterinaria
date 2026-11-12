@@ -15,7 +15,7 @@ La [guía de Supabase](supabase/README.md) documenta el esquema, la carga inicia
 1. Abre `index.html` en una ventana privada. Comprueba que aparezcan la portada, los testimonios y el contacto del pie de página desde Supabase.
 2. Entra a **Iniciar sesión** y elige **Continuar como visitante** para volver a Inicio sin registrarte.
 3. Inicia sesión con la cuenta de prueba de cliente. Debes volver a Inicio y ver **Cerrar sesión**.
-4. Cierra sesión y entra con la cuenta admin. Debes ver **En desarrollo** y poder usar **Volver al inicio**.
+4. Cierra sesión y entra con la cuenta admin. Debes entrar a `admin/index.html` y ver los servicios, los requisitos y los datos de contacto.
 
 ## Prueba de conexión
 

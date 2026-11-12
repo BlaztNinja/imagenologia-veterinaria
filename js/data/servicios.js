@@ -2,7 +2,7 @@ import { supabase } from "../config/supabase.js";
 
 const TABLAS = {
     servicios: "servicios",
-    requisitos: "requisitos_paciente"
+    requisitos: "requisitos_servicio"
 };
 
 function obtenerTabla(tipo) {
@@ -16,13 +16,26 @@ function obtenerTabla(tipo) {
 }
 
 export async function listarContenido(tipo) {
+    const campos = tipo === "servicios"
+        ? "*"
+        : "id, servicio_id, texto, orden, servicios(nombre)";
     const { data, error } = await supabase
         .from(obtenerTabla(tipo))
-        .select("*")
+        .select(campos)
+        .order("orden")
         .order("id");
 
     if (error) {
+        console.error("Error al cargar contenido", error);
         throw new Error("No se pudo cargar el contenido. Intentá nuevamente.");
+    }
+
+    if (tipo === "requisitos") {
+        return data.map((requisito) => ({
+            ...requisito,
+            nombre: requisito.servicios?.nombre ?? "Servicio",
+            descripcion: requisito.texto
+        }));
     }
 
     return data;
@@ -39,6 +52,12 @@ function validarTexto(valor, nombre, limite) {
 }
 
 function prepararCambios(tipo, valores) {
+    if (tipo === "requisitos") {
+        return {
+            texto: validarTexto(valores.descripcion, "Las indicaciones", 3000)
+        };
+    }
+
     const cambios = {
         nombre: validarTexto(valores.nombre, "El nombre", 150),
         descripcion: validarTexto(valores.descripcion, "La descripción", 3000)
@@ -65,18 +84,26 @@ export async function actualizarContenido(tipo, registro, valores) {
     const tabla = obtenerTabla(tipo);
     const cambios = prepararCambios(tipo, valores);
 
-    const { data, error } = await supabase
+    let consulta = supabase
         .from(tabla)
-        .update({
-            ...cambios,
-            version: registro.version + 1
-        })
-        .eq("id", registro.id)
-        .eq("version", registro.version)
-        .select()
-        .maybeSingle();
+        .update(cambios)
+        .eq("id", registro.id);
+
+    // Compara los valores leídos para detectar ediciones de otra sesión.
+    if (tipo === "requisitos") {
+        consulta = consulta.eq("texto", registro.texto)
+            .eq("servicio_id", registro.servicio_id);
+    } else {
+        consulta = consulta.eq("nombre", registro.nombre)
+            .eq("descripcion", registro.descripcion)
+            .eq("precio", registro.precio)
+            .eq("detalles", `{${registro.detalles.map((detalle) => JSON.stringify(detalle)).join(",")}}`);
+    }
+
+    const { data, error } = await consulta.select().maybeSingle();
 
     if (error) {
+        console.error("Error al guardar contenido", error);
         throw new Error(
             "No se pudo confirmar el guardado. Revisá la conexión y recargá la lista antes de reintentar."
         );

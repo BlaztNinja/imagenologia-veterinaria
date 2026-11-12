@@ -1,4 +1,5 @@
-@import url("./variables.css"); /*varibles importadas de variables.css*/
+@import url("./variables.css");
+@import url("./desplazamiento.css"); /*varibles importadas de variables.css*/
 
 /* ==========================================================================
    2. REINICIO GLOBAL Y BASE DE ESCALA

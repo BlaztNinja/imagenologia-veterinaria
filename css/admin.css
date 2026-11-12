@@ -326,3 +326,79 @@
         width: 100%;
     }
 }
+/* Controles disponibles durante la revisión del sitio. */
+.admin-controles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.en-vista-previa {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.en-vista-previa > .navbar {
+    flex-shrink: 0;
+}
+
+.admin-vista-previa {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border: 2px solid var(--color-acento-turquesa);
+    background-color: var(--color-fondo-pagina);
+}
+
+.admin-vista-previa::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    box-shadow: inset 0 0 0.5rem var(--color-resplandor-vista-previa),
+                inset 0 0 1.5rem var(--color-resplandor-vista-previa);
+}
+
+.admin-etiqueta-previa {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.75rem;
+    z-index: 2;
+    pointer-events: none;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-insignia);
+    background-color: var(--color-fondo-tarjeta);
+    color: var(--color-acento-azul-claro);
+    font-family: var(--fuente-titulos);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.admin-vista-previa iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background-color: var(--color-fondo-pagina);
+}
+
+@media (max-width: 600px) {
+    .admin-controles {
+        width: 100%;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .admin-controles .btn {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}

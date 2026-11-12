@@ -17,6 +17,13 @@ import {
 
 const elementos = {
     mensaje: document.querySelector("#mensaje"),
+    controles: document.querySelector("#controles-admin"),
+    verSitio: document.querySelector("#ver-sitio"),
+    volverAdmin: document.querySelector("#volver-admin"),
+    etiquetaPrevia: document.querySelector("#etiqueta-previa"),
+    vistaPrevia: document.querySelector("#vista-previa"),
+    sitioPrevio: document.querySelector("#sitio-previo"),
+    contenido: document.querySelector("#contenido-admin"),
     acceso: document.querySelector("#acceso"),
     backoffice: document.querySelector("#backoffice"),
     usuario: document.querySelector("#usuario"),
@@ -62,6 +69,7 @@ function establecerOcupado(valor) {
     elementos.camposContacto.disabled = valor;
     elementos.recargar.disabled = valor;
     elementos.logout.disabled = valor;
+    elementos.verSitio.disabled = valor;
 
     document.querySelectorAll(".lista button").forEach((boton) => {
         boton.disabled = valor;
@@ -75,6 +83,9 @@ function cerrarEditor() {
 }
 
 function mostrarAcceso() {
+    mostrarAdministracion();
+    elementos.controles.hidden = true;
+    elementos.sitioPrevio.removeAttribute("src");
     sesionRevision += 1;
     cerrarEditor();
     elementos.backoffice.hidden = true;
@@ -124,6 +135,7 @@ function abrirEditor(tipo, registro) {
     const esServicio = tipo === "servicios";
 
     campos.nombre.value = registro.nombre;
+    campos.nombre.readOnly = !esServicio;
     campos.descripcion.value = registro.descripcion;
     campos.precio.value = esServicio ? registro.precio : "";
     campos.detalles.value = esServicio ? registro.detalles.join("\n") : "";
@@ -221,6 +233,7 @@ async function acceder() {
 
         elementos.acceso.hidden = true;
         elementos.backoffice.hidden = false;
+        elementos.controles.hidden = false;
         elementos.usuario.textContent = personal.email;
 
         mostrarMensaje("Cargando contenido…");
@@ -368,10 +381,48 @@ elementos.logout.addEventListener("click", async () => {
         mostrarAcceso();
         mostrarMensaje("Sesión cerrada.");
     } catch (error) {
+        mostrarAdministracion();
         mostrarMensaje(error.message, true);
     } finally {
         establecerOcupado(false);
     }
+});
+
+function mostrarAdministracion() {
+    document.body.classList.remove("en-vista-previa");
+    elementos.vistaPrevia.hidden = true;
+    elementos.contenido.hidden = false;
+    elementos.verSitio.hidden = false;
+    elementos.volverAdmin.hidden = true;
+    elementos.etiquetaPrevia.hidden = true;
+}
+
+elementos.verSitio.addEventListener("click", () => {
+    if (ocupado || elementos.backoffice.hidden) return;
+
+    // Al abrir una revisión, recarga los datos guardados del sitio público.
+    elementos.sitioPrevio.src = "../index.html";
+    elementos.contenido.hidden = true;
+    elementos.vistaPrevia.hidden = false;
+    elementos.verSitio.hidden = true;
+    elementos.volverAdmin.hidden = false;
+    elementos.etiquetaPrevia.hidden = false;
+    document.body.classList.add("en-vista-previa");
+    elementos.volverAdmin.focus();
+});
+
+elementos.volverAdmin.addEventListener("click", () => {
+    mostrarAdministracion();
+    elementos.verSitio.focus();
+});
+
+elementos.sitioPrevio.addEventListener("load", () => {
+    // Los controles de sesión permanecen en el encabezado administrativo.
+    const documento = elementos.sitioPrevio.contentDocument;
+    if (!documento) return;
+
+    const acceso = documento.querySelector(".nav-acceso");
+    if (acceso) acceso.hidden = true;
 });
 
 observarSesion((evento) => {
