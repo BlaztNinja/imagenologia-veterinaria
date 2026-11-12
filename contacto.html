@@ -50,11 +50,11 @@
             <ul class="contacto-lista">
                 <li>
                     <h2>Celular</h2>
-                    <a href="tel:+50377222775">+503 7722 2775</a>
+                    <a href="tel:+50377222775" data-contacto="telefono">+503 7722 2775</a>
                 </li>
                 <li>
                     <h2>Email</h2>
-                    <a href="mailto:ecografia@imagenologiaveterinaria.com">ecografia@imagenologiaveterinaria.com</a>
+                    <a href="mailto:ecografia@imagenologiaveterinaria.com" data-contacto="correo">ecografia@imagenologiaveterinaria.com</a>
                 </li>
                 <li>
                     <h2>Servicio a domicilio</h2>
@@ -62,7 +62,7 @@
                 </li>
                 <li>
                     <h2>Horario de atención</h2>
-                    <ul class="horario">
+                    <ul class="horario" data-contacto="horarios">
                         <li>Lunes: 8:30 AM - 1:00 PM</li>
                         <li>Martes: de 8:30 AM - 5:00 PM</li>
                         <li>Sábados: 2:00 PM - 6:00 PM</li>
@@ -124,8 +124,8 @@
 
                 <div>
                     <h4 class="footer-title">Contacto Rápido</h4>
-                    <p class="footer-contact-info">WhatsApp: +503 7722 2775</p>
-                    <p class="footer-contact-info footer-contact-space">ecografia@imagenologiaveterinaria.com</p>
+                    <p class="footer-contact-info">WhatsApp: <span data-contacto="telefono">+503 7722 2775</span></p>
+                    <p class="footer-contact-info footer-contact-space"><span data-contacto="correo">ecografia@imagenologiaveterinaria.com</span></p>
                     <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
                         <i class="fa-brands fa-whatsapp"></i> Chat Directo
                     </a>
@@ -148,10 +148,12 @@
                 + "Teléfono: " + datos.get("telefono") + "\n"
                 + "Correo: " + datos.get("correo") + "\n"
                 + "Motivo: " + datos.get("motivo");
-            window.open("https://wa.me/50377222775?text=" + encodeURIComponent(mensaje), "_blank", "noopener");
+            var numero = document.documentElement.dataset.whatsapp || "50377222775";
+            window.open("https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje), "_blank", "noopener");
             document.getElementById("formulario-aviso").hidden = false;
         });
     </script>
 
+    <script type="module" src="js/ui/contacto-publico.js"></script>
 </body>
 </html>
