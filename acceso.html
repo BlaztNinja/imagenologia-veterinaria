@@ -6,10 +6,10 @@
     <title>Iniciar sesión - Imagenología Veterinaria</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;family=Open+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/estilo_home.css">
-    <link rel="stylesheet" href="./css/estilo_contacto.css">
+    <link rel="stylesheet" href="./css/acceso.css">
     <script type="module" src="./js/acceso.js"></script>
 </head>
-<body>
+<body class="pagina-acceso">
     <header class="navbar">
         <div class="container navbar-container">
             <a href="./index.html" class="brand-logo">
@@ -23,11 +23,11 @@
             </a>
         </div>
     </header>
-    <main class="contacto">
-        <div class="container">
-            <section id="panel-acceso" class="deja-datos">
-                <h1>Iniciar sesión</h1>
-                <form id="formulario-acceso" class="formulario" method="post">
+    <main class="acceso-contenido">
+            <section id="panel-acceso" class="acceso-tarjeta" aria-labelledby="titulo-acceso">
+                <h1 id="titulo-acceso">Iniciar sesión</h1>
+                <p class="acceso-ayuda">Ingresa con tu correo y contraseña.</p>
+                <form id="formulario-acceso" class="acceso-formulario" method="post">
                     <div class="campo">
                         <label for="correo">Correo electrónico</label>
                         <input id="correo" name="correo" type="email" autocomplete="username" required>
@@ -37,11 +37,10 @@
                         <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required>
                     </div>
                     <button type="submit" class="btn btn-primary" disabled>Iniciar sesión</button>
-                    <p id="estado-acceso" class="formulario-aviso" role="status"></p>
+                    <p id="estado-acceso" class="acceso-estado" role="status" aria-atomic="true"></p>
                     <a href="./index.html" class="btn btn-outline">Continuar como visitante</a>
                 </form>
             </section>
-        </div>
     </main>
 </body>
 </html>

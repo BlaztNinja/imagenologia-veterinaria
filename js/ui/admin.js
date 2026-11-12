@@ -1,5 +1,4 @@
 import {
-    iniciarSesion,
     cerrarSesion,
     obtenerPersonal,
     observarSesion
@@ -24,10 +23,8 @@ const elementos = {
     vistaPrevia: document.querySelector("#vista-previa"),
     sitioPrevio: document.querySelector("#sitio-previo"),
     contenido: document.querySelector("#contenido-admin"),
-    acceso: document.querySelector("#acceso"),
     backoffice: document.querySelector("#backoffice"),
     usuario: document.querySelector("#usuario"),
-    login: document.querySelector("#form-login"),
     logout: document.querySelector("#logout"),
     recargar: document.querySelector("#recargar"),
     editor: document.querySelector("#editor"),
@@ -82,19 +79,21 @@ function cerrarEditor() {
     elementos.editor.hidden = true;
 }
 
-function mostrarAcceso() {
+function mostrarAcceso(motivo = "") {
     mostrarAdministracion();
     elementos.controles.hidden = true;
     elementos.sitioPrevio.removeAttribute("src");
     sesionRevision += 1;
     cerrarEditor();
     elementos.backoffice.hidden = true;
-    elementos.acceso.hidden = false;
     elementos.usuario.textContent = "";
     elementos.contacto.reset();
     mostrarMensajeContacto("");
 
     Object.values(listas).forEach((lista) => lista.replaceChildren());
+    const destino = new URL("../acceso.html", window.location.href);
+    if (motivo) destino.searchParams.set("sesion", motivo);
+    window.location.replace(destino.href);
 }
 
 function pintarContacto(contacto) {
@@ -231,7 +230,6 @@ async function acceder() {
             return;
         }
 
-        elementos.acceso.hidden = true;
         elementos.backoffice.hidden = false;
         elementos.controles.hidden = false;
         elementos.usuario.textContent = personal.email;
@@ -253,37 +251,12 @@ async function acceder() {
             mostrarMensaje(error.message, true);
         }
     } catch (error) {
-        mostrarMensaje(error.message, true);
-
-        if (elementos.backoffice.hidden) {
-            elementos.acceso.hidden = false;
-        }
+        console.error("Error al verificar el acceso administrativo", error);
+        mostrarAcceso("error");
     } finally {
         establecerOcupado(false);
     }
 }
-
-elementos.login.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-
-    const boton = elementos.login.querySelector("button");
-    boton.disabled = true;
-    mostrarMensaje("Iniciando sesión…");
-
-    try {
-        await iniciarSesion(
-            elementos.login.elements.email.value.trim(),
-            elementos.login.elements.password.value
-        );
-
-        elementos.login.elements.password.value = "";
-        await acceder();
-    } catch (error) {
-        mostrarMensaje(error.message, true);
-    } finally {
-        boton.disabled = false;
-    }
-});
 
 elementos.contacto.addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -378,8 +351,7 @@ elementos.logout.addEventListener("click", async () => {
 
     try {
         await cerrarSesion();
-        mostrarAcceso();
-        mostrarMensaje("Sesión cerrada.");
+        mostrarAcceso("cerrada");
     } catch (error) {
         mostrarAdministracion();
         mostrarMensaje(error.message, true);
@@ -427,8 +399,7 @@ elementos.sitioPrevio.addEventListener("load", () => {
 
 observarSesion((evento) => {
     if (evento === "SIGNED_OUT") {
-        mostrarAcceso();
-        mostrarMensaje("La sesión finalizó. Volvé a ingresar.");
+        mostrarAcceso("cerrada");
     }
 });
 

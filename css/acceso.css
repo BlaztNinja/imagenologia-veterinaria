@@ -1,0 +1,100 @@
+/* Acceso compartido para clientes y administradores. */
+.pagina-acceso {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+.pagina-acceso > .navbar {
+    flex-shrink: 0;
+}
+
+.acceso-contenido {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding: clamp(1.5rem, 5vw, 3rem) var(--relleno-lateral-contenedor);
+}
+
+.acceso-tarjeta {
+    width: 100%;
+    max-width: 30rem;
+    min-width: 0;
+    padding: clamp(1.25rem, 4vw, 2rem);
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+}
+
+.acceso-tarjeta h1 {
+    font-size: clamp(1.4rem, 3vw, 1.75rem);
+    margin-bottom: 0.5rem;
+}
+
+.acceso-ayuda {
+    color: var(--color-texto-secundario);
+    margin-bottom: 1.75rem;
+}
+
+.acceso-formulario,
+.acceso-formulario .campo {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.acceso-formulario {
+    gap: 1.25rem;
+}
+
+.acceso-formulario label {
+    font-weight: 600;
+}
+
+.acceso-formulario input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.8rem 1rem;
+    background-color: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
+    font: inherit;
+    color-scheme: dark;
+}
+
+.acceso-formulario input:focus-visible {
+    outline: 2px solid var(--color-acento-azul-claro);
+    outline-offset: 2px;
+}
+
+.acceso-formulario input[aria-invalid="true"] {
+    border-color: var(--color-borde-error);
+}
+
+.acceso-formulario .btn {
+    width: 100%;
+}
+
+.acceso-formulario button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.acceso-estado {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
+    background-color: var(--color-fondo-insignia-hero);
+    overflow-wrap: anywhere;
+}
+
+.acceso-estado:empty {
+    display: none;
+}
+
+.acceso-estado.error {
+    color: var(--color-texto-error);
+    background-color: var(--color-fondo-error);
+    border-color: var(--color-borde-error);
+}

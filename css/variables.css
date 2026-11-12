@@ -1,5 +1,8 @@
 /* Variables compartidas del sitio. */
 :root {
+    --color-fondo-error: #321b2a;
+    --color-texto-error: #ffd5d5;
+    --color-borde-error: #d77a88;
     --color-resplandor-vista-previa: rgba(45, 179, 190, 0.55);
 
     /* ---------- COLORES DE FONDO ---------- */

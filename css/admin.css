@@ -239,9 +239,9 @@
 }
 
 .admin-contenido #mensaje-contacto.error {
-    background-color: #321b2a;
-    color: #ffd5d5;
-    border-color: #d77a88;
+    background-color: var(--color-fondo-error);
+    color: var(--color-texto-error);
+    border-color: var(--color-borde-error);
 }
 
 /* Mensajes */
@@ -257,9 +257,9 @@
 }
 
 .admin-contenido #mensaje.error {
-    background-color: #321b2a;
-    color: #ffd5d5;
-    border-color: #d77a88;
+    background-color: var(--color-fondo-error);
+    color: var(--color-texto-error);
+    border-color: var(--color-borde-error);
 }
 
 /* El control del menú solo se utiliza en móvil. */
