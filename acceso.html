@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - Imagenología Veterinaria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;family=Open+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/estilo_home.css">
+    <link rel="stylesheet" href="./css/estilo_contacto.css">
+    <script type="module" src="./js/acceso.js"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container navbar-container">
+            <a href="./index.html" class="brand-logo">
+                <div class="logo-icon">
+                    <img src="./img/logo-imagenologia-veterinaria.png" alt="">
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">IMAGENOLOGÍA</span>
+                    <span class="logo-subtitle">VETERINARIA</span>
+                </div>
+            </a>
+        </div>
+    </header>
+    <main class="contacto">
+        <div class="container">
+            <section id="panel-acceso" class="deja-datos">
+                <h1>Iniciar sesión</h1>
+                <form id="formulario-acceso" class="formulario" method="post">
+                    <div class="campo">
+                        <label for="correo">Correo electrónico</label>
+                        <input id="correo" name="correo" type="email" autocomplete="username" required>
+                    </div>
+                    <div class="campo">
+                        <label for="contrasena">Contraseña</label>
+                        <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" disabled>Iniciar sesión</button>
+                    <p id="estado-acceso" class="formulario-aviso" role="status"></p>
+                    <a href="./index.html" class="btn btn-outline">Continuar como visitante</a>
+                </form>
+            </section>
+            <section id="aviso-admin" class="deja-datos" hidden>
+                <h1 tabindex="-1">En desarrollo</h1>
+                <a href="./index.html" class="btn btn-primary">Volver al inicio</a>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

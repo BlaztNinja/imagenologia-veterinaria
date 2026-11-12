@@ -322,6 +322,10 @@ img {
     gap: clamp(0.75rem, 0.2rem + 1.7vw, 1.5625rem);   /* La separación entre enlaces se ajusta al ancho */
 }
 
+#cerrar-sesion[hidden] {
+    display: none;
+}
+
 .nav-link {
     font-size: 0.92rem;
     font-weight: 500;

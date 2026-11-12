@@ -19,7 +19,7 @@
         <div class="container navbar-container">
             <a href="#inicio" class="brand-logo">
                 <div class="logo-icon">
-                    <img src="img/logo-imagenologia-veterinaria.png" alt="Logo principal">
+                    <img data-contenido="sitio.logo" data-respaldo="img/logo-imagenologia-veterinaria.png" src="img/logo-imagenologia-veterinaria.png" alt="Logo principal">
                 </div>
                 <div class="logo-text">
                     <span class="logo-title">IMAGENOLOGIA</span>
@@ -39,10 +39,16 @@
                 <a href="quienSomos.html" class="nav-link">Quienes somos</a>
                 <a href="servicios.html" class="nav-link">Servicios</a>
                 <a href="contacto.html" class="nav-link">Contacto</a>
+                <a href="./acceso.html" id="enlace-acceso" class="nav-link">Iniciar sesión</a>
+                <button type="button" id="cerrar-sesion" class="btn btn-outline" hidden>Cerrar sesión</button>
                 <a href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
             </nav>
         </div>
     </header>
+
+    <main>
+    <p id="estado-sesion" class="container" role="status"></p>
+    <p id="estado-inicio" class="container" role="status"></p>
 
     <!-- SECCIÓN HERO (PORTADA) -->
     <section id="inicio" class="hero">
@@ -51,8 +57,8 @@
                 <div class="hero-badge">
                     <i class="fa-solid fa-microscope"></i> Ecografía Clínica Especializada
                 </div>
-                <h1 class="hero-title">Diagnóstico de precisión y <span>cuidado experto</span> para tu mascota.</h1>
-                <p class="hero-description">
+                <h1 class="hero-title" data-contenido="inicio.titulo">Diagnóstico de precisión y <span>cuidado experto</span> para tu mascota.</h1>
+                <p class="hero-description" data-contenido="inicio.descripcion">
                     Estudios ecográficos veterinarios de alta resolución para un diagnóstico oportuno, certero y no invasivo. Respuestas claras cuando más lo necesitas.
                 </p>
                 <div class="hero-actions">
@@ -63,14 +69,14 @@
             </div>
             <div class="hero-image-wrapper">
                 <div class="hero-card-frame">
-                    <img src="https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&w=800&q=80" alt="Ecografía veterinaria en proceso" class="hero-img" onerror="this.src='https://placehold.co/600x400/030b30/ffffff?text=Ecograf%C3%ADa+Veterinaria'">
+                    <img src="img/diagnostico-por-imagen.webp" data-contenido="inicio.imagen" data-respaldo="img/diagnostico-por-imagen.webp" alt="Diagnóstico por imagen veterinaria" class="hero-img">
                     <div class="hero-floating-badge">
                         <div class="floating-icon">
                             <i class="fa-solid fa-heart-pulse"></i>
                         </div>
                         <div class="floating-text">
-                            <h4>Resultados Inmediatos</h4>
-                            <p>Informe clínico completo en cada consulta</p>
+                            <h4 data-contenido="inicio.imagen_titulo">Resultados Inmediatos</h4>
+                            <p data-contenido="inicio.imagen_subtitulo">Informe clínico completo en cada consulta</p>
                         </div>
                     </div>
                 </div>
@@ -82,9 +88,9 @@
     <section id="testimonios" class="section-padding">
         <div class="container">
             <div class="section-header">
-                <span class="section-subtitle">Confianza Demostrada</span>
-                <h2 class="section-title">Testimonios de Pacientes</h2>
-                <p class="section-description">La tranquilidad de quienes confían en nuestro diagnóstico nos avala día a día.</p>
+                <span class="section-subtitle" data-contenido="inicio.testimonios_antetitulo">Confianza Demostrada</span>
+                <h2 class="section-title" data-contenido="inicio.testimonios_titulo">Testimonios de Pacientes</h2>
+                <p class="section-description" data-contenido="inicio.testimonios_descripcion">La tranquilidad de quienes confían en nuestro diagnóstico nos avala día a día.</p>
             </div>
 
             <div class="testimonials-grid">
@@ -97,15 +103,15 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                         </div>
-                        <p class="testimonial-text">
+                        <p class="testimonial-text" data-contenido="inicio.testimonio_1_texto">
                             "Llevé a mi perrita por un dolor abdominal persistente. La atención fue impecable y el diagnóstico ecográfico permitió a su veterinario operar a tiempo. Totalmente recomendados."
                         </p>
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">MC</div>
                         <div class="author-info">
-                            <h4>María Contreras</h4>
-                            <p>Tutora de "Luna" (Golden Retriever)</p>
+                            <h4 data-contenido="inicio.testimonio_1_autor">María Contreras</h4>
+                            <p data-contenido="inicio.testimonio_1_contexto">Tutora de "Luna" (Golden Retriever)</p>
                         </div>
                     </div>
                 </div>
@@ -119,15 +125,15 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                         </div>
-                        <p class="testimonial-text">
+                        <p class="testimonial-text" data-contenido="inicio.testimonio_2_texto">
                             "Excelente nivel profesional y gran paciencia con mi gato, que suele ser muy nervioso en consultas clínicas. El informe me lo entregaron de inmediato."
                         </p>
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">DR</div>
                         <div class="author-info">
-                            <h4>Dr. Roberto Rivas</h4>
-                            <p>Veterinario Remitente</p>
+                            <h4 data-contenido="inicio.testimonio_2_autor">Dr. Roberto Rivas</h4>
+                            <p data-contenido="inicio.testimonio_2_contexto">Veterinario Remitente</p>
                         </div>
                     </div>
                 </div>
@@ -141,21 +147,23 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                         </div>
-                        <p class="testimonial-text">
+                        <p class="testimonial-text" data-contenido="inicio.testimonio_3_texto">
                             "El monitoreo ecográfico de la gestación de mi mascota fue una experiencia muy emocionante y súper clara. Explicaron detalladamente cada órgano."
                         </p>
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">AG</div>
                         <div class="author-info">
-                            <h4>Andrea Gómez</h4>
-                            <p>Tutora de "Bella"</p>
+                            <h4 data-contenido="inicio.testimonio_3_autor">Andrea Gómez</h4>
+                            <p data-contenido="inicio.testimonio_3_contexto">Tutora de "Bella"</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    </main>
 
     <!-- PIE DE PÁGINA (FOOTER) -->
     <footer class="footer">
@@ -168,7 +176,7 @@
                             <span class="logo-subtitle">VETERINARIA</span>
                         </div>
                     </a>
-                    <p>Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.</p>
+                    <p data-contenido="footer.descripcion">Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.</p>
                 </div>
 
                 <div>
@@ -183,8 +191,9 @@
 
                 <div>
                     <h4 class="footer-title">Contacto Rápido</h4>
-                    <p class="footer-contact-info">WhatsApp: 77222775</p>
-                    <p class="footer-contact-info footer-contact-space">ecografia@imagenologiaveterinaria.com</p>
+                    <p id="telefono-inicio" class="footer-contact-info">WhatsApp: 77222775</p>
+                    <p id="correo-inicio" class="footer-contact-info footer-contact-space">ecografia@imagenologiaveterinaria.com</p>
+                    <ul id="horarios-inicio" class="footer-links" hidden></ul>
                     <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
                         <i class="fa-brands fa-whatsapp"></i> Chat Directo
                     </a>
@@ -193,10 +202,11 @@
 
             <div class="footer-bottom">
                 <p>&copy; 2026 Imagenología Veterinaria. Todos los derechos reservados.</p>
-                <p>Diagnóstico Ecográfico Especializado</p>
+                <p data-contenido="footer.lema">Diagnóstico Ecográfico Especializado</p>
             </div>
         </div>
     </footer>
 
+    <script type="module" src="./js/inicio.js"></script>
 </body>
 </html>
