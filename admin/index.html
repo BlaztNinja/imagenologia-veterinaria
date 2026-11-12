@@ -49,7 +49,7 @@
             <span class="section-subtitle">Administración</span>
             <h1 class="section-title">Contenido de la clínica</h1>
             <p class="section-description">
-                Gestioná los servicios y los requisitos del paciente.
+                Gestioná los datos de contacto, los servicios y los requisitos del paciente.
             </p>
         </div>
 
@@ -84,11 +84,49 @@
                 </button>
             </div>
 
-            <div class="panel">
+            <section class="panel">
+                <h2>Datos de contacto</h2>
+                <p class="admin-ayuda">
+                    Se muestran en la página de contacto y en el pie de página del sitio.
+                </p>
+
+                <form id="form-contacto">
+                    <fieldset id="campos-contacto">
+                        <div class="contacto-grid">
+                            <div>
+                                <label for="telefono">Teléfono</label>
+                                <input id="telefono" name="telefono" type="tel"
+                                       maxlength="25" autocomplete="tel" required>
+                            </div>
+
+                            <div>
+                                <label for="correo-contacto">Correo electrónico</label>
+                                <input id="correo-contacto" name="correo" type="email"
+                                       maxlength="254" autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <label for="horarios">Horarios de atención</label>
+                        <textarea id="horarios" name="horarios" rows="4"
+                                  aria-describedby="ayuda-horarios" required></textarea>
+                        <small id="ayuda-horarios">
+                            Escribí un horario por línea.
+                        </small>
+
+                        <div class="acciones">
+                            <button type="submit">Guardar contacto</button>
+                        </div>
+                    </fieldset>
+
+                    <p id="mensaje-contacto" role="status" aria-live="polite" hidden></p>
+                </form>
+            </section>
+
+            <section class="panel">
                 <div class="barra">
-                    <h2>Contenido de la clínica</h2>
+                    <h2>Servicios y requisitos</h2>
                     <button id="recargar" type="button" class="secundario">
-                        Recargar listas
+                        Recargar contenido
                     </button>
                 </div>
 
@@ -97,7 +135,7 @@
 
                 <h3>Requisitos del paciente</h3>
                 <ul id="lista-requisitos" class="lista"></ul>
-            </div>
+            </section>
 
             <section id="editor" class="panel" hidden>
                 <h2 id="titulo-editor">Editar contenido</h2>

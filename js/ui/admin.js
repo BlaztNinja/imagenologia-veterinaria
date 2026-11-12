@@ -10,6 +10,11 @@ import {
     actualizarContenido
 } from "../data/servicios.js";
 
+import {
+    obtenerContacto,
+    actualizarContacto
+} from "../data/contacto.js";
+
 const elementos = {
     mensaje: document.querySelector("#mensaje"),
     acceso: document.querySelector("#acceso"),
@@ -23,7 +28,10 @@ const elementos = {
     campos: document.querySelector("#campos-editor"),
     titulo: document.querySelector("#titulo-editor"),
     camposServicio: document.querySelector("#campos-servicio"),
-    cancelar: document.querySelector("#cancelar")
+    cancelar: document.querySelector("#cancelar"),
+    contacto: document.querySelector("#form-contacto"),
+    camposContacto: document.querySelector("#campos-contacto"),
+    mensajeContacto: document.querySelector("#mensaje-contacto")
 };
 
 const listas = {
@@ -41,10 +49,17 @@ function mostrarMensaje(texto, error = false) {
     elementos.mensaje.classList.toggle("error", error);
 }
 
+function mostrarMensajeContacto(texto, error = false) {
+    elementos.mensajeContacto.textContent = texto;
+    elementos.mensajeContacto.hidden = !texto;
+    elementos.mensajeContacto.classList.toggle("error", error);
+}
+
 function establecerOcupado(valor) {
     ocupado = valor;
     elementos.backoffice.setAttribute("aria-busy", String(valor));
     elementos.campos.disabled = valor;
+    elementos.camposContacto.disabled = valor;
     elementos.recargar.disabled = valor;
     elementos.logout.disabled = valor;
 
@@ -65,8 +80,36 @@ function mostrarAcceso() {
     elementos.backoffice.hidden = true;
     elementos.acceso.hidden = false;
     elementos.usuario.textContent = "";
+    elementos.contacto.reset();
+    mostrarMensajeContacto("");
 
     Object.values(listas).forEach((lista) => lista.replaceChildren());
+}
+
+function pintarContacto(contacto) {
+    const campos = elementos.contacto.elements;
+
+    campos.telefono.value = contacto.telefono;
+    campos.correo.value = contacto.correo;
+    campos.horarios.value = contacto.horarios.join("\n");
+}
+
+async function cargarContacto() {
+    const revision = sesionRevision;
+    const contacto = await obtenerContacto();
+
+    if (revision !== sesionRevision) return;
+
+    if (!contacto) {
+        elementos.contacto.reset();
+        mostrarMensajeContacto(
+            "No hay datos de contacto configurados en la base de datos."
+        );
+        return;
+    }
+
+    pintarContacto(contacto);
+    mostrarMensajeContacto("");
 }
 
 function abrirEditor(tipo, registro) {
@@ -181,8 +224,21 @@ async function acceder() {
         elementos.usuario.textContent = personal.email;
 
         mostrarMensaje("Cargando contenido…");
-        await cargarListas();
-        mostrarMensaje("Seleccioná el contenido que querés editar.");
+
+        try {
+            await cargarContacto();
+        } catch (error) {
+            mostrarMensajeContacto(error.message, true);
+        }
+
+        try {
+            await cargarListas();
+            mostrarMensaje(
+                "Revisá los datos de contacto o seleccioná el contenido que querés editar."
+            );
+        } catch (error) {
+            mostrarMensaje(error.message, true);
+        }
     } catch (error) {
         mostrarMensaje(error.message, true);
 
@@ -216,6 +272,27 @@ elementos.login.addEventListener("submit", async (evento) => {
     }
 });
 
+elementos.contacto.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    if (ocupado) return;
+
+    const valores = Object.fromEntries(new FormData(elementos.contacto));
+
+    establecerOcupado(true);
+    mostrarMensajeContacto("Guardando datos de contacto…");
+
+    try {
+        const contacto = await actualizarContacto(valores);
+        pintarContacto(contacto);
+        mostrarMensajeContacto("Datos de contacto actualizados correctamente.");
+    } catch (error) {
+        mostrarMensajeContacto(error.message, true);
+    } finally {
+        establecerOcupado(false);
+    }
+});
+
 elementos.formulario.addEventListener("submit", async (evento) => {
     evento.preventDefault();
 
@@ -236,7 +313,7 @@ elementos.formulario.addEventListener("submit", async (evento) => {
             mostrarMensaje("Cambios guardados correctamente.");
         } catch {
             mostrarMensaje(
-                "Los cambios se guardaron, pero la lista no pudo actualizarse. Usá Recargar listas.",
+                "Los cambios se guardaron, pero la lista no pudo actualizarse. Usá Recargar contenido.",
                 true
             );
         }
@@ -259,8 +336,14 @@ elementos.recargar.addEventListener("click", async () => {
     mostrarMensaje("Cargando contenido…");
 
     try {
+        await cargarContacto();
+    } catch (error) {
+        mostrarMensajeContacto(error.message, true);
+    }
+
+    try {
         await cargarListas();
-        mostrarMensaje("Listas actualizadas.");
+        mostrarMensaje("Contenido actualizado.");
     } catch (error) {
         mostrarMensaje(error.message, true);
     } finally {

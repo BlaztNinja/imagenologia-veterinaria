@@ -220,6 +220,30 @@
     flex-shrink: 0;
 }
 
+/* Datos de contacto */
+
+.admin-contenido .contacto-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1rem;
+}
+
+.admin-contenido #mensaje-contacto {
+    padding: 1rem;
+    margin-top: 1rem;
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
+    overflow-wrap: anywhere;
+}
+
+.admin-contenido #mensaje-contacto.error {
+    background-color: #321b2a;
+    color: #ffd5d5;
+    border-color: #d77a88;
+}
+
 /* Mensajes */
 
 .admin-contenido #mensaje {
@@ -290,6 +314,10 @@
 }
 
 @media (max-width: 600px) {
+    .admin-contenido .contacto-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
     .admin-navbar {
         justify-content: center;
     }

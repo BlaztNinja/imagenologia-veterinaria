@@ -39,16 +39,16 @@ export async function obtenerPersonal() {
     }
 
     const { data, error } = await supabase
-        .from("personal_autorizado")
-        .select("usuario_id")
-        .eq("usuario_id", userData.user.id)
+        .from("perfiles")
+        .select("rol")
+        .eq("id", userData.user.id)
         .maybeSingle();
 
     if (error) {
         throw new Error("No se pudieron comprobar los permisos.");
     }
 
-    if (!data) {
+    if (!data || data.rol !== "admin") {
         throw new Error("Esta cuenta no está autorizada para usar el backoffice.");
     }
 
