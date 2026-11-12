@@ -1,3 +1,5 @@
+@import url("./variables.css");
+
 /* Contacto */
 
 .contacto {
@@ -10,7 +12,7 @@
 }
 
 .contacto-intro {
-    color: #94a3b8;
+    color: var(--color-texto-secundario);
     max-width: 38rem;
     margin-bottom: 2rem;
 }
@@ -23,9 +25,9 @@
 }
 
 .contacto-lista > li {
-    background: #0f1942;
-    border: 1px solid #1e2d66;
-    border-radius: 0.75rem;
+    background: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
     padding: 1rem 1.25rem;
 }
 
@@ -39,17 +41,17 @@
 }
 
 .contacto-lista a {
-    color: #62a3c7;
+    color: var(--color-acento-azul-claro);
 }
 
 .contacto-lista a:hover {
-    color: #ffffff;
+    color: var(--color-texto-titulos);
 }
 
 .horario {
     margin: 0.35rem 0 0;
     padding-left: 1.1rem;
-    color: #f1f5f9;
+    color: var(--color-texto-principal);
 }
 
 .deja-datos {
@@ -63,16 +65,16 @@
 }
 
 .deja-datos p {
-    color: #94a3b8;
+    color: var(--color-texto-secundario);
     margin-bottom: 1rem;
 }
 
 .formulario {
     display: grid;
     gap: 1rem;
-    background: #0f1942;
-    border: 1px solid #1e2d66;
-    border-radius: 0.75rem;
+    background: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
     padding: 1.25rem;
 }
 
@@ -82,7 +84,7 @@
 }
 
 .campo label {
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--fuente-titulos);
     font-weight: 600;
     font-size: 0.9rem;
 }
@@ -90,12 +92,12 @@
 .campo input,
 .campo textarea {
     width: 100%;
-    background: #030b30;
-    color: #f1f5f9;
-    border: 1px solid #1e2d66;
-    border-radius: 0.375rem;
+    background: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-boton);
     padding: 0.7rem 0.85rem;
-    font-family: 'Open Sans', sans-serif;
+    font-family: var(--fuente-cuerpo);
     font-size: 1rem;
 }
 
@@ -106,8 +108,8 @@
 
 .campo input:focus,
 .campo textarea:focus {
-    outline: 2px solid #3a86ad;
-    border-color: #3a86ad;
+    outline: 2px solid var(--color-acento-azul);
+    border-color: var(--color-acento-azul);
 }
 
 .formulario .btn {
@@ -117,22 +119,22 @@
 
 .formulario-aviso {
     margin: 0;
-    color: #62a3c7;
+    color: var(--color-acento-azul-claro);
 }
 
 .contacto-whatsapp {
     display: inline-block;
     margin-top: 1.5rem;
-    background: #25d366;
-    color: #ffffff;
-    font-family: 'Montserrat', sans-serif;
+    background: var(--color-boton-whatsapp);
+    color: var(--color-texto-titulos);
+    font-family: var(--fuente-titulos);
     font-weight: 600;
     padding: 0.75rem 1.25rem;
-    border-radius: 0.375rem;
+    border-radius: var(--radio-borde-boton);
 }
 
 .contacto-whatsapp:hover {
-    background: #20ba5a;
+    background: var(--color-boton-whatsapp-hover);
 }
 
 /* Mismo pie de 3 columnas Quiénes somos */

@@ -81,6 +81,9 @@ botonSalir.addEventListener("click", async () => {
         botonSalir.hidden = true;
         enlaceAcceso.focus();
         estadoSesion.textContent = "Sesión cerrada.";
+        setTimeout(() => {
+            estadoSesion.textContent = "";
+        }, 5000);
     } catch (error) {
         console.error("Error al cerrar sesión", error);
         estadoSesion.textContent = "No se pudo cerrar la sesión. Inténtalo de nuevo.";

@@ -39,15 +39,21 @@
                 <a href="quienSomos.html" class="nav-link">Quienes somos</a>
                 <a href="servicios.html" class="nav-link">Servicios</a>
                 <a href="contacto.html" class="nav-link">Contacto</a>
-                <a href="./acceso.html" id="enlace-acceso" class="nav-link">Iniciar sesión</a>
-                <button type="button" id="cerrar-sesion" class="btn btn-outline" hidden>Cerrar sesión</button>
+                <div class="nav-acceso">
+                    <a href="./acceso.html" id="enlace-acceso" class="btn btn-outline">
+                        <i class="fa-solid fa-user" aria-hidden="true"></i> Iniciar sesión
+                    </a>
+                    <button type="button" id="cerrar-sesion" class="btn btn-outline" hidden>
+                        <i class="fa-solid fa-user" aria-hidden="true"></i> Cerrar sesión
+                    </button>
+                    <p id="estado-sesion" class="aviso-sesion" role="status" aria-atomic="true"></p>
+                </div>
                 <a href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
             </nav>
         </div>
     </header>
 
     <main>
-    <p id="estado-sesion" class="container" role="status"></p>
     <p id="estado-inicio" class="container" role="status"></p>
 
     <!-- SECCIÓN HERO (PORTADA) -->
