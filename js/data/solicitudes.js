@@ -1,5 +1,6 @@
 import { supabase } from "../config/supabase.js";
 import { validarSolicitud } from "./procesar-solicitudes.js";
+import { validarFechaCita } from "../datos/fechas.js";
 
 function envolver(error, respaldo, permiso) {
     const codigo = error?.code ?? "";
@@ -54,15 +55,7 @@ function normalizarNotas(valor) {
 }
 
 function normalizarFecha(valor) {
-    const fecha = String(valor ?? "").trim();
-
-    if (!fecha) return null;
-
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
-        throw new Error("La fecha de la siguiente cita no es válida.");
-    }
-
-    return fecha;
+    return validarFechaCita(valor);
 }
 
 function normalizarEstado(valor) {

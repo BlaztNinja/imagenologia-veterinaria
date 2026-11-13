@@ -375,6 +375,13 @@ img {
     font-size: 0.95rem;
 }
 
+.servicio-card .servicio-precio {
+    font-family: var(--fuente-titulos);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-texto-titulos);
+}
+
 .servicio-card ul {
     list-style: none;
     display: flex;

@@ -1,4 +1,5 @@
 import { supabase } from "../config/supabase.js";
+import { prepararEdicionRequisitos } from "../datos/requisitos.js";
 
 const TABLAS = {
     servicios: "servicios",
@@ -116,6 +117,23 @@ export async function actualizarContenido(tipo, registro, valores) {
     }
 
     return data;
+}
+
+export async function actualizarRequisitos(grupo, valores) {
+    const cambios = prepararEdicionRequisitos(grupo, valores);
+    for (const cambio of cambios) {
+        try {
+            const { data, error } = await supabase.from("requisitos_servicio")
+                .update({ texto: cambio.texto }).in("id", cambio.ids)
+                .eq("orden", grupo.orden).eq("texto", cambio.anterior).select("id");
+            if (error || !data || data.length !== cambio.ids.length) throw error ?? new Error("El grupo cambió.");
+        } catch {
+            // Las variantes de ayuno se guardan en solicitudes separadas: una puede haber terminado.
+            const error = new Error("No se pudo confirmar el guardado completo. Puede haber cambios aplicados. Cancela para recargar los requisitos antes de volver a editar.");
+            error.recargarRequisitos = true;
+            throw error;
+        }
+    }
 }
 
 export async function listarServiciosActivos() {

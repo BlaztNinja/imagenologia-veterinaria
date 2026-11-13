@@ -1,5 +1,6 @@
-import { actualizarSolicitud, eliminarSolicitud, listarSolicitudes } from "../data/solicitudes.js?v=8";
+import { actualizarSolicitud, eliminarSolicitud, listarSolicitudes } from "../data/solicitudes.js?v=9";
 import { listarServicios } from "../data/servicios.js";
+import { fechaActual, validarFechaCita } from "../datos/fechas.js";
 
 let controles = {
     estaOcupado: () => false,
@@ -12,6 +13,7 @@ let elegido = null;
 let editando = false;
 let listo = false;
 let revision = 0;
+let temporizadorMensaje;
 
 function requerir(selector) {
     const nodo = document.querySelector(selector);
@@ -23,10 +25,14 @@ function requerir(selector) {
     return nodo;
 }
 
-function mostrarMensaje(texto, error = false) {
+function mostrarMensaje(texto, error = false, duracion = 0) {
+    clearTimeout(temporizadorMensaje);
     elementos.mensaje.textContent = texto;
     elementos.mensaje.hidden = !texto;
     elementos.mensaje.classList.toggle("error", error);
+    if (texto && duracion > 0) {
+        temporizadorMensaje = setTimeout(() => mostrarMensaje(""), duracion);
+    }
 }
 
 function citaPendiente(estado) {
@@ -89,6 +95,8 @@ function pintarLista() {
         const fila = document.createElement("li");
         const boton = document.createElement("button");
         const nombre = document.createElement("span");
+        const resumen = document.createElement("span");
+        const servicio = document.createElement("span");
         const meta = document.createElement("span");
         const cita = document.createElement("span");
 
@@ -96,6 +104,12 @@ function pintarLista() {
         boton.className = "cliente-boton secundario";
         boton.dataset.cliente = cliente.id;
         nombre.textContent = cliente.nombre;
+        resumen.className = "cliente-resumen";
+        servicio.className = "cliente-servicio";
+        servicio.textContent = cliente.servicioNombre
+            || servicios.find((item) => item.id === cliente.servicio_id)?.nombre
+            || "Servicio no disponible";
+        resumen.append(nombre, servicio);
         meta.className = "cliente-meta";
         cita.className = citaPendiente(cliente.estado)
             ? "estado estado-nueva"
@@ -110,7 +124,7 @@ function pintarLista() {
             meta.append(fecha);
         }
 
-        boton.append(nombre, meta);
+        boton.append(resumen, meta);
         fila.append(boton);
         elementos.lista.append(fila);
     });
@@ -161,6 +175,8 @@ function abrirDetalle(cliente) {
     campos.motivo.value = cliente.motivo;
     campos.notas.value = cliente.notas ?? "";
     campos.proximaCita.value = cliente.proxima_cita ?? "";
+    campos.proximaCita.min = fechaActual();
+    campos.proximaCita.setCustomValidity("");
     pintarServicios(cliente.servicio_id);
     pintarFicha();
     marcarEstado(cliente.estado);
@@ -205,42 +221,21 @@ export function iniciarClientes(controlesRecibidos) {
         finalizada: requerir("#estado-finalizada"),
         editar: requerir("#editar-cliente"),
         eliminar: requerir("#eliminar-cliente"),
-        volver: requerir("#volver-clientes"),
-        abrir: requerir("#abrir-clientes")
+        volver: requerir("#volver-clientes")
     };
 
     if (listo) return;
 
     listo = true;
 
-    elementos.abrir.addEventListener("click", async () => {
-        const panel = document.querySelector("#backoffice");
-
-        if (!panel || panel.hidden) {
-            const aviso = document.querySelector("#mensaje");
-
-            if (aviso) {
-                aviso.hidden = false;
-                aviso.classList.add("error");
-                aviso.textContent = "Entrá como admin para ver los clientes.";
-            }
-
-            return;
-        }
-
-        controles.cerrarEditor?.();
-        document.body.classList.remove("en-vista-previa");
-        document.querySelector("#vista-previa").hidden = true;
-        document.querySelector("#contenido-admin").hidden = false;
-        document.querySelector("#ver-sitio").hidden = false;
-        document.querySelector("#etiqueta-previa").hidden = true;
-        document.querySelector("#gestion-admin").hidden = true;
-        document.querySelector("#editor").hidden = true;
-        document.querySelector("#abrir-clientes").hidden = true;
-        document.querySelector("#volver-admin").hidden = false;
-        elementos.seccion.hidden = false;
-        elementos.seccion.scrollIntoView({ behavior: "smooth", block: "start" });
-        await cargarClientes();
+    const fechaCita = elementos.formulario.elements.proximaCita;
+    fechaCita.min = fechaActual();
+    fechaCita.addEventListener("focus", () => { fechaCita.min = fechaActual(); });
+    fechaCita.addEventListener("input", () => fechaCita.setCustomValidity(""));
+    fechaCita.addEventListener("click", () => {
+        fechaCita.min = fechaActual();
+        try { fechaCita.showPicker?.(); }
+        catch { /* El navegador conserva su selector de fecha nativo. */ }
     });
 
     elementos.lista.addEventListener("click", (evento) => {
@@ -284,8 +279,9 @@ export function iniciarClientes(controlesRecibidos) {
             await eliminarSolicitud(elegido.id);
             elegido = null;
             mostrarLista();
-            await cargarClientes();
-            mostrarMensaje(`${nombre} se eliminó de los clientes.`);
+            if (await cargarClientes()) {
+                mostrarMensaje(`${nombre} se eliminó de los clientes.`, false, 5000);
+            }
         } catch (error) {
             mostrarMensaje(error.message, true);
         } finally {
@@ -299,6 +295,18 @@ export function iniciarClientes(controlesRecibidos) {
         if (controles.estaOcupado() || !elegido) return;
 
         const valores = valoresFormulario();
+        fechaCita.min = fechaActual();
+        try {
+            if (fechaCita.validity.badInput) {
+                throw new Error("Completa una fecha válida para la siguiente cita.");
+            }
+            validarFechaCita(valores.proximaCita);
+        } catch (error) {
+            fechaCita.setCustomValidity(error.message);
+            fechaCita.reportValidity();
+            mostrarMensaje(error.message, true);
+            return;
+        }
         const antes = { ...elegido };
         controles.ocupar(true);
         mostrarMensaje("Guardando cliente…");
@@ -366,7 +374,7 @@ export async function cargarClientes() {
             listarServicios()
         ]);
 
-        if (actual !== revision) return;
+        if (actual !== revision) return false;
 
         registros = lista;
         servicios = catalogo;
@@ -378,11 +386,13 @@ export async function cargarClientes() {
             if (sigue) abrirDetalle(sigue);
             else mostrarLista();
         }
+        return true;
     } catch (error) {
-        if (actual !== revision) return;
+        if (actual !== revision) return false;
 
         registros = [];
         elementos.lista.replaceChildren();
         mostrarMensaje(error.message, true);
+        return false;
     }
 }
