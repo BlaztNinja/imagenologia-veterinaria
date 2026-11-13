@@ -6,20 +6,29 @@ import {
 
 import {
     listarContenido,
-    actualizarContenido
+    actualizarContenido,
+    actualizarRequisitos
 } from "../data/servicios.js";
+import { agruparRequisitos, etiquetaVariante, textoVariante } from "../datos/requisitos.js";
 
 import {
     obtenerContacto,
     actualizarContacto
 } from "../data/contacto.js";
 
+import {
+    iniciarClientes,
+    cargarClientes,
+    limpiarClientes
+} from "./clientes.js?v=11";
+
+import { cargarImagenes, iniciarImagenes, limpiarImagenes, hayImagenesPendientes } from "./imagenes.js";
+import { urlImagen } from "../data/imagenes.js";
+
 const elementos = {
     mensaje: document.querySelector("#mensaje"),
     controles: document.querySelector("#controles-admin"),
     verSitio: document.querySelector("#ver-sitio"),
-    volverAdmin: document.querySelector("#volver-admin"),
-    etiquetaPrevia: document.querySelector("#etiqueta-previa"),
     vistaPrevia: document.querySelector("#vista-previa"),
     sitioPrevio: document.querySelector("#sitio-previo"),
     contenido: document.querySelector("#contenido-admin"),
@@ -46,6 +55,26 @@ const listas = {
 let seleccion = null;
 let ocupado = false;
 let sesionRevision = 0;
+let seccionActual = "";
+const secciones = {
+    clientes: ["Clientes", "Gestioná las solicitudes y las fichas de los clientes."],
+    servicios: ["Servicios", "Editá los servicios y los requisitos del paciente."],
+    contactos: ["Contactos", "Actualizá el teléfono, el correo y los horarios de la clínica."],
+    imagenes: ["Imágenes", "Actualizá las imágenes que se muestran en el sitio."]
+};
+const enlacesSeccion = document.querySelectorAll("[data-seccion]");
+const tarjetaSesion = document.querySelector(".admin-sesion");
+
+document.addEventListener("click", (evento) => {
+    if (!tarjetaSesion.contains(evento.target)) tarjetaSesion.open = false;
+});
+
+document.addEventListener("keydown", (evento) => {
+    if (evento.key === "Escape" && tarjetaSesion.open) {
+        tarjetaSesion.open = false;
+        tarjetaSesion.querySelector("summary").focus();
+    }
+});
 
 function mostrarMensaje(texto, error = false) {
     elementos.mensaje.textContent = texto;
@@ -67,8 +96,14 @@ function establecerOcupado(valor) {
     elementos.recargar.disabled = valor;
     elementos.logout.disabled = valor;
     elementos.verSitio.disabled = valor;
+    document.querySelector("#recargar-imagenes").disabled = valor;
+    document.querySelectorAll(".campos-imagen").forEach((campos) => {
+        campos.disabled = valor || campos.dataset.disponible === "false";
+    });
 
-    document.querySelectorAll(".lista button").forEach((boton) => {
+    document.querySelectorAll(
+        "#form-cliente input, #form-cliente select, #form-cliente textarea, #form-cliente button, .lista button"
+    ).forEach((boton) => {
         boton.disabled = valor;
     });
 }
@@ -77,6 +112,7 @@ function cerrarEditor() {
     seleccion = null;
     elementos.formulario.reset();
     elementos.editor.hidden = true;
+    document.querySelector("#listado-servicios").hidden = false;
 }
 
 function mostrarAcceso(motivo = "") {
@@ -91,6 +127,8 @@ function mostrarAcceso(motivo = "") {
     mostrarMensajeContacto("");
 
     Object.values(listas).forEach((lista) => lista.replaceChildren());
+    limpiarClientes();
+    limpiarImagenes();
     const destino = new URL("../acceso.html", window.location.href);
     if (motivo) destino.searchParams.set("sesion", motivo);
     window.location.replace(destino.href);
@@ -133,9 +171,10 @@ function abrirEditor(tipo, registro) {
     const campos = elementos.formulario.elements;
     const esServicio = tipo === "servicios";
 
-    campos.nombre.value = registro.nombre;
-    campos.nombre.readOnly = !esServicio;
-    campos.descripcion.value = registro.descripcion;
+    campos.nombre.value = esServicio ? registro.nombre : "";
+    campos.nombre.required = esServicio;
+    campos.descripcion.value = esServicio ? registro.descripcion : "";
+    campos.descripcion.required = esServicio;
     campos.precio.value = esServicio ? registro.precio : "";
     campos.detalles.value = esServicio ? registro.detalles.join("\n") : "";
 
@@ -143,14 +182,40 @@ function abrirEditor(tipo, registro) {
     campos.precio.disabled = !esServicio;
     campos.detalles.disabled = !esServicio;
     elementos.camposServicio.hidden = !esServicio;
+    document.querySelector("#campos-contenido").hidden = !esServicio;
+    document.querySelectorAll("#campos-contenido input, #campos-contenido textarea").forEach((campo) => {
+        campo.disabled = !esServicio;
+    });
+    const indicaciones = document.querySelector("#campos-requisitos");
+    indicaciones.hidden = esServicio;
+    indicaciones.replaceChildren();
+    if (!esServicio) {
+        registro.variantes.forEach((variante, indice) => {
+            const etiqueta = document.createElement("label");
+            const campo = document.createElement("textarea");
+            campo.id = `requisito-${indice}`;
+            campo.name = campo.id;
+            campo.rows = 4;
+            campo.maxLength = 3000;
+            campo.required = true;
+            campo.value = variante.texto;
+            etiqueta.htmlFor = campo.id;
+            etiqueta.textContent = etiquetaVariante(registro, variante) || "Indicaciones para todos los servicios";
+            indicaciones.append(etiqueta, campo);
+        });
+    }
+    document.querySelector("#guardar-editor").disabled = false;
+    document.querySelector("#ayuda-editor").textContent = esServicio
+        ? "Edita los datos del servicio y guarda los cambios."
+        : "Cada indicación se actualiza en todos los servicios a los que corresponde.";
 
-    elementos.titulo.textContent = esServicio
-        ? "Editar servicio"
-        : "Editar requisito del paciente";
+    elementos.titulo.textContent = `Editar ${registro.nombre}`;
 
+    document.querySelector("#listado-servicios").hidden = true;
     elementos.editor.hidden = false;
     mostrarMensaje("Editá los campos y guardá los cambios.");
-    campos.nombre.focus();
+    elementos.titulo.focus();
+    window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 function pintarLista(tipo, registros) {
@@ -172,8 +237,23 @@ function pintarLista(tipo, registros) {
         const boton = document.createElement("button");
 
         nombre.textContent = registro.nombre;
-        descripcion.textContent = registro.descripcion;
-        contenido.append(nombre, descripcion);
+        contenido.append(nombre);
+        if (tipo === "servicios") {
+            descripcion.textContent = registro.descripcion;
+            contenido.append(descripcion);
+        } else if (registro.variantes.length === 1 && registro.orden !== 1) {
+            descripcion.textContent = textoVariante(registro, registro.variantes[0]);
+            contenido.append(descripcion);
+        } else {
+            const variantes = document.createElement("ul");
+            for (const variante of registro.variantes) {
+                const item = document.createElement("li");
+                const etiqueta = etiquetaVariante(registro, variante);
+                item.textContent = `${etiqueta ? `${etiqueta}: ` : ""}${textoVariante(registro, variante)}`;
+                variantes.append(item);
+            }
+            contenido.append(variantes);
+        }
 
         if (tipo === "servicios") {
             const precio = document.createElement("p");
@@ -215,7 +295,7 @@ async function cargarListas() {
     if (revision !== sesionRevision) return;
 
     pintarLista("servicios", servicios);
-    pintarLista("requisitos", requisitos);
+    pintarLista("requisitos", agruparRequisitos(requisitos));
 }
 
 async function acceder() {
@@ -233,8 +313,11 @@ async function acceder() {
         elementos.backoffice.hidden = false;
         elementos.controles.hidden = false;
         elementos.usuario.textContent = personal.email;
+        elementos.usuario.title = personal.email;
 
         mostrarMensaje("Cargando contenido…");
+        const cargaClientes = cargarClientes();
+        const cargaImagenes = cargarImagenes();
 
         try {
             await cargarContacto();
@@ -245,11 +328,14 @@ async function acceder() {
         try {
             await cargarListas();
             mostrarMensaje(
-                "Revisá los datos de contacto o seleccioná el contenido que querés editar."
+                "Revisá los datos de contacto, los clientes o el contenido que querés editar."
             );
         } catch (error) {
             mostrarMensaje(error.message, true);
         }
+
+        await cargaClientes;
+        await cargaImagenes;
     } catch (error) {
         console.error("Error al verificar el acceso administrativo", error);
         mostrarAcceso(error.code === "sin_permiso" ? "sin-permiso" : "error");
@@ -291,7 +377,8 @@ elementos.formulario.addEventListener("submit", async (evento) => {
     mostrarMensaje("Guardando cambios…");
 
     try {
-        await actualizarContenido(tipo, registro, valores);
+        if (tipo === "requisitos") await actualizarRequisitos(registro, valores);
+        else await actualizarContenido(tipo, registro, valores);
         cerrarEditor();
 
         try {
@@ -304,6 +391,10 @@ elementos.formulario.addEventListener("submit", async (evento) => {
             );
         }
     } catch (error) {
+        if (error.recargarRequisitos) {
+            seleccion.requiereRecarga = true;
+            document.querySelector("#guardar-editor").disabled = true;
+        }
         mostrarMensaje(error.message, true);
     } finally {
         establecerOcupado(false);
@@ -329,6 +420,7 @@ elementos.recargar.addEventListener("click", async () => {
 
     try {
         await cargarListas();
+        await cargarClientes();
         mostrarMensaje("Contenido actualizado.");
     } catch (error) {
         mostrarMensaje(error.message, true);
@@ -337,13 +429,21 @@ elementos.recargar.addEventListener("click", async () => {
     }
 });
 
-elementos.cancelar.addEventListener("click", () => {
+elementos.cancelar.addEventListener("click", async () => {
+    const recargar = seleccion?.requiereRecarga;
     cerrarEditor();
     mostrarMensaje("Edición cancelada.");
+    if (recargar) {
+        establecerOcupado(true);
+        try { await cargarListas(); }
+        catch (error) { mostrarMensaje(error.message, true); }
+        finally { establecerOcupado(false); }
+    }
+    document.querySelector("#titulo-servicios-admin").focus();
 });
 
 elementos.logout.addEventListener("click", async () => {
-    if (seleccion && !confirm("¿Descartar el formulario y cerrar sesión?")) {
+    if ((seleccion || hayImagenesPendientes()) && !confirm("¿Descartar los cambios sin guardar y cerrar sesión?")) {
         return;
     }
 
@@ -364,28 +464,63 @@ function mostrarAdministracion() {
     document.body.classList.remove("en-vista-previa");
     elementos.vistaPrevia.hidden = true;
     elementos.contenido.hidden = false;
-    elementos.verSitio.hidden = false;
-    elementos.volverAdmin.hidden = true;
-    elementos.etiquetaPrevia.hidden = true;
+    elementos.verSitio.textContent = "Ver sitio";
+    elementos.verSitio.setAttribute("aria-expanded", "false");
 }
 
+function cambiarSeccion(seccion) {
+    if (!Object.hasOwn(secciones, seccion)) seccion = "clientes";
+    if (ocupado || (seccion !== seccionActual && seleccion
+        && !confirm("¿Descartar el formulario abierto?"))) {
+        history.replaceState(null, "", `#${seccionActual || "clientes"}`);
+        return;
+    }
+
+    mostrarAdministracion();
+    if (seccion !== seccionActual) {
+        cerrarEditor();
+        mostrarMensaje("");
+    }
+    seccionActual = seccion;
+    Object.keys(secciones).forEach((nombre) => {
+        document.querySelector(`#${nombre}`).hidden = nombre !== seccion;
+    });
+    enlacesSeccion.forEach((enlace) => {
+        if (enlace.dataset.seccion === seccion) enlace.setAttribute("aria-current", "page");
+        else enlace.removeAttribute("aria-current");
+    });
+    const [titulo, descripcion] = secciones[seccion];
+    document.querySelector("#titulo-seccion").textContent = titulo;
+    document.querySelector("#descripcion-seccion").textContent = descripcion;
+    document.title = `${titulo} | Backoffice`;
+}
+
+enlacesSeccion.forEach((enlace) => enlace.addEventListener("click", (evento) => {
+    evento.preventDefault();
+    if (ocupado || elementos.backoffice.hidden) return;
+    cambiarSeccion(enlace.dataset.seccion);
+    if (seccionActual === enlace.dataset.seccion && window.location.hash !== enlace.hash) {
+        history.pushState(null, "", enlace.getAttribute("href"));
+    }
+}));
+
+window.addEventListener("hashchange", () => cambiarSeccion(window.location.hash.slice(1)));
+
+elementos.verSitio.setAttribute("aria-controls", "vista-previa");
+elementos.verSitio.setAttribute("aria-expanded", "false");
 elementos.verSitio.addEventListener("click", () => {
     if (ocupado || elementos.backoffice.hidden) return;
-
+    if (!elementos.vistaPrevia.hidden) {
+        mostrarAdministracion();
+        return;
+    }
     // Al abrir una revisión, recarga los datos guardados del sitio público.
     elementos.sitioPrevio.src = "../index.html";
     elementos.contenido.hidden = true;
     elementos.vistaPrevia.hidden = false;
-    elementos.verSitio.hidden = true;
-    elementos.volverAdmin.hidden = false;
-    elementos.etiquetaPrevia.hidden = false;
+    elementos.verSitio.textContent = "Volver";
+    elementos.verSitio.setAttribute("aria-expanded", "true");
     document.body.classList.add("en-vista-previa");
-    elementos.volverAdmin.focus();
-});
-
-elementos.volverAdmin.addEventListener("click", () => {
-    mostrarAdministracion();
-    elementos.verSitio.focus();
 });
 
 elementos.sitioPrevio.addEventListener("load", () => {
@@ -404,10 +539,27 @@ observarSesion((evento) => {
 });
 
 window.addEventListener("beforeunload", (evento) => {
-    if (seleccion) {
+    if (seleccion || hayImagenesPendientes()) {
         evento.preventDefault();
         evento.returnValue = "";
     }
 });
 
+iniciarClientes({
+    estaOcupado: () => ocupado,
+    ocupar: establecerOcupado,
+    cerrarEditor
+});
+
+iniciarImagenes({
+    estaOcupado: () => ocupado,
+    ocupar: establecerOcupado,
+    actualizada: (registro) => {
+        if (registro.id === "sitio.logo") {
+            document.querySelector('.brand-logo img').src = urlImagen(registro.ruta);
+        }
+    }
+});
+
+cambiarSeccion(window.location.hash.slice(1));
 acceder();

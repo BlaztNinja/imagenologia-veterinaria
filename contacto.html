@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/estilo_home.css">
-    <link rel="stylesheet" href="css/estilo_contacto.css">
+    <link rel="stylesheet" href="css/estilo_contacto.css?v=3">
 </head>
 <body>
 
@@ -17,7 +17,7 @@
         <div class="container navbar-container">
             <a href="index.html" class="brand-logo">
                 <div class="logo-icon">
-                    <img src="img/logo-imagenologia-veterinaria.png" alt="Logo principal">
+                    <img src="img/logo-imagenologia-veterinaria.png" data-imagen="sitio.logo" alt="Logo principal">
                 </div>
                 <div class="logo-text">
                     <span class="logo-title">IMAGENOLOGIA</span>
@@ -37,7 +37,15 @@
                 <a href="quienSomos.html" class="nav-link">Quienes somos</a>
                 <a href="servicios.html" class="nav-link">Servicios</a>
                 <a href="#contacto" class="nav-link">Contacto</a>
-                <a href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
+                <div class="nav-acceso">
+                    <a href="./acceso.html" id="enlace-acceso" class="btn btn-outline">
+                        <i class="fa-solid fa-user" aria-hidden="true"></i> Iniciar sesión
+                    </a>
+                    <button type="button" id="cerrar-sesion" class="btn btn-outline" hidden>
+                        <i class="fa-solid fa-user" aria-hidden="true"></i> Cerrar sesión
+                    </button>
+                </div>
+                <a href="https://wa.me/50370691122?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
             </nav>
         </div>
     </header>
@@ -50,7 +58,7 @@
             <ul class="contacto-lista">
                 <li>
                     <h2>Celular</h2>
-                    <a href="tel:+50377222775" data-contacto="telefono">+503 7722 2775</a>
+                    <a href="tel:+50370691122" data-contacto="telefono">+503 7069 1122</a>
                 </li>
                 <li>
                     <h2>Email</h2>
@@ -70,32 +78,67 @@
                 </li>
             </ul>
 
-            <div class="deja-datos">
-                <h2>Deja tus datos</h2>
-                <p>Completa el formulario con tu nombre, teléfono, correo y el motivo de la consulta.</p>
-                <form class="formulario" id="formulario-contacto">
+            <div class="deja-datos" id="solicitud">
+                <h2 id="titulo-solicitud">Inicia sesión</h2>
+                <p id="ayuda-solicitud">Para llenar el formulario necesitas una cuenta. Inicia sesión o regístrate y el formulario aparece aquí.</p>
+
+                <section id="acceso-contacto" aria-labelledby="titulo-solicitud">
+                    <div class="acceso-modos" role="group" aria-label="Modo de acceso">
+                        <button id="modo-login-contacto" type="button" class="btn btn-outline" aria-pressed="true">Iniciar sesión</button>
+                        <button id="modo-registro-contacto" type="button" class="btn btn-outline" aria-pressed="false">Registrarse</button>
+                    </div>
+                    <form class="formulario" id="formulario-acceso-contacto" method="post">
+                        <div class="campo">
+                            <label for="acceso-correo">Correo electrónico</label>
+                            <input id="acceso-correo" name="correo" type="email" autocomplete="section-acceso username" required>
+                        </div>
+                        <div class="campo">
+                            <label for="acceso-contrasena">Contraseña</label>
+                            <div class="campo-contrasena">
+                                <input id="acceso-contrasena" name="contrasena" type="password" autocomplete="section-acceso current-password" required>
+                                <button id="ver-contrasena-contacto" type="button" aria-label="Mostrar contraseña" aria-pressed="false" aria-controls="acceso-contrasena">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="boton-acceso-contacto" type="submit" class="btn btn-primary">Iniciar sesión</button>
+                        <p id="estado-acceso-contacto" class="formulario-aviso" role="status" aria-live="polite" hidden></p>
+                    </form>
+                </section>
+
+                <form class="formulario" id="formulario-contacto" autocomplete="off" novalidate hidden>
                     <div class="campo">
                         <label for="nombre">Nombre</label>
-                        <input type="text" id="nombre" name="nombre" required autocomplete="name" placeholder="Tu nombre">
+                        <input type="text" id="nombre" name="nombre" required autocomplete="name" maxlength="120" placeholder="Tu nombre">
                     </div>
                     <div class="campo">
                         <label for="telefono">Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono" required autocomplete="tel" placeholder="Tu número de teléfono">
+                        <input type="tel" id="telefono" name="telefono" required autocomplete="tel" maxlength="25" placeholder="Tu número de teléfono">
                     </div>
                     <div class="campo">
                         <label for="correo">Correo</label>
-                        <input type="email" id="correo" name="correo" required autocomplete="email" placeholder="tu@correo.com">
+                        <input type="email" id="correo" name="correo" required autocomplete="section-cita email" maxlength="254" placeholder="tu@correo.com">
+                    </div>
+                    <div class="campo">
+                        <label for="servicio">Servicio</label>
+                        <select id="servicio" name="servicio" required>
+                            <option value="">Cargando servicios…</option>
+                        </select>
                     </div>
                     <div class="campo">
                         <label for="motivo">Motivo de la consulta</label>
-                        <textarea id="motivo" name="motivo" required rows="4" placeholder="Cuéntanos en qué podemos ayudarte"></textarea>
+                        <textarea id="motivo" name="motivo" required rows="4" maxlength="2000" placeholder="Cuéntanos en qué podemos ayudarte"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Enviar datos</button>
-                    <p class="formulario-aviso" id="formulario-aviso" hidden>Se abrió WhatsApp con tus datos. Envíalos desde ahí para completar la solicitud.</p>
+                    <button type="submit" class="btn btn-primary">Enviar formulario</button>
+                    <p class="formulario-aviso" id="formulario-aviso" role="status" aria-live="polite" hidden></p>
                 </form>
+                <p id="confirmacion-solicitud" class="confirmacion-solicitud" role="status" aria-live="polite" hidden>El formulario fue enviado. Serás contactado en breve.</p>
             </div>
 
-            <a class="contacto-whatsapp" href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank">Agendar por WhatsApp</a>
+            <a class="contacto-whatsapp" href="https://wa.me/50370691122?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank">Agendar por WhatsApp</a>
         </div>
     </main>
 
@@ -124,9 +167,9 @@
 
                 <div>
                     <h4 class="footer-title">Contacto Rápido</h4>
-                    <p class="footer-contact-info">WhatsApp: <span data-contacto="telefono">+503 7722 2775</span></p>
+                    <p class="footer-contact-info">WhatsApp: <span data-contacto="telefono">+503 7069 1122</span></p>
                     <p class="footer-contact-info footer-contact-space"><span data-contacto="correo">ecografia@imagenologiaveterinaria.com</span></p>
-                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
+                    <a href="https://wa.me/50370691122" target="_blank" class="btn btn-whatsapp footer-btn">
                         <i class="fa-brands fa-whatsapp"></i> Chat Directo
                     </a>
                 </div>
@@ -139,21 +182,9 @@
         </div>
     </footer>
 
-    <script>
-        document.getElementById("formulario-contacto").addEventListener("submit", function (evento) {
-            evento.preventDefault();
-            var datos = new FormData(evento.target);
-            var mensaje = "Hola, quiero dejar mis datos para una consulta.\n"
-                + "Nombre: " + datos.get("nombre") + "\n"
-                + "Teléfono: " + datos.get("telefono") + "\n"
-                + "Correo: " + datos.get("correo") + "\n"
-                + "Motivo: " + datos.get("motivo");
-            var numero = document.documentElement.dataset.whatsapp || "50377222775";
-            window.open("https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje), "_blank", "noopener");
-            document.getElementById("formulario-aviso").hidden = false;
-        });
-    </script>
-
-    <script type="module" src="js/ui/contacto-publico.js"></script>
+    <script type="module" src="js/ui/contacto-publico.js?v=4"></script>
+    <script type="module" src="js/ui/imagenes-publicas.js"></script>
+    <script type="module" src="js/ui/contacto-sesion.js?v=4"></script>
+    <script type="module" src="js/ui/solicitud-publica.js?v=4"></script>
 </body>
 </html>

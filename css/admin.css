@@ -1,5 +1,9 @@
 /* Los colores y las fuentes provienen de estilo_home.css. */
 
+html {
+    scrollbar-gutter: stable;
+}
+
 [hidden] {
     display: none !important;
 }
@@ -53,6 +57,7 @@
 }
 
 .admin-contenido input,
+.admin-contenido select,
 .admin-contenido textarea {
     display: block;
     width: 100%;
@@ -71,6 +76,7 @@
 }
 
 .admin-contenido input:focus,
+.admin-contenido select:focus,
 .admin-contenido textarea:focus {
     border-color: var(--color-acento-azul-claro);
 }
@@ -166,13 +172,51 @@
     margin-top: 1.5rem;
 }
 
-.admin-contenido #usuario {
+/* Listas de servicios y requisitos */
+
+.imagenes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1.5rem;
+}
+
+.imagen-tarjeta {
     min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    background-color: var(--color-fondo-pagina);
+}
+
+.imagen-miniatura {
+    display: block;
+    width: 100%;
+    height: 12rem;
+    object-fit: contain;
+    border-radius: var(--radio-borde-boton);
+    background-color: var(--color-fondo-tarjeta);
+}
+
+.admin-contenido .campos-imagen input[type="file"] {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.imagen-tarjeta .acciones {
+    gap: 0.5rem;
+}
+
+.imagen-estado,
+#mensaje-imagenes {
+    margin: 1rem 0;
     color: var(--color-texto-secundario);
     overflow-wrap: anywhere;
 }
 
-/* Listas de servicios y requisitos */
+.imagen-estado.error,
+#mensaje-imagenes.error {
+    color: var(--color-texto-error);
+}
 
 .admin-contenido .lista {
     padding: 0;
@@ -218,6 +262,18 @@
 
 .admin-contenido .lista button {
     flex-shrink: 0;
+}
+
+.admin-contenido .requisitos-agrupados > li {
+    margin-bottom: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--color-borde-tarjeta);
+    border-left: 3px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-tarjeta);
+}
+
+.admin-contenido .requisitos-agrupados strong {
+    color: var(--color-acento-azul-claro);
 }
 
 /* Datos de contacto */
@@ -328,11 +384,146 @@
 }
 /* Controles disponibles durante la revisión del sitio. */
 .admin-controles {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.admin-navegacion {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.75rem;
+    gap: 1.25rem;
+}
+
+.admin-navegacion .nav-link {
+    padding: 0.75rem 0;
+    border: 0;
+}
+
+.admin-navegacion .nav-link[aria-current="page"] {
+    color: var(--color-acento-azul-claro);
+    font-weight: 700;
+}
+
+.admin-navegacion .nav-link:focus-visible {
+    outline: 2px solid var(--color-acento-azul-claro);
+    outline-offset: 4px;
+}
+
+#ver-sitio,
+.admin-sesion {
+    width: 17rem;
+    height: 3rem;
+}
+
+#ver-sitio {
+    width: 8.5rem;
+}
+
+.admin-sesion {
+    position: relative;
+    min-width: 0;
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    background-color: var(--color-fondo-tarjeta);
+}
+
+.admin-identidad {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    height: 100%;
+    padding: 0.35rem 0.65rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.admin-menu-sesion {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 1;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    background-color: var(--color-fondo-tarjeta);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-principal);
+}
+
+.admin-identidad::-webkit-details-marker {
+    display: none;
+}
+
+.admin-identidad:focus-visible {
+    outline: 2px solid var(--color-acento-azul-claro);
+    outline-offset: 4px;
+}
+
+.admin-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--color-acento-azul);
+    border-radius: 50%;
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-acento-azul-claro);
+}
+
+.admin-datos-sesion {
+    min-width: 0;
+}
+
+.admin-correo {
+    display: block;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+    color: var(--color-texto-principal);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.admin-rol {
+    display: block;
+    margin: 0.15rem 0 0;
+    color: var(--color-texto-secundario);
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.admin-sesion .admin-cerrar-sesion {
+    width: 100%;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.75rem;
+    border-color: var(--color-borde-error);
+    background-color: var(--color-fondo-error);
+    color: var(--color-texto-error);
+    font-size: 0.8rem;
+}
+
+.admin-sesion .admin-cerrar-sesion:hover:not(:disabled) {
+    border-color: var(--color-borde-error);
+    background-color: var(--color-fondo-error);
+    color: var(--color-texto-error);
+    box-shadow: none;
+    transform: none;
+    text-decoration: underline;
+}
+
+.admin-controles .btn[hidden] {
+    display: none;
 }
 
 .en-vista-previa {
@@ -365,23 +556,6 @@
                 inset 0 0 1.5rem var(--color-resplandor-vista-previa);
 }
 
-.admin-etiqueta-previa {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.75rem;
-    z-index: 2;
-    pointer-events: none;
-    padding: 0.25rem 0.625rem;
-    border: 1px solid var(--color-acento-azul);
-    border-radius: var(--radio-borde-insignia);
-    background-color: var(--color-fondo-tarjeta);
-    color: var(--color-acento-azul-claro);
-    font-family: var(--fuente-titulos);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-}
-
 .admin-vista-previa iframe {
     display: block;
     width: 100%;
@@ -390,15 +564,201 @@
     background-color: var(--color-fondo-pagina);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1100px) {
+    .admin-navbar {
+        flex-direction: column;
+    }
+
     .admin-controles {
         width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-navegacion {
+        grid-column: 1 / -1;
         justify-content: center;
+    }
+
+    .admin-controles .btn,
+    #ver-sitio,
+    .admin-sesion {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-controles {
         gap: 0.5rem;
     }
 
     .admin-controles .btn {
         padding: 0.625rem 0.75rem;
         font-size: 0.8rem;
+    }
+
+    .admin-sesion {
+        grid-column: 1 / -1;
+    }
+
+    #ver-sitio {
+        grid-column: 1 / -1;
+    }
+}
+
+.admin-contenido .estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-family: var(--fuente-titulos);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.admin-contenido .estado-nueva {
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-acento-azul-claro);
+    border: 1px solid var(--color-acento-azul);
+}
+
+.admin-contenido .estado-atendida {
+    color: var(--color-boton-whatsapp);
+    border: 1px solid var(--color-boton-whatsapp);
+}
+
+.admin-contenido .clientes-nombres > li {
+    display: block;
+}
+
+.admin-contenido .cliente-boton {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+}
+
+.admin-contenido .cliente-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.cliente-resumen {
+    display: grid;
+    min-width: 0;
+    gap: 0.3rem;
+    overflow-wrap: anywhere;
+}
+
+.cliente-servicio {
+    color: var(--color-texto-secundario);
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.admin-contenido .cliente-fecha {
+    color: var(--color-texto-secundario);
+    font-size: 0.75rem;
+}
+
+.admin-contenido .ficha-cliente {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0 0 1.25rem;
+}
+
+.admin-contenido .ficha-cliente div {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.admin-contenido .ficha-cliente dt {
+    color: var(--color-texto-secundario);
+    font-size: 0.8rem;
+}
+
+.admin-contenido .ficha-cliente dd {
+    margin: 0;
+    color: var(--color-texto-principal);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.admin-contenido #campos-cliente[hidden],
+.admin-contenido #ficha-cliente[hidden] {
+    display: none !important;
+}
+
+.admin-contenido .estados-consulta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.admin-contenido .estados-consulta button {
+    min-height: 0;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-texto-secundario);
+    border: 1px solid var(--color-borde-tarjeta);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.admin-contenido .estados-consulta button:hover:not(:disabled) {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    color: var(--color-texto-principal);
+    box-shadow: none;
+}
+
+.admin-contenido .estados-consulta button[aria-pressed="true"].estado-nueva {
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-acento-azul-claro);
+    border-color: var(--color-acento-azul);
+}
+
+.admin-contenido .estados-consulta button[aria-pressed="true"].estado-atendida {
+    background: transparent;
+    color: var(--color-boton-whatsapp);
+    border-color: var(--color-boton-whatsapp);
+}
+
+.admin-contenido button.peligro {
+    background: transparent;
+    color: var(--color-texto-error);
+    border: 2px solid var(--color-borde-error);
+}
+
+.admin-contenido button.peligro:hover:not(:disabled) {
+    background-color: var(--color-fondo-error);
+    color: var(--color-texto-error);
+    box-shadow: none;
+}
+
+.admin-contenido .acciones-cliente {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+.admin-contenido .acciones-cliente button {
+    width: 100%;
+    min-height: 2.75rem;
+}
+
+.admin-contenido .acciones-cliente #volver-clientes {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+    .admin-contenido .acciones-cliente {
+        grid-template-columns: 1fr;
     }
 }

@@ -85,6 +85,8 @@ create table public.solicitudes (
   correo text not null check (char_length(correo) <= 254 and correo ~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$'),
   motivo text not null check (char_length(btrim(motivo)) between 1 and 2000),
   estado text not null default 'nueva' check (estado in ('nueva', 'atendida')),
+  notas text not null default '' check (char_length(notas) <= 2000),
+  proxima_cita date,
   creada_en timestamptz not null default now()
 );
 create index on public.solicitudes (usuario_id);
@@ -110,8 +112,9 @@ grant insert, update, delete on public.equipo, public.servicios, public.requisit
 grant update (texto, imagen_ruta) on public.contenido_sitio to authenticated;
 grant update (telefono, correo, horarios) on public.datos_contacto to authenticated;
 grant select on public.perfiles, public.solicitudes to authenticated;
-grant insert (servicio_id, nombre, telefono, correo, motivo) on public.solicitudes to authenticated;
-grant update (estado) on public.solicitudes to authenticated;
+grant insert (servicio_id, nombre, telefono, correo, motivo) on public.solicitudes to anon, authenticated;
+grant update (nombre, telefono, correo, motivo, servicio_id, estado, notas, proxima_cita) on public.solicitudes to authenticated;
+grant delete on public.solicitudes to authenticated;
 
 create policy perfil_propio on public.perfiles for select to authenticated
 using (id = (select auth.uid()));
@@ -141,6 +144,13 @@ using (true);
 create policy administrar on public.datos_contacto for all to authenticated
 using ((select privado.es_admin())) with check ((select privado.es_admin()));
 
+create policy enviar_solicitud_visita on public.solicitudes for insert to anon
+with check (
+  usuario_id is null
+  and estado = 'nueva'
+  and exists (select 1 from public.servicios s where s.id = servicio_id and s.activo)
+);
+
 create policy enviar_solicitud on public.solicitudes for insert to authenticated
 with check (
   usuario_id = (select auth.uid())
@@ -154,6 +164,8 @@ create policy revisar_solicitudes on public.solicitudes for select to authentica
 using ((select privado.es_admin()));
 create policy atender_solicitudes on public.solicitudes for update to authenticated
 using ((select privado.es_admin())) with check ((select privado.es_admin()));
+create policy eliminar_solicitudes on public.solicitudes for delete to authenticated
+using ((select privado.es_admin()));
 
 -- Crear el bucket público desde Storage antes de cargar los archivos.
 create policy administrar_imagenes_imagenologia on storage.objects for all to authenticated

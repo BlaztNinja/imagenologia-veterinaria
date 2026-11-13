@@ -10,6 +10,7 @@ const modoLogin = document.querySelector("#modo-login");
 const modoRegistro = document.querySelector("#modo-registro");
 const correo = formulario.elements.correo;
 const contrasena = formulario.elements.contrasena;
+const verContrasena = document.querySelector("#ver-contrasena");
 
 let modoAcceso = "login";
 let procesando = false;
@@ -45,6 +46,7 @@ function establecerModo(modo, enfocar = true) {
     }
 
     contrasena.value = "";
+    ocultarContrasena();
     correo.removeAttribute("aria-invalid");
     contrasena.removeAttribute("aria-invalid");
     mostrarEstado("");
@@ -60,6 +62,20 @@ if (motivo === "error") {
 if (motivo === "sin-permiso") {
     mostrarEstado("Tu cuenta no tiene permisos de administrador. Inicia sesión con una cuenta autorizada.", true);
 }
+
+function ocultarContrasena() {
+    contrasena.type = "password";
+    verContrasena.setAttribute("aria-pressed", "false");
+    verContrasena.setAttribute("aria-label", "Mostrar contraseña");
+}
+
+verContrasena.addEventListener("click", () => {
+    const visible = contrasena.type === "password";
+    contrasena.type = visible ? "text" : "password";
+    verContrasena.setAttribute("aria-pressed", String(visible));
+    verContrasena.setAttribute("aria-label", visible ? "Ocultar contraseña" : "Mostrar contraseña");
+    contrasena.focus();
+});
 
 modoLogin.addEventListener("click", () => {
     if (procesando || modoAcceso === "login") return;

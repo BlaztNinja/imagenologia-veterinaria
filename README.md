@@ -10,7 +10,15 @@ Sitio del Desafío Práctico II de Desarrollo Web I en la ESEN. GitHub Pages sir
 
 La [guía de Supabase](supabase/README.md) documenta el esquema, la carga inicial, Storage y las políticas RLS.
 
+## Imágenes desde el backoffice
+
+La pestaña **Imágenes** permite cambiar la portada, el logotipo, la imagen de Quiénes somos y la foto de cada integrante del equipo. Selecciona un JPEG, PNG o WebP de hasta 5 MB, revisa la vista previa y pulsa **Guardar imagen**. Seleccionar o descartar un archivo no modifica el sitio. **Ver sitio** vuelve a cargar las imágenes guardadas.
+
+Se utiliza el bucket público `imagenologia` y las políticas de administrador de [esquema.sql](supabase/esquema.sql). No hace falta SQL adicional si ese esquema y los datos iniciales ya están instalados. Cada guardado crea un archivo con una ruta nueva y actualiza `contenido_sitio.imagen_ruta` o `equipo.foto_ruta`; el archivo anterior se conserva. No se deben borrar archivos de Storage que aún estén referenciados. Las páginas conservan sus imágenes originales si falla la conexión.
+
 ## Inicio y acceso
+
+En el backoffice, **Servicios** presenta dos bloques independientes: el catálogo y los requisitos del paciente. Los requisitos se agrupan por su orden configurado (1: Ayuno; 2: Vejiga llena; 3: Afeitado; 4: Historial clínico). **Editar** sustituye el listado por el formulario; **Cancelar y volver** descarta la edición. Un requisito común se guarda en todos sus servicios, mientras que Ayuno conserva las indicaciones de ultrasonido abdominal y de otros estudios. No se necesita SQL adicional. La página pública consulta estos mismos datos, conservando el HTML original si falla la conexión.
 
 1. Abre `index.html` en una ventana privada. Comprueba que aparezcan la portada, los testimonios y el contacto del pie de página desde Supabase.
 2. Entra a **Iniciar sesión** y elige **Continuar como visitante** para volver a Inicio sin registrarte.
