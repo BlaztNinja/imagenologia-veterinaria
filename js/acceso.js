@@ -101,12 +101,16 @@ formulario.addEventListener("submit", async (evento) => {
     const esRegistro = modoAcceso === "registro";
 
     if (!correoValor) {
+        correo.setAttribute("aria-invalid", "true");
+        correo.setAttribute("aria-describedby", "estado-acceso");
         mostrarEstado("Completa el correo electrónico.", true);
         correo.focus();
         return;
     }
 
     if (esRegistro && contrasenaValor.length < 6) {
+        contrasena.setAttribute("aria-invalid", "true");
+        contrasena.setAttribute("aria-describedby", "estado-acceso");
         mostrarEstado("La contraseña debe tener al menos 6 caracteres.", true);
         contrasena.focus();
         return;

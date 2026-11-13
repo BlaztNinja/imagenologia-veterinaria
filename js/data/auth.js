@@ -61,10 +61,18 @@ export async function registrarUsuario(email, password) {
         throw new Error("La contraseña debe tener al menos 6 caracteres.");
     }
 
-    const { data, error } = await supabase.auth.signUp({
-        email: correo,
-        password: contrasena
-    });
+    let resultado;
+
+    try {
+        resultado = await supabase.auth.signUp({
+            email: correo,
+            password: contrasena
+        });
+    } catch (fallo) {
+        throw new Error(traducirErrorRegistro(fallo));
+    }
+
+    const { data, error } = resultado;
 
     if (error) {
         throw new Error(traducirErrorRegistro(error));
