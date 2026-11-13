@@ -42,11 +42,19 @@
                     </div>
                     <div class="campo">
                         <label for="contrasena">Contraseña</label>
-                        <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required>
+                        <div class="campo-contrasena">
+                            <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required>
+                            <button id="ver-contrasena" type="button" aria-label="Mostrar contraseña" aria-pressed="false" aria-controls="contrasena">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <button id="boton-acceso" type="submit" class="btn btn-primary" disabled>Iniciar sesión</button>
                     <p id="estado-acceso" class="acceso-estado" role="status" aria-atomic="true"></p>
-                    <a href="./index.html" class="btn btn-outline">Continuar como visitante</a>
+                    <a href="./contacto.html" class="btn btn-outline">Continuar como visitante</a>
                 </form>
             </section>
     </main>

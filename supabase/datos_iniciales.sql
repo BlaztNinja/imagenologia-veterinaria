@@ -39,7 +39,7 @@ insert into public.equipo (nombre, cargo, descripcion, orden) values
    'Con más de 15 años de experiencia en el diagnóstico por imagen veterinaria.', 1);
 
 insert into public.datos_contacto (telefono, correo, horarios) values
-  ('+503 7722 2775', 'ecografia@imagenologiaveterinaria.com',
+  ('+503 7069 1122', 'ecografia@imagenologiaveterinaria.com',
    array['Lunes: 8:30 AM - 1:00 PM', 'Martes: de 8:30 AM - 5:00 PM', 'Sábados: 2:00 PM - 6:00 PM']);
 
 insert into public.servicios (nombre, descripcion, detalles, precio, orden) values

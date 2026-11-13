@@ -14,6 +14,13 @@ import {
     actualizarContacto
 } from "../data/contacto.js";
 
+import {
+    iniciarClientes,
+    cargarClientes,
+    limpiarClientes,
+    ocultarClientes
+} from "./clientes.js?v=9";
+
 const elementos = {
     mensaje: document.querySelector("#mensaje"),
     controles: document.querySelector("#controles-admin"),
@@ -68,7 +75,9 @@ function establecerOcupado(valor) {
     elementos.logout.disabled = valor;
     elementos.verSitio.disabled = valor;
 
-    document.querySelectorAll(".lista button").forEach((boton) => {
+    document.querySelectorAll(
+        "#form-cliente input, #form-cliente select, #form-cliente textarea, #form-cliente button, #abrir-clientes, .lista button"
+    ).forEach((boton) => {
         boton.disabled = valor;
     });
 }
@@ -91,6 +100,7 @@ function mostrarAcceso(motivo = "") {
     mostrarMensajeContacto("");
 
     Object.values(listas).forEach((lista) => lista.replaceChildren());
+    limpiarClientes();
     const destino = new URL("../acceso.html", window.location.href);
     if (motivo) destino.searchParams.set("sesion", motivo);
     window.location.replace(destino.href);
@@ -235,6 +245,7 @@ async function acceder() {
         elementos.usuario.textContent = personal.email;
 
         mostrarMensaje("Cargando contenido…");
+        const cargaClientes = cargarClientes();
 
         try {
             await cargarContacto();
@@ -245,11 +256,13 @@ async function acceder() {
         try {
             await cargarListas();
             mostrarMensaje(
-                "Revisá los datos de contacto o seleccioná el contenido que querés editar."
+                "Revisá los datos de contacto, los clientes o el contenido que querés editar."
             );
         } catch (error) {
             mostrarMensaje(error.message, true);
         }
+
+        await cargaClientes;
     } catch (error) {
         console.error("Error al verificar el acceso administrativo", error);
         mostrarAcceso(error.code === "sin_permiso" ? "sin-permiso" : "error");
@@ -329,6 +342,7 @@ elementos.recargar.addEventListener("click", async () => {
 
     try {
         await cargarListas();
+        await cargarClientes();
         mostrarMensaje("Contenido actualizado.");
     } catch (error) {
         mostrarMensaje(error.message, true);
@@ -366,7 +380,11 @@ function mostrarAdministracion() {
     elementos.contenido.hidden = false;
     elementos.verSitio.hidden = false;
     elementos.volverAdmin.hidden = true;
+    document.querySelector("#abrir-clientes").hidden = false;
     elementos.etiquetaPrevia.hidden = true;
+    cerrarEditor();
+    ocultarClientes();
+    document.querySelector("#gestion-admin").hidden = false;
 }
 
 elementos.verSitio.addEventListener("click", () => {
@@ -408,6 +426,12 @@ window.addEventListener("beforeunload", (evento) => {
         evento.preventDefault();
         evento.returnValue = "";
     }
+});
+
+iniciarClientes({
+    estaOcupado: () => ocupado,
+    ocupar: establecerOcupado,
+    cerrarEditor
 });
 
 acceder();

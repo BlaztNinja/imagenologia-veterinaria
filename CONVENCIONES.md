@@ -80,8 +80,8 @@ Formato: `Página - Imagenología Veterinaria`. La portada puede usar el lema.
 
 ### 2.5 Enlaces externos
 
-- WhatsApp: `https://wa.me/50377222775` con `target="_blank"`. El botón de cita lleva `?text=` ya codificado (`%20`, `%C3%AD`).
-- Teléfono visible: `+503 7722 2775`. Correo: `ecografia@imagenologiaveterinaria.com`.
+- WhatsApp: `https://wa.me/50370691122` con `target="_blank"`. El botón de cita lleva `?text=` ya codificado (`%20`, `%C3%AD`).
+- Teléfono visible: `+503 7069 1122`. Correo: `ecografia@imagenologiaveterinaria.com`.
 
 ### 2.6 Estilo de código
 
@@ -105,7 +105,7 @@ Formato: `Página - Imagenología Veterinaria`. La portada puede usar el lema.
 | P2 | `index.html`, `quienSomos.html`, `servicios.html` | Sin `<main>`; solo `contacto.html` lo usa. | Envolver el contenido en `<main>` en las 4 páginas. |
 | P2 | `servicios.html` | Precios dentro de `<h3>$35</h3>`: no es un encabezado. | `<p class="servicio-precio">$35</p>` y darle estilo. |
 | P2 | `<title>` de `servicios.html` y `quienSomos.html` | `servicios.html` = "Servicios" (sin marca); `quienSomos.html` = "Nosotros" (el menú dice "Quiénes somos"); `index.html` invierte el orden. | `Servicios - Imagenología Veterinaria`, `Quiénes somos - Imagenología Veterinaria`. |
-| P2 | Teléfono en footers | `index`, `quienSomos`, `servicios`: `77222775`; `contacto`: `+503 7722 2775`. | Usar siempre `+503 7722 2775`. |
+| P2 | Teléfono en footers | El número visible del sitio es `+503 7069 1122`. | Mantener `+503 7069 1122` en las páginas y en los enlaces de WhatsApp. |
 | P2 | Nav y footer, todas las páginas | "Quienes somos" / "Quienes Somos" sin tilde; "Contactenos" sin tilde y distinto del "Contacto" del menú. | "Quiénes somos" y "Contacto" en ambos lugares. |
 | P3 | Logo (4 páginas) | `IMAGENOLOGIA` sin tilde mientras el resto del texto usa "Imagenología". | Decidir: con tilde (`IMAGENOLOGÍA`) o documentar que el logotipo va sin ella. |
 | P3 | `servicios.html` | "ultrasonido abdominal" en minúscula; "toracico" sin tilde; "Cardiaco y vascular" con mayúscula interna; "guian" en `quienSomos.html` (→ "guían"). | Capitalizar solo la primera letra del título; revisar ortografía. |
@@ -192,7 +192,7 @@ Convención actual del único script:
 | P | Problema | Corrección |
 |---|---|---|
 | P2 | Usa `var` y `function`. | `const` / `let` y funciones flecha en código nuevo. |
-| P2 | El número `50377222775` está duplicado en HTML y JS. | Constante única al inicio del script o `data-whatsapp` en el `<form>`. |
+| P2 | El número `50370691122` está duplicado en HTML y JS. | Constante única al inicio del script o `data-whatsapp` en el `<form>`. |
 | P3 | Script inline. | Mover a `js/contacto.js` cuando se agregue más lógica. |
 
 ---

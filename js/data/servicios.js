@@ -117,3 +117,50 @@ export async function actualizarContenido(tipo, registro, valores) {
 
     return data;
 }
+
+export async function listarServiciosActivos() {
+    const mensaje = "No se pudieron cargar los servicios. Inténtalo de nuevo.";
+
+    try {
+        const { data, error } = await supabase
+            .from("servicios")
+            .select("id, nombre, precio")
+            .eq("activo", true)
+            .order("orden");
+
+        if (error) {
+            throw new Error(mensaje);
+        }
+
+        return data ?? [];
+    } catch (error) {
+        if (error instanceof Error && error.message === mensaje) {
+            throw error;
+        }
+
+        throw new Error(mensaje);
+    }
+}
+
+export async function listarServicios() {
+    const mensaje = "No se pudieron cargar los servicios. Inténtalo de nuevo.";
+
+    try {
+        const { data, error } = await supabase
+            .from("servicios")
+            .select("id, nombre")
+            .order("orden");
+
+        if (error) {
+            throw new Error(mensaje);
+        }
+
+        return data ?? [];
+    } catch (error) {
+        if (error instanceof Error && error.message === mensaje) {
+            throw error;
+        }
+
+        throw new Error(mensaje);
+    }
+}

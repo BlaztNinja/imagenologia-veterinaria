@@ -53,6 +53,7 @@
 }
 
 .admin-contenido input,
+.admin-contenido select,
 .admin-contenido textarea {
     display: block;
     width: 100%;
@@ -71,6 +72,7 @@
 }
 
 .admin-contenido input:focus,
+.admin-contenido select:focus,
 .admin-contenido textarea:focus {
     border-color: var(--color-acento-azul-claro);
 }
@@ -335,6 +337,10 @@
     gap: 0.75rem;
 }
 
+.admin-controles .btn[hidden] {
+    display: none;
+}
+
 .en-vista-previa {
     height: 100vh;
     height: 100dvh;
@@ -400,5 +406,150 @@
     .admin-controles .btn {
         padding: 0.625rem 0.75rem;
         font-size: 0.8rem;
+    }
+}
+
+.admin-contenido .estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-family: var(--fuente-titulos);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.admin-contenido .estado-nueva {
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-acento-azul-claro);
+    border: 1px solid var(--color-acento-azul);
+}
+
+.admin-contenido .estado-atendida {
+    color: var(--color-boton-whatsapp);
+    border: 1px solid var(--color-boton-whatsapp);
+}
+
+.admin-contenido .clientes-nombres > li {
+    display: block;
+}
+
+.admin-contenido .cliente-boton {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+}
+
+.admin-contenido .cliente-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.admin-contenido .cliente-fecha {
+    color: var(--color-texto-secundario);
+    font-size: 0.75rem;
+}
+
+.admin-contenido .ficha-cliente {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0 0 1.25rem;
+}
+
+.admin-contenido .ficha-cliente div {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.admin-contenido .ficha-cliente dt {
+    color: var(--color-texto-secundario);
+    font-size: 0.8rem;
+}
+
+.admin-contenido .ficha-cliente dd {
+    margin: 0;
+    color: var(--color-texto-principal);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.admin-contenido #campos-cliente[hidden],
+.admin-contenido #ficha-cliente[hidden] {
+    display: none !important;
+}
+
+.admin-contenido .estados-consulta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.admin-contenido .estados-consulta button {
+    min-height: 0;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-texto-secundario);
+    border: 1px solid var(--color-borde-tarjeta);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.admin-contenido .estados-consulta button:hover:not(:disabled) {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    color: var(--color-texto-principal);
+    box-shadow: none;
+}
+
+.admin-contenido .estados-consulta button[aria-pressed="true"].estado-nueva {
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-acento-azul-claro);
+    border-color: var(--color-acento-azul);
+}
+
+.admin-contenido .estados-consulta button[aria-pressed="true"].estado-atendida {
+    background: transparent;
+    color: var(--color-boton-whatsapp);
+    border-color: var(--color-boton-whatsapp);
+}
+
+.admin-contenido button.peligro {
+    background: transparent;
+    color: var(--color-texto-error);
+    border: 2px solid var(--color-borde-error);
+}
+
+.admin-contenido button.peligro:hover:not(:disabled) {
+    background-color: var(--color-fondo-error);
+    color: var(--color-texto-error);
+    box-shadow: none;
+}
+
+.admin-contenido .acciones-cliente {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+.admin-contenido .acciones-cliente button {
+    width: 100%;
+    min-height: 2.75rem;
+}
+
+.admin-contenido .acciones-cliente #volver-clientes {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+    .admin-contenido .acciones-cliente {
+        grid-template-columns: 1fr;
     }
 }

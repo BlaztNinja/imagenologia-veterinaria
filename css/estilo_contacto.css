@@ -70,6 +70,24 @@
     margin-bottom: 1rem;
 }
 
+.formulario[hidden],
+#acceso-contacto[hidden],
+#confirmacion-solicitud[hidden],
+#ayuda-solicitud[hidden] {
+    display: none !important;
+}
+
+.confirmacion-solicitud {
+    margin: 0;
+    padding: 1.25rem;
+    background: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-tarjeta);
+    color: var(--color-texto-principal);
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
 .formulario {
     display: grid;
     gap: 1rem;
@@ -91,6 +109,7 @@
 }
 
 .campo input,
+.campo select,
 .campo textarea {
     width: 100%;
     background: var(--color-fondo-pagina);
@@ -108,6 +127,7 @@
 }
 
 .campo input:focus,
+.campo select:focus,
 .campo textarea:focus {
     outline: 2px solid var(--color-acento-azul);
     border-color: var(--color-acento-azul);
@@ -118,9 +138,71 @@
     border: none;
 }
 
+.deja-datos .acceso-modos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.deja-datos .acceso-modos .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.deja-datos .acceso-modos .btn[aria-pressed="true"] {
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+    border-color: var(--color-acento-azul);
+}
+
+.campo-contrasena {
+    position: relative;
+}
+
+.campo-contrasena input {
+    padding-right: 3rem;
+}
+
+.ver-contrasena,
+#ver-contrasena-contacto {
+    position: absolute;
+    top: 50%;
+    right: 0.35rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radio-borde-boton);
+    background: transparent;
+    color: var(--color-texto-secundario);
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+#ver-contrasena-contacto svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#ver-contrasena-contacto[aria-pressed="true"] {
+    color: var(--color-acento-azul-claro);
+}
+
 .formulario-aviso {
     margin: 0;
     color: var(--color-acento-azul-claro);
+}
+
+.formulario-aviso.error {
+    color: var(--color-texto-error);
 }
 
 .contacto-whatsapp {

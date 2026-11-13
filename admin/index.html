@@ -14,8 +14,8 @@
     >
 
     <link rel="stylesheet" href="../css/estilo_home.css">
-    <link rel="stylesheet" href="../css/admin.css">
-    <script type="module" src="../js/ui/admin.js"></script>
+    <link rel="stylesheet" href="../css/admin.css?v=7">
+    <script type="module" src="../js/ui/admin.js?v=9"></script>
 </head>
 <body>
     <header class="navbar">
@@ -38,8 +38,9 @@
         </a>
 
         <div id="controles-admin" class="admin-controles" hidden>
+            <button id="volver-admin" type="button" class="btn btn-outline" hidden>Volver</button>
+            <button id="abrir-clientes" type="button" class="btn btn-outline">Clientes</button>
             <button id="ver-sitio" type="button" class="btn btn-outline">Ver sitio</button>
-            <button id="volver-admin" type="button" class="btn btn-outline" hidden>Volver al backoffice</button>
             <button id="logout" type="button" class="btn btn-primary">Cerrar sesión</button>
         </div>
     </div>
@@ -50,7 +51,7 @@
             <span class="section-subtitle">Administración</span>
             <h1 class="section-title">Contenido de la clínica</h1>
             <p class="section-description">
-                Gestioná los datos de contacto, los servicios y los requisitos del paciente.
+                Gestioná los datos de contacto, los servicios, los requisitos del paciente y los clientes que dejan sus datos.
             </p>
         </div>
 
@@ -63,6 +64,7 @@
                 <p id="usuario"></p>
             </div>
 
+            <div id="gestion-admin">
             <section class="panel">
                 <h2>Datos de contacto</h2>
                 <p class="admin-ayuda">
@@ -115,6 +117,86 @@
 
                 <h3>Requisitos del paciente</h3>
                 <ul id="lista-requisitos" class="lista"></ul>
+            </section>
+            </div>
+
+            <section class="panel" id="clientes" hidden aria-labelledby="titulo-clientes">
+                <div class="barra">
+                    <h2 id="titulo-clientes">Clientes</h2>
+                </div>
+                <p class="admin-ayuda">
+                    Quienes solicitaron un servicio. Elegí un nombre para ver su ficha, anotar y editar sus datos.
+                </p>
+                <p id="mensaje-clientes" role="status" aria-live="polite" hidden></p>
+                <ul id="lista-clientes" class="lista clientes-nombres"></ul>
+
+                <section id="detalle-cliente" hidden>
+                    <h3 id="nombre-cliente" tabindex="-1"></h3>
+
+                    <dl id="ficha-cliente" class="ficha-cliente">
+                        <div>
+                            <dt>Teléfono</dt>
+                            <dd id="ver-telefono"></dd>
+                        </div>
+                        <div>
+                            <dt>Correo</dt>
+                            <dd id="ver-correo"></dd>
+                        </div>
+                        <div>
+                            <dt>Servicio</dt>
+                            <dd id="ver-servicio"></dd>
+                        </div>
+                        <div>
+                            <dt>Motivo</dt>
+                            <dd id="ver-motivo"></dd>
+                        </div>
+                    </dl>
+
+                    <form id="form-cliente" novalidate>
+                        <div id="campos-cliente" hidden>
+                            <label for="cliente-nombre">Nombre</label>
+                            <input id="cliente-nombre" name="nombre" type="text"
+                                   maxlength="120" required>
+
+                            <label for="cliente-telefono">Teléfono</label>
+                            <input id="cliente-telefono" name="telefono" type="tel"
+                                   maxlength="25" required>
+
+                            <label for="cliente-correo">Correo electrónico</label>
+                            <input id="cliente-correo" name="correo" type="email"
+                                   maxlength="254" required>
+
+                            <label for="cliente-servicio">Servicio</label>
+                            <select id="cliente-servicio" name="servicio" required></select>
+
+                            <label for="cliente-motivo">Motivo</label>
+                            <textarea id="cliente-motivo" name="motivo" rows="4"
+                                      maxlength="2000" required></textarea>
+                        </div>
+
+                        <div class="estados-consulta" role="group" aria-label="Estado de la consulta">
+                            <button id="estado-pendiente" type="button" class="estado-nueva" aria-pressed="false">Cita pendiente</button>
+                            <button id="estado-finalizada" type="button" class="estado-atendida" aria-pressed="false">Consulta finalizada</button>
+                        </div>
+
+                        <label for="proxima-cita">Fecha de la siguiente cita</label>
+                        <input id="proxima-cita" name="proximaCita" type="date">
+
+                        <label for="notas-cliente">Notas de la clínica</label>
+                        <textarea id="notas-cliente" name="notas" rows="4"
+                                  maxlength="2000"
+                                  placeholder="Anotá lo que quieras recordar de este cliente."></textarea>
+
+                        <div class="acciones acciones-cliente">
+                            <button type="submit">Guardar cambios</button>
+                            <button id="editar-cliente" type="button" class="secundario">Editar</button>
+                            <button id="eliminar-cliente" type="button" class="peligro">Eliminar cliente</button>
+                            <button id="volver-clientes" type="button" class="secundario">
+                                Volver a la lista
+                            </button>
+                        </div>
+                    </form>
+                </section>
             </section>
 
             <section id="editor" class="panel" hidden>
