@@ -1,12 +1,18 @@
-import { createClient } from
-    "https://esm.sh/@supabase/supabase-js@2.57.4";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm";
 
-const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
-const SUPABASE_PUBLIC_KEY = "TU-CLAVE-PUBLICA";
+const SUPABASE_URL = "https://ituezaeezarpeqvzgtax.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_LpzIisY7Mxc0DHBNR52lYw_4jfooirU";
 
-export const supabase = createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLIC_KEY
-);
+let cliente;
 
-//porfa no dejen esto como esta ahorita lol
+export function obtenerSupabase() {
+    if (!SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")) {
+        throw new Error("Configura la Publishable key en js/config/supabase.js.");
+    }
+
+    cliente ??= createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    return cliente;
+}
+
+// Cliente compartido por los módulos del backoffice y de contacto.
+export const supabase = obtenerSupabase();
