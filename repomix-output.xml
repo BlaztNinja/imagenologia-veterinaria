@@ -1,0 +1,4958 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+admin/
+  index.html
+css/
+  admin.css
+  estilo_contacto.css
+  estilo_home.css
+  estilo_quienSomos.css
+  estilo_servicios.css
+img/
+  diagnostico-por-imagen.webp
+  logo-imagenologia-veterinaria.png
+  owie.jpg
+js/
+  config/
+    supabase.js
+  data/
+    auth.js
+    contacto.js
+    servicios.js
+  ui/
+    admin.js
+    contacto-publico.js
+supabase/
+  datos_iniciales.sql
+  esquema.sql
+  README.md
+.gitattributes
+contacto.html
+CONVENCIONES.md
+index.html
+quienSomos.html
+servicios.html
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="js/config/supabase.js">
+import { createClient } from
+    "https://esm.sh/@supabase/supabase-js@2.57.4";
+
+const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+const SUPABASE_PUBLIC_KEY = "TU-CLAVE-PUBLICA";
+
+export const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLIC_KEY
+);
+
+//porfa no dejen esto como esta ahorita lol
+</file>
+
+<file path="js/data/contacto.js">
+import { supabase } from "../config/supabase.js";
+
+const CAMPOS = "id, telefono, correo, horarios";
+
+export async function obtenerContacto() {
+    const { data, error } = await supabase
+        .from("datos_contacto")
+        .select(CAMPOS)
+        .eq("id", 1)
+        .maybeSingle();
+
+    if (error) {
+        throw new Error("No se pudieron cargar los datos de contacto.");
+    }
+
+    return data;
+}
+
+function validarTelefono(valor) {
+    const telefono = String(valor ?? "").trim();
+    const digitos = telefono.replace(/\D/g, "");
+
+    if (
+        !/^[+0-9 ()-]{7,25}$/.test(telefono)
+        || digitos.length < 7
+        || digitos.length > 15
+    ) {
+        throw new Error(
+            "Ingresá un teléfono válido con entre 7 y 15 dígitos."
+        );
+    }
+
+    return telefono;
+}
+
+function validarCorreo(valor) {
+    const correo = String(valor ?? "").trim();
+
+    if (
+        correo.length > 254
+        || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)
+    ) {
+        throw new Error("Ingresá un correo electrónico válido.");
+    }
+
+    return correo;
+}
+
+function validarHorarios(valor) {
+    const horarios = String(valor ?? "")
+        .split("\n")
+        .map((horario) => horario.trim())
+        .filter(Boolean);
+
+    if (horarios.length === 0) {
+        throw new Error("Ingresá al menos un horario de atención.");
+    }
+
+    if (horarios.some((horario) => horario.length > 150)) {
+        throw new Error("Cada horario debe tener como máximo 150 caracteres.");
+    }
+
+    return horarios;
+}
+
+function prepararCambios(valores) {
+    return {
+        telefono: validarTelefono(valores.telefono),
+        correo: validarCorreo(valores.correo),
+        horarios: validarHorarios(valores.horarios)
+    };
+}
+
+export async function actualizarContacto(valores) {
+    const cambios = prepararCambios(valores);
+
+    const { data, error } = await supabase
+        .from("datos_contacto")
+        .update(cambios)
+        .eq("id", 1)
+        .select(CAMPOS)
+        .maybeSingle();
+
+    if (error) {
+        throw new Error(
+            "No se pudieron guardar los datos de contacto. Intentá nuevamente."
+        );
+    }
+
+    if (!data) {
+        throw new Error(
+            "No se pudo confirmar el guardado. Verificá tu sesión y recargá los datos."
+        );
+    }
+
+    return data;
+}
+</file>
+
+<file path="js/data/servicios.js">
+import { supabase } from "../config/supabase.js";
+
+const TABLAS = {
+    servicios: "servicios",
+    requisitos: "requisitos_paciente"
+};
+
+function obtenerTabla(tipo) {
+    const tabla = TABLAS[tipo];
+
+    if (!tabla) {
+        throw new Error("Tipo de contenido inválido.");
+    }
+
+    return tabla;
+}
+
+export async function listarContenido(tipo) {
+    const { data, error } = await supabase
+        .from(obtenerTabla(tipo))
+        .select("*")
+        .order("id");
+
+    if (error) {
+        throw new Error("No se pudo cargar el contenido. Intentá nuevamente.");
+    }
+
+    return data;
+}
+
+function validarTexto(valor, nombre, limite) {
+    const texto = String(valor ?? "").trim();
+
+    if (!texto || texto.length > limite) {
+        throw new Error(`${nombre} debe tener entre 1 y ${limite} caracteres.`);
+    }
+
+    return texto;
+}
+
+function prepararCambios(tipo, valores) {
+    const cambios = {
+        nombre: validarTexto(valores.nombre, "El nombre", 150),
+        descripcion: validarTexto(valores.descripcion, "La descripción", 3000)
+    };
+
+    if (tipo === "servicios") {
+        const precioTexto = String(valores.precio).trim();
+
+        if (!/^\d{1,8}(\.\d{1,2})?$/.test(precioTexto)) {
+            throw new Error("Ingresá un precio válido con hasta dos decimales.");
+        }
+
+        cambios.precio = Number(precioTexto);
+        cambios.detalles = String(valores.detalles ?? "")
+            .split("\n")
+            .map((detalle) => detalle.trim())
+            .filter(Boolean);
+    }
+
+    return cambios;
+}
+
+export async function actualizarContenido(tipo, registro, valores) {
+    const tabla = obtenerTabla(tipo);
+    const cambios = prepararCambios(tipo, valores);
+
+    const { data, error } = await supabase
+        .from(tabla)
+        .update({
+            ...cambios,
+            version: registro.version + 1
+        })
+        .eq("id", registro.id)
+        .eq("version", registro.version)
+        .select()
+        .maybeSingle();
+
+    if (error) {
+        throw new Error(
+            "No se pudo confirmar el guardado. Revisá la conexión y recargá la lista antes de reintentar."
+        );
+    }
+
+    if (!data) {
+        throw new Error(
+            "El registro cambió o ya no tenés permiso para editarlo. Cancelá y recargá la lista."
+        );
+    }
+
+    return data;
+}
+</file>
+
+<file path="js/ui/contacto-publico.js">
+import { obtenerContacto } from "../data/contacto.js";
+
+function soloDigitos(texto) {
+    return String(texto ?? "").replace(/\D/g, "");
+}
+
+function paraTelefono(texto) {
+    return String(texto ?? "").replace(/[^\d+]/g, "");
+}
+
+function actualizarTelefono(telefono) {
+    document.querySelectorAll('[data-contacto="telefono"]').forEach((elemento) => {
+        elemento.textContent = telefono;
+
+        if (elemento instanceof HTMLAnchorElement) {
+            elemento.href = `tel:${paraTelefono(telefono)}`;
+        }
+    });
+
+    const numero = soloDigitos(telefono);
+    document.documentElement.dataset.whatsapp = numero;
+
+    document.querySelectorAll('a[href*="wa.me/"]').forEach((enlace) => {
+        const url = new URL(enlace.href);
+        const partes = url.pathname.split("/").filter(Boolean);
+
+        if (partes.length === 0) return;
+
+        partes[0] = numero;
+        url.pathname = `/${partes.join("/")}`;
+        enlace.href = url.toString();
+    });
+}
+
+function actualizarCorreo(correo) {
+    document.querySelectorAll('[data-contacto="correo"]').forEach((elemento) => {
+        elemento.textContent = correo;
+
+        if (elemento instanceof HTMLAnchorElement) {
+            elemento.href = `mailto:${correo}`;
+        }
+    });
+}
+
+function actualizarHorarios(horarios) {
+    document.querySelectorAll('[data-contacto="horarios"]').forEach((lista) => {
+        const elementos = horarios.map((horario) => {
+            const item = document.createElement("li");
+            item.textContent = horario;
+            return item;
+        });
+
+        lista.replaceChildren(...elementos);
+    });
+}
+
+async function cargarContactoPublico() {
+    let contacto;
+
+    try {
+        contacto = await obtenerContacto();
+    } catch {
+        return;
+    }
+
+    if (!contacto) return;
+
+    actualizarTelefono(contacto.telefono);
+    actualizarCorreo(contacto.correo);
+    actualizarHorarios(contacto.horarios);
+}
+
+cargarContactoPublico();
+</file>
+
+<file path=".gitattributes">
+# Auto detect text files and perform LF normalization
+* text=auto
+</file>
+
+<file path="js/data/auth.js">
+import { supabase } from "../config/supabase.js";
+
+export async function iniciarSesion(email, password) {
+    const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+    });
+
+    if (error) {
+        throw new Error("No se pudo iniciar sesión. Revisá tus credenciales.");
+    }
+}
+
+export async function cerrarSesion() {
+    const { error } = await supabase.auth.signOut({ scope: "local" });
+
+    if (error) {
+        throw new Error("No se pudo cerrar la sesión. Intentá nuevamente.");
+    }
+}
+
+export async function obtenerPersonal() {
+    const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+    if (sessionError) {
+        throw new Error("No se pudo consultar la sesión.");
+    }
+
+    if (!sessionData.session) {
+        return null;
+    }
+
+    const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+
+    if (userError) {
+        throw new Error("La sesión no es válida. Volvé a iniciar sesión.");
+    }
+
+    const { data, error } = await supabase
+        .from("perfiles")
+        .select("rol")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+
+    if (error) {
+        throw new Error("No se pudieron comprobar los permisos.");
+    }
+
+    if (!data || data.rol !== "admin") {
+        throw new Error("Esta cuenta no está autorizada para usar el backoffice.");
+    }
+
+    return userData.user;
+}
+
+export function observarSesion(callback) {
+    return supabase.auth.onAuthStateChange(callback);
+}
+</file>
+
+<file path="supabase/datos_iniciales.sql">
+-- Ejecutar una vez, después de esquema.sql y de subir los archivos indicados.
+begin;
+
+insert into public.contenido_sitio (clave, texto) values
+  ('inicio.titulo', 'Diagnóstico de precisión y cuidado experto para tu mascota.'),
+  ('inicio.descripcion', 'Estudios ecográficos veterinarios de alta resolución para un diagnóstico oportuno, certero y no invasivo. Respuestas claras cuando más lo necesitas.'),
+  ('inicio.imagen_titulo', 'Resultados Inmediatos'),
+  ('inicio.imagen_subtitulo', 'Informe clínico completo en cada consulta'),
+  ('inicio.testimonios_antetitulo', 'Confianza Demostrada'),
+  ('inicio.testimonios_titulo', 'Testimonios de Pacientes'),
+  ('inicio.testimonios_descripcion', 'La tranquilidad de quienes confían en nuestro diagnóstico nos avala día a día.'),
+  ('inicio.testimonio_1_texto', 'Llevé a mi perrita por un dolor abdominal persistente. La atención fue impecable y el diagnóstico ecográfico permitió a su veterinario operar a tiempo. Totalmente recomendados.'),
+  ('inicio.testimonio_1_autor', 'María Contreras'),
+  ('inicio.testimonio_1_contexto', 'Tutora de "Luna" (Golden Retriever)'),
+  ('inicio.testimonio_2_texto', 'Excelente nivel profesional y gran paciencia con mi gato, que suele ser muy nervioso en consultas clínicas. El informe me lo entregaron de inmediato.'),
+  ('inicio.testimonio_2_autor', 'Dr. Roberto Rivas'),
+  ('inicio.testimonio_2_contexto', 'Veterinario Remitente'),
+  ('inicio.testimonio_3_texto', 'El monitoreo ecográfico de la gestación de mi mascota fue una experiencia muy emocionante y súper clara. Explicaron detalladamente cada órgano.'),
+  ('inicio.testimonio_3_autor', 'Andrea Gómez'),
+  ('inicio.testimonio_3_contexto', 'Tutora de "Bella"'),
+  ('equipo.introduccion', 'En Imagenología Veterinaria entendemos que detrás de cada estudio hay un miembro más de la familia. Por eso trabajamos con equipos de vanguardia y un enfoque humano, ofreciendo diagnósticos confiables que ayudan a los médicos veterinarios a tomar mejores decisiones.'),
+  ('equipo.mision', 'Ofrecer diagnósticos ecográficos veterinarios precisos y oportunos, con tecnología de alta resolución y un trato cálido que respete el bienestar de cada paciente.'),
+  ('equipo.vision', 'Ser el centro de referencia en diagnóstico por imagen veterinaria de la región, reconocido por su excelencia técnica y confianza.'),
+  ('equipo.valores', 'Precisión, empatía, confianza, innovación y compromiso con la salud animal.'),
+  ('servicios.introduccion', 'Diagnóstico por imagen veterinario de alta precisión.'),
+  ('servicios.requisitos_intro', 'Para asegurar la mejor calidad de imagen y la comodidad del paciente, solicitamos lo siguiente:'),
+  ('contacto.introduccion', 'Para programar una cita o solicitar más información, contáctanos.'),
+  ('contacto.domicilio', 'El estudio se realiza a tu domicilio. Está pensado para clínicas que no tienen equipo de ultrasonido propio.'),
+  ('footer.descripcion', 'Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.'),
+  ('footer.lema', 'Diagnóstico Ecográfico Especializado');
+
+insert into public.contenido_sitio (clave, imagen_ruta) values
+  ('inicio.imagen', 'inicio/diagnostico-por-imagen.webp'),
+  ('equipo.imagen', 'equipo/owie.jpg'),
+  ('sitio.logo', 'sitio/logo-imagenologia-veterinaria.png');
+
+insert into public.equipo (nombre, cargo, descripcion, orden) values
+  ('Juan Antonio Duarte', 'Especialista en Ecografía Veterinaria',
+   'Con más de 15 años de experiencia en el diagnóstico por imagen veterinaria.', 1);
+
+insert into public.datos_contacto (telefono, correo, horarios) values
+  ('+503 7722 2775', 'ecografia@imagenologiaveterinaria.com',
+   array['Lunes: 8:30 AM - 1:00 PM', 'Martes: de 8:30 AM - 5:00 PM', 'Sábados: 2:00 PM - 6:00 PM']);
+
+insert into public.servicios (nombre, descripcion, detalles, precio, orden) values
+  ('Ultrasonido abdominal', 'Evaluación de hígado, riñones, vejiga y más órganos.',
+   array['Resultado el mismo día', 'Informe incluido'], 35, 1),
+  ('Ecografía gestacional', 'Confirmación y seguimiento de gestación.',
+   array['Conteo de cachorros', 'Control de viabilidad'], 25, 2),
+  ('Ultrasonido de urgencia', 'Evaluación ecográfica rápida en el momento para detectar problemas urgentes',
+   array['POCUS abdominal', 'POCUS torácico', 'POCUS cardíaco y vascular'], 25, 3);
+
+insert into public.requisitos_servicio (servicio_id, texto, orden)
+select s.id, r.texto, r.orden
+from public.servicios s
+cross join lateral (values
+  (1, case when s.nombre = 'Ultrasonido abdominal'
+    then 'Ayuno de 8-12 horas (agua permitida).'
+    else 'Ayuno: consulte con nosotros.' end),
+  (2, 'Vejiga llena: en algunos casos se requiere para una mejor visualización. Siga las instrucciones proporcionadas al programar la cita.'),
+  (3, 'Afeitado: es posible que sea necesario afeitar el área a examinar para obtener una mejor calidad de imagen. Esto se realizará en la clínica antes del estudio.'),
+  (4, 'Historial clínico: al programar la cita, proporcione los exámenes realizados, los medicamentos y las condiciones preexistentes del paciente.')
+) as r(orden, texto)
+where s.nombre in ('Ultrasonido abdominal', 'Ecografía gestacional', 'Ultrasonido de urgencia');
+
+commit;
+</file>
+
+<file path="supabase/esquema.sql">
+begin;
+
+create schema privado;
+revoke all on schema privado from public;
+grant usage on schema privado to authenticated;
+
+create table public.perfiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  rol text not null default 'usuario' check (rol in ('usuario', 'admin'))
+);
+
+create function privado.crear_perfil() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  insert into public.perfiles (id) values (new.id);
+  return new;
+end;
+$$;
+revoke all on function privado.crear_perfil() from public, anon, authenticated;
+create trigger imagenologia_crear_perfil after insert on auth.users
+for each row execute function privado.crear_perfil();
+
+insert into public.perfiles (id) select id from auth.users
+on conflict (id) do nothing;
+
+-- SECURITY INVOKER consulta únicamente el perfil propio permitido por RLS.
+create function privado.es_admin() returns boolean
+language sql stable security invoker set search_path = '' as $$
+  select exists (
+    select 1 from public.perfiles
+    where id = (select auth.uid()) and rol = 'admin'
+  );
+$$;
+revoke all on function privado.es_admin() from public, anon, authenticated;
+grant execute on function privado.es_admin() to authenticated;
+
+create table public.contenido_sitio (
+  clave text primary key check (btrim(clave) <> ''),
+  texto text,
+  imagen_ruta text,
+  check ((texto is null) <> (imagen_ruta is null)),
+  check (btrim(coalesce(texto, imagen_ruta)) <> '')
+);
+
+create table public.equipo (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null check (btrim(nombre) <> ''),
+  cargo text not null check (btrim(cargo) <> ''),
+  descripcion text not null check (btrim(descripcion) <> ''),
+  foto_ruta text check (btrim(foto_ruta) <> ''),
+  orden integer not null default 0 check (orden >= 0)
+);
+
+create table public.servicios (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null unique check (btrim(nombre) <> ''),
+  descripcion text not null check (btrim(descripcion) <> ''),
+  detalles text[] not null default '{}',
+  precio numeric(10,2) not null check (precio >= 0 and precio <> 'NaN'),
+  activo boolean not null default true,
+  orden integer not null default 0 check (orden >= 0)
+);
+
+create table public.requisitos_servicio (
+  id uuid primary key default gen_random_uuid(),
+  servicio_id uuid not null references public.servicios(id) on delete cascade,
+  texto text not null check (btrim(texto) <> ''),
+  orden integer not null default 0 check (orden >= 0)
+);
+create index on public.requisitos_servicio (servicio_id, orden);
+
+create table public.datos_contacto (
+  id smallint primary key default 1 check (id = 1),
+  telefono text not null check (btrim(telefono) <> ''),
+  correo text not null check (btrim(correo) <> ''),
+  horarios text[] not null check (cardinality(horarios) > 0)
+);
+
+create table public.solicitudes (
+  id uuid primary key default gen_random_uuid(),
+  usuario_id uuid default auth.uid() references auth.users(id) on delete set null,
+  servicio_id uuid not null references public.servicios(id) on delete restrict,
+  nombre text not null check (char_length(btrim(nombre)) between 1 and 120),
+  telefono text not null check (telefono ~ '^[+0-9 ()-]{7,25}$' and char_length(regexp_replace(telefono, '[^0-9]', '', 'g')) between 7 and 15),
+  correo text not null check (char_length(correo) <= 254 and correo ~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$'),
+  motivo text not null check (char_length(btrim(motivo)) between 1 and 2000),
+  estado text not null default 'nueva' check (estado in ('nueva', 'atendida')),
+  creada_en timestamptz not null default now()
+);
+create index on public.solicitudes (usuario_id);
+create index on public.solicitudes (servicio_id);
+
+alter table public.contenido_sitio enable row level security;
+revoke all on public.contenido_sitio from public, anon, authenticated;
+alter table public.equipo enable row level security;
+revoke all on public.equipo from public, anon, authenticated;
+alter table public.servicios enable row level security;
+revoke all on public.servicios from public, anon, authenticated;
+alter table public.requisitos_servicio enable row level security;
+revoke all on public.requisitos_servicio from public, anon, authenticated;
+alter table public.datos_contacto enable row level security;
+revoke all on public.datos_contacto from public, anon, authenticated;
+alter table public.perfiles enable row level security;
+revoke all on public.perfiles from public, anon, authenticated;
+alter table public.solicitudes enable row level security;
+revoke all on public.solicitudes from public, anon, authenticated;
+
+grant select on public.contenido_sitio, public.equipo, public.servicios, public.requisitos_servicio, public.datos_contacto to anon, authenticated;
+grant insert, update, delete on public.equipo, public.servicios, public.requisitos_servicio to authenticated;
+grant update (texto, imagen_ruta) on public.contenido_sitio to authenticated;
+grant update (telefono, correo, horarios) on public.datos_contacto to authenticated;
+grant select on public.perfiles, public.solicitudes to authenticated;
+grant insert (servicio_id, nombre, telefono, correo, motivo) on public.solicitudes to authenticated;
+grant update (estado) on public.solicitudes to authenticated;
+
+create policy perfil_propio on public.perfiles for select to authenticated
+using (id = (select auth.uid()));
+
+create policy lectura_publica on public.contenido_sitio for select to anon, authenticated
+using (true);
+create policy administrar on public.contenido_sitio for all to authenticated
+using ((select privado.es_admin())) with check ((select privado.es_admin()));
+
+create policy lectura_publica on public.equipo for select to anon, authenticated
+using (true);
+create policy administrar on public.equipo for all to authenticated
+using ((select privado.es_admin())) with check ((select privado.es_admin()));
+
+create policy lectura_publica on public.servicios for select to anon, authenticated
+using (activo);
+create policy administrar on public.servicios for all to authenticated
+using ((select privado.es_admin())) with check ((select privado.es_admin()));
+
+create policy lectura_publica on public.requisitos_servicio for select to anon, authenticated
+using (exists (select 1 from public.servicios s where s.id = servicio_id and s.activo));
+create policy administrar on public.requisitos_servicio for all to authenticated
+using ((select privado.es_admin())) with check ((select privado.es_admin()));
+
+create policy lectura_publica on public.datos_contacto for select to anon, authenticated
+using (true);
+create policy administrar on public.datos_contacto for all to authenticated
+using ((select privado.es_admin())) with check ((select privado.es_admin()));
+
+create policy enviar_solicitud on public.solicitudes for insert to authenticated
+with check (
+  usuario_id = (select auth.uid())
+  and estado = 'nueva'
+  and coalesce((select auth.jwt() ->> 'is_anonymous'), 'false') = 'false'
+  and exists (select 1 from public.perfiles where id = usuario_id)
+  and exists (select 1 from public.servicios s where s.id = servicio_id and s.activo)
+);
+
+create policy revisar_solicitudes on public.solicitudes for select to authenticated
+using ((select privado.es_admin()));
+create policy atender_solicitudes on public.solicitudes for update to authenticated
+using ((select privado.es_admin())) with check ((select privado.es_admin()));
+
+-- Crear el bucket público desde Storage antes de cargar los archivos.
+create policy administrar_imagenes_imagenologia on storage.objects for all to authenticated
+using (
+  bucket_id = 'imagenologia'
+  and (storage.foldername(name))[1] in ('inicio', 'equipo', 'sitio')
+  and (select privado.es_admin())
+)
+with check (
+  bucket_id = 'imagenologia'
+  and (storage.foldername(name))[1] in ('inicio', 'equipo', 'sitio')
+  and (select privado.es_admin())
+);
+
+commit;
+</file>
+
+<file path="supabase/README.md">
+# Configuración de Supabase
+
+Esta guía parte del sitio del Desafío I. Los dos archivos SQL se ejecutan una vez, en orden, desde **SQL Editor** de un proyecto de Supabase preparado para Imagenología Veterinaria. Ambos usan transacciones. Si una sentencia falla, revisa el error antes de volver a ejecutar el archivo.
+
+## 1. Qué sale del sitio actual
+
+| Archivo | Datos que se migran |
+| --- | --- |
+| `index.html` | Título, descripción, tarjeta de resultados, subtítulo bajo «Resultados Inmediatos» y tres testimonios. |
+| `quienSomos.html` | Presentación, misión, visión, valores y el perfil de Juan Antonio Duarte. |
+| `servicios.html` | Ultrasonido abdominal (USD 35), ecografía gestacional (USD 25), ultrasonido de urgencia (USD 25), detalles y requisitos. La página actual no lista radiografías. |
+| `contacto.html` | Teléfono, correo y tres horarios. El formulario actual abre WhatsApp con nombre, teléfono, correo y motivo. En la integración, añadiremos un selector de servicio y enviaremos esos datos a Supabase. |
+| Footer | Descripción y lema. Teléfono, correo y horarios se podrán leer de la misma fila que usa Contacto. |
+
+El HTML agrupa vejiga llena, afeitado e historial clínico como indicaciones generales. El script las asocia a los tres servicios y conserva el ayuno de 8 a 12 horas únicamente en el abdominal. La indicación para los otros dos es consultar. Revisa estas asociaciones con la persona encargada antes de publicar.
+
+La portada actual usa una foto externa. Para que el contenido inicial pueda alojarse en el bucket con archivos del repo, el script apunta a `img/diagnostico-por-imagen.webp` como sustituto. `img/owie.jpg` es la imagen de la sección Quiénes Somos. La foto individual del integrante es provisional en el HTML y se deja vacía en la base hasta tener la definitiva.
+
+## 2. Crear el esquema y cargar los datos
+
+1. En Supabase, crea el proyecto o abre el proyecto dedicado a la materia. Verifica que la Data API esté habilitada y exponga `public`. El esquema `privado` se queda fuera de los esquemas expuestos.
+2. Ejecuta [esquema.sql](esquema.sql) en SQL Editor. Crea siete tablas, restricciones, índices, el trigger de alta de perfiles y las políticas RLS. Confirma que aparezcan las tablas en Table Editor.
+3. En **Storage**, crea un bucket público con ID `imagenologia`. Si configuras restricciones, usa JPEG, PNG y WebP y, por ejemplo, un límite de 5 MB por archivo. Crea las carpetas y sube los archivos en estas rutas exactas.
+
+   | Archivo local | Ruta del objeto dentro del bucket |
+   | --- | --- |
+   | `img/diagnostico-por-imagen.webp` | `inicio/diagnostico-por-imagen.webp` |
+   | `img/owie.jpg` | `equipo/owie.jpg` |
+   | `img/logo-imagenologia-veterinaria.png` | `sitio/logo-imagenologia-veterinaria.png` |
+
+4. Ejecuta [datos_iniciales.sql](datos_iniciales.sql). Comprueba que hay tres servicios, doce requisitos, un integrante y una fila de contacto. Abre la URL pública de la portada en una ventana privada. Cuando tengas la foto definitiva, súbela a `equipo/` y copia la ruta relativa en `equipo.foto_ruta` del integrante.
+
+La base guarda rutas relativas. El navegador podrá construir la URL pública a partir del bucket y la ruta. La política de Storage permite que un administrador cargue, reemplace y borre objetos en las tres carpetas. Las imágenes de ese bucket se sirven públicamente por URL.
+
+### Cómo se relacionan las tablas
+
+- `contenido_sitio` guarda un bloque por clave, con texto o ruta de imagen. La clave es el identificador que usará JavaScript para localizar cada bloque.
+- `equipo` guarda un integrante por fila. Es la entidad para demostrar el CRUD completo. `orden` permite controlar la posición de la tarjeta.
+- `servicios` guarda el precio en USD y los detalles como lista. `requisitos_servicio.servicio_id` permite asociar varios requisitos a un servicio. Al desactivar un servicio, sus requisitos también dejan de aparecer en consultas públicas.
+- `datos_contacto` tiene ID fijo `1` para compartir la misma información entre Contacto y el footer.
+- `solicitudes` relaciona el servicio elegido y el usuario autenticado. Se conserva el historial de solicitudes. Un servicio que ya tiene solicitudes se puede ocultar mediante `activo = false`. La clave foránea impide su eliminación física.
+- `perfiles.id` coincide con el UUID de Supabase Auth. Al crear una cuenta, el trigger crea el perfil como `usuario`. Los perfiles de las cuentas que ya existían también se inicializan como `usuario`.
+
+## 3. Configurar Auth y verificar los permisos
+
+Habilita el proveedor de correo y contraseña y el registro por correo. Mantén desactivado el inicio anónimo. Para probar permisos ahora, crea dos cuentas de prueba confirmadas en **Authentication → Users**. Copia el UUID de la cuenta encargada y ejecuta en SQL Editor:
+
+```sql
+update public.perfiles
+set rol = 'admin'
+where id = 'PEGA_AQUI_EL_UUID'::uuid
+returning id, rol;
+```
+
+La consulta debe devolver una fila con rol `admin`. La segunda cuenta conserva `usuario`. El navegador usará la clave publicable y, al iniciar sesión, el token de la cuenta. La asignación de roles se hace desde el panel. Guarda las credenciales de prueba para Moodle.
+
+| Acción | Visitante | Usuario | Admin |
+| --- | --- | --- | --- |
+| Leer contenido, equipo y contacto | Sí | Sí | Sí |
+| Ver servicios inactivos y sus requisitos | No | No | Sí |
+| Crear solicitud para un servicio activo | No | Sí | Sí |
+| Leer solicitudes o cambiar su estado | No | No | Sí |
+| Editar contenido o gestionar equipo, servicios e imágenes | No | No | Sí |
+| Cambiar el rol propio desde el sitio | No | No | No |
+
+### Prueba rápida desde SQL Editor
+
+Las consultas normales del editor se ejecutan con privilegios del panel. Para probar las políticas, simula el rol del navegador dentro de una transacción. Ejecuta el bloque primero como está y luego cambia el rol a `authenticated` y la cadena JSON a `{"sub":"UUID_REAL_DE_LA_CUENTA","role":"authenticated","is_anonymous":false}`. Repite para las dos cuentas.
+
+```sql
+begin;
+-- Crea temporalmente un caso que solo el admin debería poder leer.
+update public.servicios set activo = false where nombre = 'Ultrasonido de urgencia';
+
+set local role anon;
+select set_config('request.jwt.claims', '{}', true);
+
+select nombre, activo from public.servicios order by orden;
+select count(*) as requisitos_visibles from public.requisitos_servicio;
+
+rollback;
+```
+
+El visitante y el usuario deben ver dos servicios y ocho requisitos. El admin debe ver tres servicios y doce requisitos. El `rollback` revierte la desactivación.
+
+### Pruebas de escritura y Storage
+
+Con la Data API, usa la clave publicable y el token de la cuenta que estés probando. Para un visitante, usa solo la clave publicable. Ejecuta cada caso con datos ficticios y registra el resultado. Una actualización filtrada por RLS puede afectar cero filas sin devolver error. Comprueba el resultado leyendo la fila con la cuenta admin.
+
+1. Intenta insertar en `solicitudes` enviando solo `servicio_id`, `nombre`, `telefono`, `correo` y `motivo`. Prueba con visitante, usuario y admin. Las cuentas autenticadas pueden enviar para un servicio activo y la fila debe guardarse con el UUID de la sesión y estado `nueva`. Usa una inserción sin solicitar la representación de la fila, porque el usuario común carece de permiso de lectura. Prueba también un ID de servicio inactivo y un correo inválido. Ambos deben rechazarse.
+2. Intenta enviar `estado = 'atendida'` o el UUID de otra persona al crear una solicitud. Deben rechazarse por permisos de columna. Consulta y marca una solicitud como `atendida` con el admin. Repite la lectura y actualización con el usuario común y verifica que no puede ver la fila ni cambiarla.
+3. Intenta actualizar `perfiles.rol` de la cuenta común con su propio token. Debe rechazarse. Con admin, crea, lee, actualiza y elimina un integrante ficticio. Repite las operaciones de escritura con el usuario y comprueba que no cambian los datos.
+4. Desde la API de Storage, intenta cargar un archivo en `equipo/prueba.webp` con el usuario y el admin. Solo el admin debe poder cargarlo, reemplazarlo y borrarlo. Tras cargarlo, abre su URL pública en una ventana privada. Elimina el archivo de prueba con el admin.
+5. Revisa **Database Advisors** y verifica que las siete tablas del sitio tengan RLS habilitada. Al conectar el sitio, vuelve a probar el registro, inicio y cierre de sesión con el formulario real.
+
+Los permisos de tabla y columna definen qué operaciones puede pedir cada cliente. Las políticas RLS definen a qué filas se aplican. La función `privado.es_admin()` consulta el perfil propio permitido por RLS, y el trigger de registro es la pieza con permisos elevados para crear el perfil inicial. El acceso al backoffice se defenderá con estas reglas aunque alguien navegue directamente a `admin/`.
+
+Referencias oficiales
+
+- [Supabase Auth y perfiles](https://supabase.com/docs/guides/auth/managing-user-data)
+- [Permisos de la Data API](https://supabase.com/docs/guides/api/securing-your-api)
+- [Políticas RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Políticas de Storage](https://supabase.com/docs/guides/storage/security/access-control)
+</file>
+
+<file path="CONVENCIONES.md">
+# CONVENCIONES DEL REPOSITORIO — Imagenología Veterinaria
+
+Sitio estático (HTML + CSS, sin build, sin framework). Este documento fija las convenciones observadas en el repo y marca dónde el código actual **no las cumple**.
+
+- **Alcance analizado:** `index.html`, `quienSomos.html`, `servicios.html`, `contacto.html`, `css/estilo_home.css`, `css/estilo_quienSomos.css`, `css/estilo_servicios.css`, `css/estilo_contacto.css`, `.gitattributes`.
+- **No analizado:** carpeta `img/` (solo se ven las rutas referenciadas).
+- **Leyenda de prioridad:** **P1** = rompe algo o contradice contenido · **P2** = inconsistencia que complica mantener · **P3** = pulido.
+
+---
+
+## 1. Estructura de archivos
+
+```
+/
+├── index.html
+├── quienSomos.html
+├── servicios.html
+├── contacto.html
+├── css/
+│   ├── estilo_<pagina>.css
+│   └── ...
+├── img/
+└── .gitattributes        (* text=auto → fin de línea LF)
+```
+
+| Regla | Detalle |
+|---|---|
+| Un HTML por página en la raíz | Enlaces entre páginas **relativos**, sin `/` inicial. |
+| Un CSS por página | Nombre: `estilo_<pagina>.css`. |
+| Imágenes en `img/` | Nombres en **kebab-case**, descriptivos (`logo-imagenologia-veterinaria.png`, `diagnostico-por-imagen.webp`). Preferir `.webp` para fotos. |
+| Sin JS externo por ahora | El único script es inline en `contacto.html`. Si crece, mover a `js/<pagina>.js`. |
+
+### Discrepancias
+
+| P | Dónde | Problema | Corrección |
+|---|---|---|---|
+| P2 | `quienSomos.html` | Es el único HTML en camelCase; el resto va en minúsculas. | Renombrar a `quienes-somos.html` (actualizar enlaces en las 4 páginas) o fijar camelCase como regla y documentarlo. |
+| P2 | `img/owie.jpg` | Nombre no descriptivo; el comentario del HTML aún dice `img/nosotros.jpg`. | Renombrar a `nosotros-equipo.jpg` y eliminar el comentario. |
+| P2 | `index.html` (hero), `quienSomos.html` (equipo) | Imágenes remotas (Unsplash y un proxy de DuckDuckGo). Se rompen si el origen cambia. | Descargar a `img/` y referenciar local. Mantener `onerror` solo si hay respaldo local. |
+
+---
+
+## 2. HTML
+
+### 2.1 Esqueleto de página
+
+1. `<!DOCTYPE html>` + `<html lang="es">`.
+2. `<head>`: charset, viewport, `<title>`, preconnect de Google Fonts, fuentes (**Montserrat** + **Open Sans**), Font Awesome 6.4.0 (cdnjs), CSS propio.
+3. `<header class="navbar">` (idéntico en todas las páginas).
+4. Contenido en `<section>` (o `<main>`).
+5. `<footer class="footer">` (idéntico en todas las páginas).
+
+### 2.2 Título (`<title>`)
+
+Formato: `Página - Imagenología Veterinaria`. La portada puede usar el lema.
+
+### 2.3 Estructura de sección
+
+```html
+<section id="slug-en-español" class="section-padding [section-navy]">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-subtitle">…</span>
+      <h2 class="section-title">…</h2>
+      <p class="section-description">…</p>
+    </div>
+    …
+  </div>
+</section>
+```
+
+- Fondos alternados: `section-navy` en secciones pares.
+- `id` en minúsculas, kebab-case, **en español** (`inicio`, `testimonios`, `nosotros`, `mision-vision`, `equipo`, `servicios`, `contacto`).
+
+### 2.4 Navegación
+
+- Orden: Inicio · Quiénes somos · Servicios · Contacto · botón **Agendar Cita**.
+- El enlace a la **página actual** apunta a su ancla (`#inicio`, `#nosotros`, `#servicios`, `#contacto`); los demás, al archivo.
+- Menú móvil con patrón checkbox (`#menu-toggle`) + `<label class="hamburger">`, sin JS.
+
+### 2.5 Enlaces externos
+
+- WhatsApp: `https://wa.me/50377222775` con `target="_blank"`. El botón de cita lleva `?text=` ya codificado (`%20`, `%C3%AD`).
+- Teléfono visible: `+503 7722 2775`. Correo: `ecografia@imagenologiaveterinaria.com`.
+
+### 2.6 Estilo de código
+
+- Indentación de **4 espacios**. Atributos con comillas dobles.
+- Comentarios en español, en mayúsculas para bloques: `<!-- SECCIÓN TESTIMONIOS -->`.
+
+### 2.7 Jerarquía de encabezados
+
+- **Un solo `<h1>` por página**, el primero visible. Siguientes secciones: `<h2>`; subelementos: `<h3>`/`<h4>`.
+- Usar `<main>` envolviendo el contenido entre header y footer.
+
+### Discrepancias
+
+| P | Dónde | Problema | Corrección |
+|---|---|---|---|
+| **P1** | `servicios.html` | `lang="en"` en una página en español. | `lang="es"`. |
+| **P1** | `servicios.html` (footer) | Logo con `href="#inicio"`, pero no existe ese `id` en la página. | `href="index.html"`. |
+| **P1** | `servicios.html` ↔ `contacto.html` ↔ `servicios.html` | Contradicción de contenido: contacto dice que el estudio es **a domicilio**; requisitos dice que el afeitado se hace **"en la clínica"**; el hero habla de "cada consulta". | Definir el modelo de servicio y unificar los tres textos. |
+| P2 | `servicios.html` | Dos `<h1>`: "Servicios" y "Requisitos del paciente". | El segundo pasa a `<h2 class="section-title">`. |
+| P2 | `quienSomos.html` | No tiene `<h1>`; el título de la página es un `<h2>`. | Cambiar "Quiénes Somos" a `<h1 class="section-title">`. |
+| P2 | `index.html`, `quienSomos.html`, `servicios.html` | Sin `<main>`; solo `contacto.html` lo usa. | Envolver el contenido en `<main>` en las 4 páginas. |
+| P2 | `servicios.html` | Precios dentro de `<h3>$35</h3>`: no es un encabezado. | `<p class="servicio-precio">$35</p>` y darle estilo. |
+| P2 | `<title>` de `servicios.html` y `quienSomos.html` | `servicios.html` = "Servicios" (sin marca); `quienSomos.html` = "Nosotros" (el menú dice "Quiénes somos"); `index.html` invierte el orden. | `Servicios - Imagenología Veterinaria`, `Quiénes somos - Imagenología Veterinaria`. |
+| P2 | Teléfono en footers | `index`, `quienSomos`, `servicios`: `77222775`; `contacto`: `+503 7722 2775`. | Usar siempre `+503 7722 2775`. |
+| P2 | Nav y footer, todas las páginas | "Quienes somos" / "Quienes Somos" sin tilde; "Contactenos" sin tilde y distinto del "Contacto" del menú. | "Quiénes somos" y "Contacto" en ambos lugares. |
+| P3 | Logo (4 páginas) | `IMAGENOLOGIA` sin tilde mientras el resto del texto usa "Imagenología". | Decidir: con tilde (`IMAGENOLOGÍA`) o documentar que el logotipo va sin ella. |
+| P3 | `servicios.html` | "ultrasonido abdominal" en minúscula; "toracico" sin tilde; "Cardiaco y vascular" con mayúscula interna; "guian" en `quienSomos.html` (→ "guían"). | Capitalizar solo la primera letra del título; revisar ortografía. |
+| P3 | `contacto.html` | "Martes: de 8:30 AM - 5:00 PM" (sobra "de"). | Igualar formato con los otros días. |
+| P3 | `quienSomos.html` | Bloque `mvv-grid` sin sangrar; comentarios "FOTOS DE PLACEHOLDER!!!!" y "Fila 1" quedaron como notas internas. | Re-indentar y limpiar comentarios. |
+| P3 | `servicios.html` | Sin comentarios de sección (el resto sí). | Añadir `<!-- SECCIÓN SERVICIOS -->`, `<!-- REQUISITOS -->`. |
+| P3 | Todas | Falta `<meta name="description">` y favicon. | Añadir en cada `<head>`. |
+| P3 | Enlaces con `target="_blank"` | Sin `rel="noopener noreferrer"` (el script de contacto sí lo usa en `window.open`). | Añadir `rel`. |
+| P3 | Botón hamburguesa | `<label>` sin nombre accesible. | `aria-label="Abrir menú"`. |
+
+---
+
+## 3. CSS
+
+### 3.1 Arquitectura (convención vigente en la práctica)
+
+Cada hoja lleva, en este orden:
+
+1. Cabecera con nombre del archivo e **índice numerado**.
+2. Variables (`:root`).
+3. Reinicio global y base.
+4. Contenedor y utilidades.
+5. Botones.
+6. Navbar.
+7. Bloques propios de la página.
+8. Footer.
+9. Filtros de escala (responsive).
+
+Los separadores son `/* ===== N. TÍTULO ===== */`.
+
+### 3.2 Variables
+
+- Todas en `:root`, en **español**, formato `--categoria-parte-propósito`:
+  `--color-fondo-*`, `--color-borde-*`, `--color-acento-*`, `--color-texto-*`, `--fuente-*`, `--tamano-*`, `--relleno-*`, `--espacio-*`, `--radio-borde-*`, `--transicion-*`.
+- **Regla:** ningún color, fuente o radio se escribe a mano si ya existe variable.
+
+### 3.3 Nomenclatura de clases
+
+- **kebab-case**, sin ids para estilos.
+- **Componentes base compartidos** (heredados, no renombrar): `navbar`, `nav-link`, `btn*`, `container`, `section-*`, `footer-*`.
+- **Bloques nuevos de página:** en español, `bloque-elemento` (`servicio-card`, `servicios-grid`).
+- Tarjetas siempre con sufijo `-card`.
+
+### 3.4 Unidades y layout
+
+- `rem` para tamaños y espacios; `clamp()` para valores fluidos; `px` solo para bordes, `letter-spacing` y tamaños fijos de imagen/avatar.
+- Grillas con CSS Grid y `minmax(0, …)`; `flex` solo para filas simples.
+- Breakpoints estándar (de mayor a menor): `2200`, `1600–2199`, `1100`, `992` (hamburguesa), `768`, `576`, `380`, altura `520` landscape, `hover: none`, `prefers-reduced-motion`.
+- Footer de **3 columnas**: `1.5fr 1fr 1.2fr` → 2 columnas a ≤992 → 1 a ≤576.
+
+### Discrepancias
+
+| P | Dónde | Problema | Corrección |
+|---|---|---|---|
+| **P1** | `estilo_home.css` ↔ `index.html` | El footer define **4 columnas** pero el HTML tiene 3 bloques: queda una columna vacía y el reparto es distinto al resto de páginas. | `grid-template-columns: minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr)`. |
+| **P1/P2** | Las 4 hojas | **Base duplicada**: variables, reset, navbar, botones y footer se copian en `estilo_home`, `estilo_quienSomos` y `estilo_servicios`. Cambiar un color implica editar 3 archivos; ya hay derivas (ver abajo). `contacto` en cambio carga `estilo_home.css` + la suya. | Extraer `css/base.css` (secciones 1–5, footer y filtros comunes) y dejar `estilo_<pagina>.css` solo con lo específico. Cada HTML carga `base.css` + su hoja. Es la corrección que más reduce el resto de discrepancias. |
+| P2 | `estilo_contacto.css` | Colores y fuentes en **hex/literal** (`#0f1942`, `#1e2d66`, `'Montserrat'`…) pese a existir variables. | Reemplazar por `var(--color-fondo-tarjeta)`, `var(--color-borde-tarjeta)`, `var(--fuente-titulos)`, etc. |
+| P2 | `estilo_contacto.css` | `.contacto-whatsapp` reimplementa el botón verde que ya es `.btn.btn-whatsapp`. | Usar las clases del botón en el HTML y borrar la regla. |
+| P2 | `estilo_contacto.css` | Sin cabecera ni índice; comentario inicial `/* Contacto */`; espaciado propio (`padding: 4rem 0 3rem`) en lugar de `.section-padding`. | Añadir cabecera/índice y usar `section-padding`. |
+| P2 | `estilo_servicios.css` | Sin cabecera ni índice; la numeración salta de 5 a 8; `SERVICIOS` y `requirements` sin número y con estilos de comentario distintos (`/*---- requirements ----*/`). `requirements` repite el `clamp()` de `.section-padding`. | Cabecera + índice, numeración continua, usar `section-padding`. |
+| P2 | Nombre de bloque `requirements` / `.lista` / `.sublista` | `requirements` en inglés (bloque nuevo, debería ser español); `lista`/`sublista` demasiado genéricos. | `requisitos`, `requisitos-lista`, `requisitos-sublista`. |
+| P2 | Footer-grid | Tres valores distintos: home `…1.2fr` (4 col), servicios `1.5/1/1`, quienSomos y contacto `1.5/1/1.2`. | Unificar en `base.css`. |
+| P2 | `estilo_servicios.css` | Falta el breakpoint `768` (`.footer-bottom` en columna) que sí tienen `home` y `quienSomos`. | Se resuelve con `base.css`. |
+| P3 | `estilo_home.css`, `estilo_servicios.css` | Regla huérfana `.logo-icon svg` (el logo es `<img>`). `estilo_quienSomos.css` ya no la tiene. | Eliminar. |
+| P3 | `estilo_quienSomos.css` | Nota de edición sobrante: `/* Después (3 columnas, coincide con el HTML) */`. | Eliminar. |
+| P3 | `.servicio-card:hover`, `.mvv-card:hover` | Usan `--color-fondo-insignia-hero` como color de sombra (nombre semántico incorrecto). | Crear `--color-sombra-tarjeta-hover`. |
+| P3 | `.servicios` | El degradado del fondo usa `rgba(3, 11, 48, …)` a mano. | Variable `--color-fondo-pagina-rgb` o variable de overlay. |
+| P3 | Hover de tarjetas | `translateY` de -2, -4 y -5 px; `mvv-card` usa transición explícita en vez de `--transicion-estandar`. | Un valor único por componente tipo tarjeta. |
+| P3 | `.servicios-grid` | Usa `flex-wrap` mientras el resto de grillas de tarjetas usa Grid. | Pasar a `grid` con `repeat(auto-fit, minmax(16rem,1fr))`. |
+| P3 | `.team-grid` | 3 columnas fijas con una sola tarjeta: queda a la izquierda. | `auto-fit` o centrar mientras haya pocas tarjetas. |
+| P3 | Variables sin uso | `--color-acento-turquesa`, `.btn-full`, `.section-desc-space(-sm)` en varias hojas. | Mantener solo si se prevé uso; si no, borrar. |
+| P3 | Llaves | `.servicios{`, `.logo-icon > img{` sin espacio antes de `{`. | `selector {`. |
+
+---
+
+## 4. JavaScript (solo `contacto.html`)
+
+Convención actual del único script:
+
+- Inline al final del `<body>`, `addEventListener("submit", …)` con `preventDefault()`.
+- Variables en español (`datos`, `mensaje`, `evento`), comillas dobles.
+- El formulario no envía a servidor: arma un mensaje y abre WhatsApp con `encodeURIComponent`.
+
+| P | Problema | Corrección |
+|---|---|---|
+| P2 | Usa `var` y `function`. | `const` / `let` y funciones flecha en código nuevo. |
+| P2 | El número `50377222775` está duplicado en HTML y JS. | Constante única al inicio del script o `data-whatsapp` en el `<form>`. |
+| P3 | Script inline. | Mover a `js/contacto.js` cuando se agregue más lógica. |
+
+---
+
+## 5. Contenido y tono
+
+| Regla | Detalle |
+|---|---|
+| Idioma | Español, con **tilde completa** en menús, títulos y marca. |
+| Trato | **Tuteo** ("tu mascota", "contáctanos", "cuéntanos"). |
+| Terminología | "Ecografía" / "ultrasonido" se usan indistintamente; elegir uno como principal y el otro como sinónimo en la descripción. |
+| Moneda | `$` + número sin decimales (`$35`). |
+
+| P | Dónde | Problema | Corrección |
+|---|---|---|---|
+| P2 | `servicios.html` (requisitos) | Usa **usted** ("consulte con nosotros", "Siga las instrucciones", "proporcione"). | Pasar a tuteo: "consúltanos", "sigue", "proporciona". |
+| P2 | `index.html` (testimonios), `quienSomos.html` (equipo) | Testimonios, nombres y trayectoria ("más de 15 años") parecen de ejemplo. | Confirmar que son reales/autorizados o marcarlos como provisionales antes de publicar. |
+
+---
+
+## 6. Lista de verificación antes de cada commit
+
+- [ ] `lang="es"`, `<title>` con el formato `Página - Imagenología Veterinaria`.
+- [ ] Un solo `<h1>`, contenido dentro de `<main>`.
+- [ ] Nav y footer idénticos al resto de páginas (mismos textos, tildes y teléfono).
+- [ ] Ningún color, fuente o radio escrito a mano: se usa `var(--…)`.
+- [ ] Clases nuevas en kebab-case y en español (salvo componentes base).
+- [ ] Imágenes locales en `img/`, nombre kebab-case, `alt` descriptivo (en el equipo, el nombre de la persona, no "Miembro del equipo").
+- [ ] Probado en ≤992 px (hamburguesa), ≤576 px y ≥1600 px.
+- [ ] Sin comentarios de trabajo pendientes ni notas de edición.
+
+---
+
+## 7. Orden sugerido de corrección
+
+1. **P1:** `lang` de `servicios.html`, enlace `#inicio` roto, footer de 4 columnas en `estilo_home.css`, contradicción domicilio/clínica.
+2. **Extraer `css/base.css`** y migrar las 4 páginas (elimina la mayoría de P2 de CSS).
+3. Normalizar nav/footer/teléfono/tildes en los 4 HTML.
+4. Semántica: `<main>`, un `<h1>`, precios fuera de `<h3>`.
+5. Pulido P3.
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagenología Veterinaria - Diagnóstico Ecográfico de Precisión</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Hoja de estilos vinculada -->
+    <link rel="stylesheet" href="css/estilo_home.css">
+</head>
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <header class="navbar">
+        <div class="container navbar-container">
+            <a href="#inicio" class="brand-logo">
+                <div class="logo-icon">
+                    <img src="img/logo-imagenologia-veterinaria.png" alt="Logo principal">
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">IMAGENOLOGIA</span>
+                    <span class="logo-subtitle">VETERINARIA</span>
+                </div>
+            </a>
+
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+
+            <nav class="nav-menu">
+                <a href="#inicio" class="nav-link">Inicio</a>
+                <a href="quienSomos.html" class="nav-link">Quienes somos</a>
+                <a href="servicios.html" class="nav-link">Servicios</a>
+                <a href="contacto.html" class="nav-link">Contacto</a>
+                <a href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- SECCIÓN HERO (PORTADA) -->
+    <section id="inicio" class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fa-solid fa-microscope"></i> Ecografía Clínica Especializada
+                </div>
+                <h1 class="hero-title">Diagnóstico de precisión y <span>cuidado experto</span> para tu mascota.</h1>
+                <p class="hero-description">
+                    Estudios ecográficos veterinarios de alta resolución para un diagnóstico oportuno, certero y no invasivo. Respuestas claras cuando más lo necesitas.
+                </p>
+                <div class="hero-actions">
+                    <a href="https://wa.me/50377222775?text=Hola,%20necesito%20informaci%C3%B3n%20para%20una%20ecograf%C3%ADa." target="_blank" class="btn btn-whatsapp">
+                        <i class="fa-brands fa-whatsapp"></i> Agendar por WhatsApp
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image-wrapper">
+                <div class="hero-card-frame">
+                    <img src="https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&w=800&q=80" alt="Ecografía veterinaria en proceso" class="hero-img" onerror="this.src='https://placehold.co/600x400/030b30/ffffff?text=Ecograf%C3%ADa+Veterinaria'">
+                    <div class="hero-floating-badge">
+                        <div class="floating-icon">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <div class="floating-text">
+                            <h4>Resultados Inmediatos</h4>
+                            <p>Informe clínico completo en cada consulta</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN TESTIMONIOS -->
+    <section id="testimonios" class="section-padding">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Confianza Demostrada</span>
+                <h2 class="section-title">Testimonios de Pacientes</h2>
+                <p class="section-description">La tranquilidad de quienes confían en nuestro diagnóstico nos avala día a día.</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div>
+                        <div class="testimonial-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">
+                            "Llevé a mi perrita por un dolor abdominal persistente. La atención fue impecable y el diagnóstico ecográfico permitió a su veterinario operar a tiempo. Totalmente recomendados."
+                        </p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MC</div>
+                        <div class="author-info">
+                            <h4>María Contreras</h4>
+                            <p>Tutora de "Luna" (Golden Retriever)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div>
+                        <div class="testimonial-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">
+                            "Excelente nivel profesional y gran paciencia con mi gato, que suele ser muy nervioso en consultas clínicas. El informe me lo entregaron de inmediato."
+                        </p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">DR</div>
+                        <div class="author-info">
+                            <h4>Dr. Roberto Rivas</h4>
+                            <p>Veterinario Remitente</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div>
+                        <div class="testimonial-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">
+                            "El monitoreo ecográfico de la gestación de mi mascota fue una experiencia muy emocionante y súper clara. Explicaron detalladamente cada órgano."
+                        </p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">AG</div>
+                        <div class="author-info">
+                            <h4>Andrea Gómez</h4>
+                            <p>Tutora de "Bella"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PIE DE PÁGINA (FOOTER) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="#inicio" class="brand-logo">
+                        <div class="logo-text">
+                            <span class="logo-title">IMAGENOLOGIA</span>
+                            <span class="logo-subtitle">VETERINARIA</span>
+                        </div>
+                    </a>
+                    <p>Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Navegación</h4>
+                    <ul class="footer-links">
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="quienSomos.html">Quienes Somos</a></li>
+                        <li><a href="servicios.html">Servicios</a></li>
+                        <li><a href="contacto.html">Contactenos</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Contacto Rápido</h4>
+                    <p class="footer-contact-info">WhatsApp: <span data-contacto="telefono">77222775</span></p>
+                    <p class="footer-contact-info footer-contact-space"><span data-contacto="correo">ecografia@imagenologiaveterinaria.com</span></p>
+                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
+                        <i class="fa-brands fa-whatsapp"></i> Chat Directo
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Imagenología Veterinaria. Todos los derechos reservados.</p>
+                <p>Diagnóstico Ecográfico Especializado</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/ui/contacto-publico.js"></script>
+</body>
+</html>
+</file>
+
+<file path="css/admin.css">
+/* Los colores y las fuentes provienen de estilo_home.css. */
+
+[hidden] {
+    display: none !important;
+}
+
+.admin-contenido {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.admin-introduccion {
+    margin-bottom: 2rem;
+}
+
+.admin-introduccion .section-title {
+    margin-bottom: 0.75rem;
+}
+
+/* Paneles */
+
+.admin-contenido .panel {
+    padding: clamp(1rem, 3vw, 2rem);
+    margin-bottom: 1.5rem;
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+}
+
+.admin-contenido .acceso {
+    max-width: 30rem;
+    margin: 2rem auto;
+}
+
+.admin-contenido h2 {
+    margin-bottom: 1rem;
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+}
+
+.admin-contenido h3 {
+    margin-bottom: 0.75rem;
+    color: var(--color-acento-azul-claro);
+    font-size: 1.1rem;
+}
+
+/* Formularios */
+
+.admin-contenido label {
+    display: block;
+    margin: 1rem 0 0.5rem;
+    color: var(--color-texto-principal);
+    font-weight: 600;
+}
+
+.admin-contenido input,
+.admin-contenido textarea {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background-color: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
+    font: inherit;
+    color-scheme: dark;
+}
+
+.admin-contenido input::placeholder,
+.admin-contenido textarea::placeholder {
+    color: var(--color-texto-secundario);
+}
+
+.admin-contenido input:focus,
+.admin-contenido textarea:focus {
+    border-color: var(--color-acento-azul-claro);
+}
+
+.admin-contenido textarea {
+    min-height: 8rem;
+    resize: vertical;
+}
+
+.admin-contenido fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.admin-contenido small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--color-texto-secundario);
+}
+
+/* Botones administrativos */
+
+.admin-contenido button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+    border: 2px solid transparent;
+    border-radius: var(--radio-borde-boton);
+    font-family: var(--fuente-titulos);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transicion-estandar);
+}
+
+.admin-contenido button:hover:not(:disabled) {
+    background-color: var(--color-acento-azul-claro);
+    color: var(--color-fondo-pagina);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-principal);
+}
+
+.admin-contenido button.secundario {
+    background-color: transparent;
+    color: var(--color-texto-titulos);
+    border-color: var(--color-acento-azul);
+}
+
+.admin-contenido button.secundario:hover:not(:disabled) {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    border-color: var(--color-acento-azul-claro);
+    box-shadow: none;
+}
+
+.admin-contenido button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.admin-contenido #form-login button {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+/* Barra de sesión y acciones */
+
+.admin-contenido .barra,
+.admin-contenido .acciones {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin-contenido .barra {
+    margin-bottom: 1.5rem;
+}
+
+.admin-contenido .barra h2 {
+    margin-bottom: 0;
+}
+
+.admin-contenido .acciones {
+    justify-content: flex-start;
+    margin-top: 1.5rem;
+}
+
+.admin-contenido #usuario {
+    min-width: 0;
+    color: var(--color-texto-secundario);
+    overflow-wrap: anywhere;
+}
+
+/* Listas de servicios y requisitos */
+
+.admin-contenido .lista {
+    padding: 0;
+    margin: 0 0 2rem;
+    list-style: none;
+}
+
+.admin-contenido .lista > li {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--color-borde-tarjeta);
+}
+
+.admin-contenido .lista > li > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.admin-contenido .lista strong {
+    color: var(--color-texto-titulos);
+    font-family: var(--fuente-titulos);
+}
+
+.admin-contenido .lista p {
+    margin: 0.5rem 0;
+    color: var(--color-texto-secundario);
+    white-space: pre-line;
+}
+
+.admin-contenido .lista ul {
+    margin-top: 0.75rem;
+    padding-left: 1.25rem;
+    color: var(--color-texto-secundario);
+    list-style: disc;
+}
+
+.admin-contenido .lista ul li + li {
+    margin-top: 0.35rem;
+}
+
+.admin-contenido .lista button {
+    flex-shrink: 0;
+}
+
+/* Datos de contacto */
+
+.admin-contenido .contacto-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1rem;
+}
+
+.admin-contenido #mensaje-contacto {
+    padding: 1rem;
+    margin-top: 1rem;
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
+    overflow-wrap: anywhere;
+}
+
+.admin-contenido #mensaje-contacto.error {
+    background-color: #321b2a;
+    color: #ffd5d5;
+    border-color: #d77a88;
+}
+
+/* Mensajes */
+
+.admin-contenido #mensaje {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--color-fondo-insignia-hero);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-boton);
+    overflow-wrap: anywhere;
+}
+
+.admin-contenido #mensaje.error {
+    background-color: #321b2a;
+    color: #ffd5d5;
+    border-color: #d77a88;
+}
+
+/* El control del menú solo se utiliza en móvil. */
+
+@media (min-width: 993px) {
+    .navbar .menu-toggle {
+        display: none;
+    }
+}
+
+/* Adaptación del contenido administrativo */
+
+@media (max-width: 600px) {
+    .admin-contenido .barra,
+    .admin-contenido .lista > li {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-contenido .acciones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-contenido .lista button,
+    .admin-contenido .acciones button {
+        width: 100%;
+    }
+}
+
+/* Header administrativo */
+
+.admin-navbar {
+    flex-wrap: wrap;
+}
+
+.admin-volver {
+    flex-shrink: 0;
+}
+
+/* Indicación integrada en el formulario */
+
+.admin-contenido .acceso h2 {
+    margin-bottom: 0.5rem;
+}
+
+.admin-contenido .admin-ayuda {
+    margin-bottom: 1.5rem;
+    color: var(--color-texto-secundario);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+    .admin-contenido .contacto-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-navbar {
+        justify-content: center;
+    }
+
+    .admin-volver {
+        width: 100%;
+    }
+}
+</file>
+
+<file path="js/ui/admin.js">
+import {
+    iniciarSesion,
+    cerrarSesion,
+    obtenerPersonal,
+    observarSesion
+} from "../data/auth.js";
+
+import {
+    listarContenido,
+    actualizarContenido
+} from "../data/servicios.js";
+
+import {
+    obtenerContacto,
+    actualizarContacto
+} from "../data/contacto.js";
+
+const elementos = {
+    mensaje: document.querySelector("#mensaje"),
+    acceso: document.querySelector("#acceso"),
+    backoffice: document.querySelector("#backoffice"),
+    usuario: document.querySelector("#usuario"),
+    login: document.querySelector("#form-login"),
+    logout: document.querySelector("#logout"),
+    recargar: document.querySelector("#recargar"),
+    editor: document.querySelector("#editor"),
+    formulario: document.querySelector("#form-editor"),
+    campos: document.querySelector("#campos-editor"),
+    titulo: document.querySelector("#titulo-editor"),
+    camposServicio: document.querySelector("#campos-servicio"),
+    cancelar: document.querySelector("#cancelar"),
+    contacto: document.querySelector("#form-contacto"),
+    camposContacto: document.querySelector("#campos-contacto"),
+    mensajeContacto: document.querySelector("#mensaje-contacto")
+};
+
+const listas = {
+    servicios: document.querySelector("#lista-servicios"),
+    requisitos: document.querySelector("#lista-requisitos")
+};
+
+let seleccion = null;
+let ocupado = false;
+let sesionRevision = 0;
+
+function mostrarMensaje(texto, error = false) {
+    elementos.mensaje.textContent = texto;
+    elementos.mensaje.hidden = !texto;
+    elementos.mensaje.classList.toggle("error", error);
+}
+
+function mostrarMensajeContacto(texto, error = false) {
+    elementos.mensajeContacto.textContent = texto;
+    elementos.mensajeContacto.hidden = !texto;
+    elementos.mensajeContacto.classList.toggle("error", error);
+}
+
+function establecerOcupado(valor) {
+    ocupado = valor;
+    elementos.backoffice.setAttribute("aria-busy", String(valor));
+    elementos.campos.disabled = valor;
+    elementos.camposContacto.disabled = valor;
+    elementos.recargar.disabled = valor;
+    elementos.logout.disabled = valor;
+
+    document.querySelectorAll(".lista button").forEach((boton) => {
+        boton.disabled = valor;
+    });
+}
+
+function cerrarEditor() {
+    seleccion = null;
+    elementos.formulario.reset();
+    elementos.editor.hidden = true;
+}
+
+function mostrarAcceso() {
+    sesionRevision += 1;
+    cerrarEditor();
+    elementos.backoffice.hidden = true;
+    elementos.acceso.hidden = false;
+    elementos.usuario.textContent = "";
+    elementos.contacto.reset();
+    mostrarMensajeContacto("");
+
+    Object.values(listas).forEach((lista) => lista.replaceChildren());
+}
+
+function pintarContacto(contacto) {
+    const campos = elementos.contacto.elements;
+
+    campos.telefono.value = contacto.telefono;
+    campos.correo.value = contacto.correo;
+    campos.horarios.value = contacto.horarios.join("\n");
+}
+
+async function cargarContacto() {
+    const revision = sesionRevision;
+    const contacto = await obtenerContacto();
+
+    if (revision !== sesionRevision) return;
+
+    if (!contacto) {
+        elementos.contacto.reset();
+        mostrarMensajeContacto(
+            "No hay datos de contacto configurados en la base de datos."
+        );
+        return;
+    }
+
+    pintarContacto(contacto);
+    mostrarMensajeContacto("");
+}
+
+function abrirEditor(tipo, registro) {
+    if (ocupado) return;
+
+    if (seleccion && !confirm("¿Descartar el formulario abierto?")) {
+        return;
+    }
+
+    seleccion = { tipo, registro };
+    const campos = elementos.formulario.elements;
+    const esServicio = tipo === "servicios";
+
+    campos.nombre.value = registro.nombre;
+    campos.descripcion.value = registro.descripcion;
+    campos.precio.value = esServicio ? registro.precio : "";
+    campos.detalles.value = esServicio ? registro.detalles.join("\n") : "";
+
+    campos.precio.required = esServicio;
+    campos.precio.disabled = !esServicio;
+    campos.detalles.disabled = !esServicio;
+    elementos.camposServicio.hidden = !esServicio;
+
+    elementos.titulo.textContent = esServicio
+        ? "Editar servicio"
+        : "Editar requisito del paciente";
+
+    elementos.editor.hidden = false;
+    mostrarMensaje("Editá los campos y guardá los cambios.");
+    campos.nombre.focus();
+}
+
+function pintarLista(tipo, registros) {
+    const lista = listas[tipo];
+    lista.replaceChildren();
+
+    if (registros.length === 0) {
+        const mensaje = document.createElement("li");
+        mensaje.textContent = "Todavía no hay registros.";
+        lista.append(mensaje);
+        return;
+    }
+
+    registros.forEach((registro) => {
+        const fila = document.createElement("li");
+        const contenido = document.createElement("div");
+        const nombre = document.createElement("strong");
+        const descripcion = document.createElement("p");
+        const boton = document.createElement("button");
+
+        nombre.textContent = registro.nombre;
+        descripcion.textContent = registro.descripcion;
+        contenido.append(nombre, descripcion);
+
+        if (tipo === "servicios") {
+            const precio = document.createElement("p");
+            precio.textContent = new Intl.NumberFormat("es-SV", {
+                style: "currency",
+                currency: "USD"
+            }).format(registro.precio);
+            contenido.append(precio);
+
+            const detalles = document.createElement("ul");
+
+            registro.detalles.forEach((texto) => {
+                const detalle = document.createElement("li");
+                detalle.textContent = texto;
+                detalles.append(detalle);
+            });
+
+            contenido.append(detalles);
+        }
+
+        boton.type = "button";
+        boton.textContent = "Editar";
+        boton.setAttribute("aria-label", `Editar ${registro.nombre}`);
+        boton.addEventListener("click", () => abrirEditor(tipo, registro));
+
+        fila.append(contenido, boton);
+        lista.append(fila);
+    });
+}
+
+async function cargarListas() {
+    const revision = sesionRevision;
+
+    const [servicios, requisitos] = await Promise.all([
+        listarContenido("servicios"),
+        listarContenido("requisitos")
+    ]);
+
+    if (revision !== sesionRevision) return;
+
+    pintarLista("servicios", servicios);
+    pintarLista("requisitos", requisitos);
+}
+
+async function acceder() {
+    establecerOcupado(true);
+
+    try {
+        const personal = await obtenerPersonal();
+
+        if (!personal) {
+            mostrarAcceso();
+            mostrarMensaje("");
+            return;
+        }
+
+        elementos.acceso.hidden = true;
+        elementos.backoffice.hidden = false;
+        elementos.usuario.textContent = personal.email;
+
+        mostrarMensaje("Cargando contenido…");
+
+        try {
+            await cargarContacto();
+        } catch (error) {
+            mostrarMensajeContacto(error.message, true);
+        }
+
+        try {
+            await cargarListas();
+            mostrarMensaje(
+                "Revisá los datos de contacto o seleccioná el contenido que querés editar."
+            );
+        } catch (error) {
+            mostrarMensaje(error.message, true);
+        }
+    } catch (error) {
+        mostrarMensaje(error.message, true);
+
+        if (elementos.backoffice.hidden) {
+            elementos.acceso.hidden = false;
+        }
+    } finally {
+        establecerOcupado(false);
+    }
+}
+
+elementos.login.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const boton = elementos.login.querySelector("button");
+    boton.disabled = true;
+    mostrarMensaje("Iniciando sesión…");
+
+    try {
+        await iniciarSesion(
+            elementos.login.elements.email.value.trim(),
+            elementos.login.elements.password.value
+        );
+
+        elementos.login.elements.password.value = "";
+        await acceder();
+    } catch (error) {
+        mostrarMensaje(error.message, true);
+    } finally {
+        boton.disabled = false;
+    }
+});
+
+elementos.contacto.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    if (ocupado) return;
+
+    const valores = Object.fromEntries(new FormData(elementos.contacto));
+
+    establecerOcupado(true);
+    mostrarMensajeContacto("Guardando datos de contacto…");
+
+    try {
+        const contacto = await actualizarContacto(valores);
+        pintarContacto(contacto);
+        mostrarMensajeContacto("Datos de contacto actualizados correctamente.");
+    } catch (error) {
+        mostrarMensajeContacto(error.message, true);
+    } finally {
+        establecerOcupado(false);
+    }
+});
+
+elementos.formulario.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    if (ocupado || !seleccion) return;
+
+    const { tipo, registro } = seleccion;
+    const valores = Object.fromEntries(new FormData(elementos.formulario));
+
+    establecerOcupado(true);
+    mostrarMensaje("Guardando cambios…");
+
+    try {
+        await actualizarContenido(tipo, registro, valores);
+        cerrarEditor();
+
+        try {
+            await cargarListas();
+            mostrarMensaje("Cambios guardados correctamente.");
+        } catch {
+            mostrarMensaje(
+                "Los cambios se guardaron, pero la lista no pudo actualizarse. Usá Recargar contenido.",
+                true
+            );
+        }
+    } catch (error) {
+        mostrarMensaje(error.message, true);
+    } finally {
+        establecerOcupado(false);
+    }
+});
+
+elementos.recargar.addEventListener("click", async () => {
+    if (ocupado) return;
+
+    if (seleccion && !confirm("¿Descartar el formulario y recargar?")) {
+        return;
+    }
+
+    cerrarEditor();
+    establecerOcupado(true);
+    mostrarMensaje("Cargando contenido…");
+
+    try {
+        await cargarContacto();
+    } catch (error) {
+        mostrarMensajeContacto(error.message, true);
+    }
+
+    try {
+        await cargarListas();
+        mostrarMensaje("Contenido actualizado.");
+    } catch (error) {
+        mostrarMensaje(error.message, true);
+    } finally {
+        establecerOcupado(false);
+    }
+});
+
+elementos.cancelar.addEventListener("click", () => {
+    cerrarEditor();
+    mostrarMensaje("Edición cancelada.");
+});
+
+elementos.logout.addEventListener("click", async () => {
+    if (seleccion && !confirm("¿Descartar el formulario y cerrar sesión?")) {
+        return;
+    }
+
+    establecerOcupado(true);
+
+    try {
+        await cerrarSesion();
+        mostrarAcceso();
+        mostrarMensaje("Sesión cerrada.");
+    } catch (error) {
+        mostrarMensaje(error.message, true);
+    } finally {
+        establecerOcupado(false);
+    }
+});
+
+observarSesion((evento) => {
+    if (evento === "SIGNED_OUT") {
+        mostrarAcceso();
+        mostrarMensaje("La sesión finalizó. Volvé a ingresar.");
+    }
+});
+
+window.addEventListener("beforeunload", (evento) => {
+    if (seleccion) {
+        evento.preventDefault();
+        evento.returnValue = "";
+    }
+});
+
+acceder();
+</file>
+
+<file path="css/estilo_contacto.css">
+/* Contacto */
+
+.contacto {
+    padding: 4rem 0 3rem;
+}
+
+.contacto h1 {
+    font-size: clamp(1.8rem, 1.4rem + 1.5vw, 2.4rem);
+    margin-bottom: 0.75rem;
+}
+
+.contacto-intro {
+    color: #94a3b8;
+    max-width: 38rem;
+    margin-bottom: 2rem;
+}
+
+.contacto-lista {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    max-width: 36rem;
+}
+
+.contacto-lista > li {
+    background: #0f1942;
+    border: 1px solid #1e2d66;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+.contacto-lista h2 {
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+}
+
+.contacto-lista p {
+    margin-bottom: 0.35rem;
+}
+
+.contacto-lista a {
+    color: #62a3c7;
+}
+
+.contacto-lista a:hover {
+    color: #ffffff;
+}
+
+.horario {
+    margin: 0.35rem 0 0;
+    padding-left: 1.1rem;
+    color: #f1f5f9;
+}
+
+.deja-datos {
+    max-width: 36rem;
+    margin-top: 1.5rem;
+}
+
+.deja-datos h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.4rem;
+}
+
+.deja-datos p {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.formulario {
+    display: grid;
+    gap: 1rem;
+    background: #0f1942;
+    border: 1px solid #1e2d66;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+}
+
+.campo {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.campo label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+    background: #030b30;
+    color: #f1f5f9;
+    border: 1px solid #1e2d66;
+    border-radius: 0.375rem;
+    padding: 0.7rem 0.85rem;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+}
+
+.campo textarea {
+    resize: vertical;
+    min-height: 6rem;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    outline: 2px solid #3a86ad;
+    border-color: #3a86ad;
+}
+
+.formulario .btn {
+    justify-self: start;
+    border: none;
+}
+
+.formulario-aviso {
+    margin: 0;
+    color: #62a3c7;
+}
+
+.contacto-whatsapp {
+    display: inline-block;
+    margin-top: 1.5rem;
+    background: #25d366;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.375rem;
+}
+
+.contacto-whatsapp:hover {
+    background: #20ba5a;
+}
+
+/* Mismo pie de 3 columnas Quiénes somos */
+.footer-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
+}
+
+@media (max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+</file>
+
+<file path="css/estilo_home.css">
+/* ==========================================================================
+   HOJA DE ESTILOS - IMAGENOLOGÍA VETERINARIA (PÁGINA DE INICIO)
+   Archivo: css/estilo_home.css
+
+   ÍNDICE
+   1. Variables (todas en español, agrupadas por la parte del sitio que usan)
+   2. Reinicio global y base de escala
+   3. Contenedor y utilidades de sección
+   4. Botones reutilizables
+   5. Barra de navegación
+   6. Sección Hero (portada)
+   7. Sección Testimonios
+   8. Pie de página
+   9. Filtros de escala (adaptación a todas las resoluciones)
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. VARIABLES
+   Convención de nombres:  --categoria-parte-propósito
+   Para cambiar un color o medida del sitio, se edita SOLO aquí.
+   ========================================================================== */
+:root {
+
+    /* ---------- COLORES DE FONDO ---------- */
+    --color-fondo-pagina: #030b30;                    /* Fondo general de toda la página (body), base del degradado del hero y del menú móvil desplegado */
+    --color-fondo-seccion-alterna: #091238;           /* Fondo de las secciones alternas (clase .section-navy); separa visualmente un bloque del siguiente */
+    --color-fondo-hero-luz: #0f1f5c;                  /* Tono más claro que ilumina la esquina superior derecha del degradado del hero */
+    --color-fondo-barra-navegacion: rgba(3, 11, 48, 0.94); /* Fondo semitransparente de la barra de navegación superior */
+    --color-fondo-pie-pagina: #020720;                /* Fondo del pie de página, un tono más oscuro que el resto */
+    --color-fondo-tarjeta: #0f1942;                   /* Fondo de las tarjetas de contenido (testimonios y futuras tarjetas) */
+    --color-fondo-etiqueta-flotante: rgba(15, 25, 66, 0.92); /* Fondo de la etiqueta flotante que se apoya sobre la imagen del hero */
+    --color-fondo-insignia-hero: rgba(58, 134, 173, 0.15);   /* Fondo de la insignia "Ecografía Clínica Especializada" del hero */
+    --color-fondo-boton-contorno-hover: rgba(58, 134, 173, 0.15); /* Fondo que aparece al pasar el cursor sobre un botón de solo contorno */
+
+    /* ---------- COLORES DE BORDES Y LÍNEAS ---------- */
+    --color-borde-tarjeta: #1e2d66;                   /* Borde de tarjetas, barra de navegación, marco de la imagen del hero y pie de página */
+    --color-linea-inferior-pie: rgba(255, 255, 255, 0.05); /* Línea fina que separa el copyright del resto del pie de página */
+
+    /* ---------- COLORES DE ACENTO (botones, resaltados, iconos) ---------- */
+    --color-acento-azul: #3a86ad;                     /* Botón principal, borde de botones de contorno, borde de la insignia del hero, icono flotante y avatar de testimonios */
+    --color-acento-azul-claro: #62a3c7;               /* Subtítulos de sección, texto resaltado del título del hero, texto de la insignia y color de enlaces al pasar el cursor */
+    --color-acento-turquesa: #2db3be;                 /* Reservado para acentos médicos; actualmente sin uso en la página de inicio */
+    --color-boton-whatsapp: #25d366;                  /* Botones de WhatsApp (hero y pie de página), verde institucional */
+    --color-boton-whatsapp-hover: #20ba5a;            /* Botón de WhatsApp al pasar el cursor */
+    --color-estrellas-testimonio: #f59e0b;            /* Estrellas de calificación de las tarjetas de testimonios */
+
+    /* ---------- COLORES DE SOMBRAS ---------- */
+    --color-sombra-boton-principal: rgba(58, 134, 173, 0.35); /* Resplandor del botón principal al pasar el cursor */
+    --color-sombra-boton-whatsapp: rgba(37, 211, 102, 0.3);   /* Resplandor del botón de WhatsApp al pasar el cursor */
+    --color-sombra-imagen-hero: rgba(0, 0, 0, 0.4);           /* Sombra que da profundidad al marco de la imagen del hero */
+
+    /* ---------- COLORES DE TEXTO ---------- */
+    --color-texto-principal: #f1f5f9;                 /* Texto de lectura general (párrafos, enlaces del menú, citas de testimonios) */
+    --color-texto-secundario: #94a3b8;                /* Texto de apoyo: descripciones, leyendas, enlaces del pie de página */
+    --color-texto-titulos: #ffffff;                   /* Títulos (h1 a h6) y nombre de la marca */
+    --color-texto-sobre-acento: #ffffff;              /* Texto que va encima de botones y elementos de color de acento */
+
+    /* ---------- TIPOGRAFÍA: FAMILIAS ---------- */
+    --fuente-titulos: 'Montserrat', sans-serif;       /* Títulos, marca, botones y datos destacados */
+    --fuente-cuerpo: 'Open Sans', sans-serif;         /* Párrafos y texto corrido */
+
+    /* ---------- TIPOGRAFÍA: TAMAÑOS FLUIDOS (se adaptan solos al ancho de pantalla) ---------- */
+    --tamano-titulo-hero: clamp(1.9rem, 1.25rem + 2.8vw, 3.1rem);      /* Título principal (h1) de la portada */
+    --tamano-titulo-seccion: clamp(1.6rem, 1.2rem + 1.7vw, 2.4rem);    /* Título (h2) de cada sección */
+    --tamano-texto-hero: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);       /* Párrafo descriptivo del hero */
+    --tamano-texto-seccion: clamp(0.95rem, 0.92rem + 0.2vw, 1.05rem);  /* Descripción bajo el título de cada sección */
+
+    /* ---------- MEDIDAS DE ESTRUCTURA ---------- */
+    --ancho-maximo-contenedor: 75rem;                 /* Ancho máximo del contenido (1200 px a tamaño normal; crece en pantallas muy grandes) */
+    --relleno-lateral-contenedor: clamp(1rem, 0.6rem + 1.6vw, 1.5rem); /* Margen interior izquierdo y derecho del contenedor */
+    --relleno-vertical-seccion: clamp(3.25rem, 2rem + 4.5vw, 5.625rem); /* Espacio arriba y abajo de cada sección (clase .section-padding) */
+    --relleno-hero-superior: clamp(2.5rem, 1.5rem + 4vw, 5rem);        /* Espacio sobre el contenido del hero */
+    --relleno-hero-inferior: clamp(3rem, 2rem + 4.5vw, 6.25rem);       /* Espacio bajo el contenido del hero */
+    --espacio-entre-columnas: clamp(1.5rem, 0.5rem + 3.5vw, 3.125rem); /* Separación entre columnas de las cuadrículas (hero) */
+    --espacio-entre-tarjetas: clamp(1.25rem, 0.8rem + 1.6vw, 1.875rem);/* Separación entre tarjetas (testimonios) */
+    --alto-barra-navegacion: 4.5rem;                  /* Altura aproximada de la barra superior; evita que tape los títulos al navegar por anclas */
+    --alto-maximo-imagen-hero: 26.25rem;              /* Altura máxima de la imagen principal del hero */
+
+    /* ---------- MEDIDAS DE FORMA ---------- */
+    --radio-borde-boton: 0.375rem;                    /* Redondeo de las esquinas de los botones */
+    --radio-borde-tarjeta: 0.75rem;                   /* Redondeo de las esquinas de las tarjetas */
+    --radio-borde-imagen-hero: 1rem;                  /* Redondeo del marco de la imagen del hero */
+    --radio-borde-insignia: 1.25rem;                  /* Redondeo tipo píldora de la insignia del hero y de las etiquetas */
+
+    /* ---------- ANIMACIONES ---------- */
+    --transicion-estandar: all 0.3s ease;             /* Transición suave usada en enlaces, botones y tarjetas */
+}
+
+
+/* ==========================================================================
+   2. REINICIO GLOBAL Y BASE DE ESCALA
+   ========================================================================== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;                                  /* Base de la escala: todas las medidas en rem crecen o se reducen desde aquí */
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--alto-barra-navegacion); /* Las anclas (#testimonios, etc.) quedan visibles bajo la barra fija */
+    overflow-x: hidden;                               /* Evita el desplazamiento horizontal */
+    width: 100%;
+    -webkit-text-size-adjust: 100%;                   /* Impide que el móvil agrande el texto por su cuenta */
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--fuente-cuerpo);
+    background-color: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    line-height: 1.6;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;                                 /* Recorta lo que se salga sin romper la barra fija (sticky) */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fuente-titulos);
+    color: var(--color-texto-titulos);
+    font-weight: 700;
+    overflow-wrap: break-word;                        /* Los títulos largos nunca desbordan su caja */
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transicion-estandar);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 3px;
+}
+
+
+/* ==========================================================================
+   3. CONTENEDOR Y UTILIDADES DE SECCIÓN
+   ========================================================================== */
+.container {
+    width: 100%;
+    max-width: var(--ancho-maximo-contenedor);
+    margin: 0 auto;
+    padding-left: max(var(--relleno-lateral-contenedor), env(safe-area-inset-left));   /* Respeta el "notch" de los móviles */
+    padding-right: max(var(--relleno-lateral-contenedor), env(safe-area-inset-right));
+}
+
+.section-padding {
+    padding: var(--relleno-vertical-seccion) 0;
+}
+
+.section-navy {
+    background-color: var(--color-fondo-seccion-alterna);
+}
+
+.section-header {
+    text-align: center;
+    max-width: 43.75rem;
+    margin: 0 auto clamp(2rem, 1rem + 3vw, 3.125rem) auto;
+}
+
+.section-subtitle {
+    color: var(--color-acento-azul-claro);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-size: var(--tamano-titulo-seccion);
+    margin-bottom: 1rem;
+}
+
+.section-description {
+    color: var(--color-texto-secundario);
+    font-size: var(--tamano-texto-seccion);
+}
+
+.section-desc-space {
+    margin-top: 1rem;
+}
+
+.section-desc-space-sm {
+    margin-top: 0.625rem;
+}
+
+
+/* ==========================================================================
+   4. BOTONES REUTILIZABLES
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;                              /* Área táctil cómoda en móviles */
+    padding: 0.75rem 1.625rem;
+    border-radius: var(--radio-borde-boton);
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: var(--transicion-estandar);
+}
+
+.btn-primary {
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-acento-azul-claro);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-principal);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border-color: var(--color-acento-azul);
+    color: var(--color-texto-titulos);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    border-color: var(--color-acento-azul-claro);
+}
+
+.btn-whatsapp {
+    background-color: var(--color-boton-whatsapp);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-whatsapp:hover {
+    background-color: var(--color-boton-whatsapp-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-whatsapp);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+
+/* ==========================================================================
+   5. BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================================================== */
+.navbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-fondo-barra-navegacion);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid var(--color-borde-tarjeta);
+    padding: 0.9375rem 0;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;                                   /* La marca nunca se aplasta */
+}
+
+.logo-icon {
+    flex-shrink: 0;
+}
+
+.logo-icon > img{
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: var(--color-texto-titulos);
+    line-height: 1.1;
+}
+
+.logo-subtitle {
+    font-family: var(--fuente-titulos);
+    font-weight: 400;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 0.2rem + 1.7vw, 1.5625rem);   /* La separación entre enlaces se ajusta al ancho */
+}
+
+.nav-link {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--color-texto-principal);
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-btn-header {
+    padding: 0.5rem 1.125rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+/* Casilla oculta que abre el menú móvil (sigue siendo accesible con teclado) */
+.menu-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hamburger {
+    display: none;
+}
+
+.menu-toggle:focus-visible + .hamburger {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+
+/* ==========================================================================
+   6. SECCIÓN HERO (PORTADA)
+   ========================================================================== */
+.hero {
+    padding: var(--relleno-hero-superior) 0 var(--relleno-hero-inferior) 0;
+    background: radial-gradient(circle at top right, var(--color-fondo-hero-luz) 0%, var(--color-fondo-pagina) 60%);
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);   /* minmax(0,…) impide que el contenido ensanche la columna */
+    gap: var(--espacio-entre-columnas);
+    align-items: center;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    background-color: var(--color-fondo-insignia-hero);
+    border: 1px solid var(--color-acento-azul);
+    color: var(--color-acento-azul-claro);
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radio-borde-insignia);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
+.hero-title {
+    font-size: var(--tamano-titulo-hero);
+    line-height: 1.25;
+    margin-bottom: 1.25rem;
+}
+
+.hero-title span {
+    color: var(--color-acento-azul-claro);
+}
+
+.hero-description {
+    font-size: var(--tamano-texto-hero);
+    color: var(--color-texto-secundario);
+    margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.1875rem);
+}
+
+.hero-actions {
+    display: flex;
+    gap: 0.9375rem;
+    flex-wrap: wrap;
+}
+
+.hero-image-wrapper {
+    position: relative;
+    min-width: 0;
+}
+
+.hero-card-frame {
+    position: relative;
+    border-radius: var(--radio-borde-imagen-hero);
+    overflow: hidden;
+    border: 1px solid var(--color-borde-tarjeta);
+    box-shadow: 0 20px 40px var(--color-sombra-imagen-hero);
+}
+
+.hero-img {
+    width: 100%;
+    aspect-ratio: 4 / 3;                              /* La imagen mantiene su proporción en cualquier ancho */
+    max-height: var(--alto-maximo-imagen-hero);
+    object-fit: cover;
+}
+
+.hero-floating-badge {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 1.25rem;
+    right: 1.25rem;
+    background-color: var(--color-fondo-etiqueta-flotante);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--color-borde-tarjeta);
+    padding: 0.9375rem;
+    border-radius: 0.625rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9375rem;
+}
+
+.floating-icon {
+    width: 2.625rem;
+    height: 2.625rem;
+    background-color: var(--color-acento-azul);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--color-texto-sobre-acento);
+    flex-shrink: 0;
+}
+
+.floating-text {
+    min-width: 0;
+}
+
+.floating-text h4 {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.floating-text p {
+    font-size: 0.8rem;
+    color: var(--color-texto-secundario);
+}
+
+
+/* ==========================================================================
+   7. SECCIÓN TESTIMONIOS
+   ========================================================================== */
+.testimonials-grid {
+    display: grid;
+    /* Se acomoda sola: 3 columnas en pantallas grandes, 2 en medianas, 1 en móviles */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
+    gap: var(--espacio-entre-tarjetas);
+}
+
+.testimonial-card {
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    padding: clamp(1.25rem, 1rem + 1vw, 1.875rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+}
+
+.testimonial-stars {
+    color: var(--color-estrellas-testimonio);
+    font-size: 0.85rem;
+    margin-bottom: 0.9375rem;
+}
+
+.testimonial-text {
+    font-style: italic;
+    color: var(--color-texto-principal);
+    font-size: 0.92rem;
+    margin-bottom: 1.5625rem;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.author-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.author-info {
+    min-width: 0;
+}
+
+.author-info h4 {
+    font-size: 0.9rem;
+}
+
+.author-info p {
+    font-size: 0.78rem;
+    color: var(--color-texto-secundario);
+}
+
+
+/* ==========================================================================
+   8. PIE DE PÁGINA (FOOTER)
+   ========================================================================== */
+.footer {
+    background-color: var(--color-fondo-pie-pagina);
+    border-top: 1px solid var(--color-borde-tarjeta);
+    padding: clamp(2.5rem, 1.5rem + 3vw, 3.75rem) 0 1.875rem 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    margin-bottom: 2.5rem;
+}
+
+.footer-about p {
+    color: var(--color-texto-secundario);
+    font-size: 0.88rem;
+    margin-top: 0.9375rem;
+}
+
+.footer-title {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    color: var(--color-texto-titulos);
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 0.625rem;
+}
+
+.footer-links a {
+    color: var(--color-texto-secundario);
+    font-size: 0.88rem;
+}
+
+.footer-links a:hover {
+    color: var(--color-acento-azul-claro);
+}
+
+.footer-contact-info {
+    color: var(--color-texto-secundario);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;                          /* El correo largo baja de línea en vez de desbordar */
+}
+
+.footer-contact-space {
+    margin-bottom: 0.9375rem;
+}
+
+.footer-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--color-linea-inferior-pie);
+    padding-top: 1.5625rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    color: var(--color-texto-secundario);
+    font-size: 0.82rem;
+}
+
+
+/* ==========================================================================
+   9. FILTROS DE ESCALA (ADAPTACIÓN A TODAS LAS RESOLUCIONES)
+   --------------------------------------------------------------------------
+   Se trabaja de mayor a menor pantalla. Además de estos filtros, el sitio
+   usa medidas fluidas (clamp, rem, minmax, auto-fit) que se ajustan solas
+   entre un filtro y otro.
+   ========================================================================== */
+
+/* ---- Pantallas ultra anchas (4K / TV): todo el sitio crece un 25 % ---- */
+@media (min-width: 2200px) {
+    html { font-size: 125%; }
+}
+
+/* ---- Monitores grandes (Full HD ancho / 2K): crece un 12,5 % ---- */
+@media (min-width: 1600px) and (max-width: 2199px) {
+    html { font-size: 112.5%; }
+}
+
+/* ---- Laptops pequeñas: menú un poco más compacto para que quepa completo ---- */
+@media (max-width: 1100px) {
+    .nav-link { font-size: 0.86rem; }
+    .nav-btn-header { padding: 0.5rem 0.875rem; font-size: 0.84rem; }
+    .logo-title { font-size: 1.05rem; }
+}
+
+/* ---- Tabletas y menor: menú hamburguesa, hero apilado, pie en 2 columnas ---- */
+@media (max-width: 992px) {
+    .hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-image-wrapper {
+        max-width: 37.5rem;                           /* La imagen no se estira de más al apilarse */
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Menú hamburguesa */
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+
+    .hamburger span {
+        width: 1.5625rem;
+        height: 3px;
+        background-color: var(--color-texto-principal);
+        border-radius: 2px;
+    }
+
+    .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--color-fondo-pagina);
+        border-bottom: 1px solid var(--color-borde-tarjeta);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+        padding: 1rem var(--relleno-lateral-contenedor) 1.5rem;
+        display: none;
+        max-height: calc(100vh - var(--alto-barra-navegacion));    /* Si hay poca altura, el menú se desplaza en vez de cortarse */
+        max-height: calc(100dvh - var(--alto-barra-navegacion));
+        overflow-y: auto;
+    }
+
+    .menu-toggle:checked ~ .nav-menu {
+        display: flex;
+    }
+
+    .nav-link {
+        font-size: 1rem;
+        padding: 0.75rem 0.25rem;
+        border-bottom: 1px solid var(--color-linea-inferior-pie);
+    }
+
+    .nav-btn-header {
+        margin-top: 0.75rem;
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.125rem;
+    }
+}
+
+/* ---- Móviles grandes: botones del hero a todo el ancho ---- */
+@media (max-width: 768px) {
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* ---- Móviles: pie en 1 columna y etiqueta flotante debajo de la imagen ---- */
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-img {
+        aspect-ratio: 16 / 11;
+    }
+
+    .hero-floating-badge {
+        position: relative;                           /* Deja de tapar la imagen y pasa a ser una franja inferior */
+        inset: auto;
+        border: 0;
+        border-top: 1px solid var(--color-borde-tarjeta);
+        border-radius: 0;
+        backdrop-filter: none;
+    }
+
+    .hero-badge {
+        font-size: 0.78rem;
+    }
+}
+
+/* ---- Móviles muy pequeños (320 – 380 px): marca compacta ---- */
+@media (max-width: 380px) {
+    .logo-title { font-size: 0.95rem; letter-spacing: 1px; }
+    .logo-subtitle { font-size: 0.72rem; letter-spacing: 1.5px; }
+    .logo-icon svg { width: 34px; height: 34px; }
+    .brand-logo { gap: 0.5rem; }
+    .btn { padding: 0.75rem 1rem; font-size: 0.9rem; }
+}
+
+/* ---- Pantallas bajas (móvil horizontal): menos aire vertical ---- */
+@media (max-height: 520px) and (orientation: landscape) {
+    .hero {
+        padding: 1.5rem 0 2rem 0;
+    }
+
+    .section-padding {
+        padding: 2.5rem 0;
+    }
+}
+
+/* ---- Pantallas táctiles: sin "saltos" al pasar el dedo ---- */
+@media (hover: none) {
+    .btn-primary:hover,
+    .btn-whatsapp:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* ---- Usuarios que prefieren menos movimiento ---- */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    *, *::before, *::after {
+        transition: none !important;
+    }
+}
+</file>
+
+<file path="css/estilo_quienSomos.css">
+/* ==========================================================================
+   HOJA DE ESTILOS - IMAGENOLOGÍA VETERINARIA (PÁGINA "QUIÉNES SOMOS")
+   Archivo: css/estilo_quienSomos.css
+
+   ÍNDICE
+   1. Variables
+   2. Reinicio global y base
+   3. Contenedor y utilidades de sección
+   4. Botones reutilizables
+   5. Barra de navegación
+   6. Sección "Quiénes Somos" (texto + imagen)
+   7. Sección Misión, Visión y Valores
+   8. Sección Nuestro Equipo
+   9. Pie de página
+   10. Filtros de escala (responsive)
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. VARIABLES
+   ========================================================================== */
+:root {
+
+    /* ---------- COLORES DE FONDO ---------- */
+    --color-fondo-pagina: #030b30;
+    --color-fondo-seccion-alterna: #091238;
+    --color-fondo-hero-luz: #0f1f5c;
+    --color-fondo-barra-navegacion: rgba(3, 11, 48, 0.94);
+    --color-fondo-pie-pagina: #020720;
+    --color-fondo-tarjeta: #0f1942;
+    --color-fondo-etiqueta-flotante: rgba(15, 25, 66, 0.92);
+    --color-fondo-insignia-hero: rgba(58, 134, 173, 0.15);
+    --color-fondo-boton-contorno-hover: rgba(58, 134, 173, 0.15);
+
+    /* ---------- COLORES DE BORDES ---------- */
+    --color-borde-tarjeta: #1e2d66;
+    --color-linea-inferior-pie: rgba(255, 255, 255, 0.05);
+
+    /* ---------- COLORES DE ACENTO ---------- */
+    --color-acento-azul: #3a86ad;
+    --color-acento-azul-claro: #62a3c7;
+    --color-acento-turquesa: #2db3be;
+    --color-boton-whatsapp: #25d366;
+    --color-boton-whatsapp-hover: #20ba5a;
+    --color-estrellas-testimonio: #f59e0b;
+
+    /* ---------- SOMBRAS ---------- */
+    --color-sombra-boton-principal: rgba(58, 134, 173, 0.35);
+    --color-sombra-boton-whatsapp: rgba(37, 211, 102, 0.3);
+    --color-sombra-imagen-hero: rgba(0, 0, 0, 0.4);
+
+    /* ---------- COLORES DE TEXTO ---------- */
+    --color-texto-principal: #f1f5f9;
+    --color-texto-secundario: #94a3b8;
+    --color-texto-titulos: #ffffff;
+    --color-texto-sobre-acento: #ffffff;
+
+    /* ---------- TIPOGRAFÍA ---------- */
+    --fuente-titulos: 'Montserrat', sans-serif;
+    --fuente-cuerpo: 'Open Sans', sans-serif;
+
+    /* ---------- MEDIDAS DE ESTRUCTURA ---------- */
+    --ancho-maximo-contenedor: 75rem;
+    --relleno-lateral-contenedor: clamp(1rem, 0.6rem + 1.6vw, 1.5rem);
+    --relleno-vertical-seccion: clamp(3.25rem, 2rem + 4.5vw, 5.625rem);
+    --espacio-entre-columnas: clamp(1.5rem, 0.5rem + 3.5vw, 3.125rem);
+    --espacio-entre-tarjetas: clamp(1.25rem, 0.8rem + 1.6vw, 1.875rem);
+    --alto-barra-navegacion: 4.5rem;
+
+    /* ---------- FORMAS ---------- */
+    --radio-borde-boton: 0.375rem;
+    --radio-borde-tarjeta: 0.75rem;
+    --radio-borde-insignia: 1.25rem;
+
+    /* ---------- ANIMACIONES ---------- */
+    --transicion-estandar: all 0.3s ease;
+}
+
+
+/* ==========================================================================
+   2. REINICIO GLOBAL Y BASE
+   ========================================================================== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--alto-barra-navegacion);
+    overflow-x: hidden;
+    width: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--fuente-cuerpo);
+    background-color: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    line-height: 1.6;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fuente-titulos);
+    color: var(--color-texto-titulos);
+    font-weight: 700;
+    overflow-wrap: break-word;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transicion-estandar);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 3px;
+}
+
+
+/* ==========================================================================
+   3. CONTENEDOR Y UTILIDADES DE SECCIÓN
+   ========================================================================== */
+.container {
+    width: 100%;
+    max-width: var(--ancho-maximo-contenedor);
+    margin: 0 auto;
+    padding-left: max(var(--relleno-lateral-contenedor), env(safe-area-inset-left));
+    padding-right: max(var(--relleno-lateral-contenedor), env(safe-area-inset-right));
+}
+
+.section-padding {
+    padding: var(--relleno-vertical-seccion) 0;
+}
+
+.section-navy {
+    background-color: var(--color-fondo-seccion-alterna);
+}
+
+.section-header {
+    text-align: center;
+    max-width: 43.75rem;
+    margin: 0 auto clamp(2rem, 1rem + 3vw, 3.125rem) auto;
+}
+
+.section-subtitle {
+    color: var(--color-acento-azul-claro);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-size: clamp(1.6rem, 1.2rem + 1.7vw, 2.4rem);
+    margin-bottom: 1rem;
+}
+
+.section-description {
+    color: var(--color-texto-secundario);
+    font-size: clamp(0.95rem, 0.92rem + 0.2vw, 1.05rem);
+}
+
+.section-desc-space {
+    margin-top: 1rem;
+}
+
+.section-desc-space-sm {
+    margin-top: 0.625rem;
+}
+
+
+/* ==========================================================================
+   4. BOTONES REUTILIZABLES
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0.75rem 1.625rem;
+    border-radius: var(--radio-borde-boton);
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: var(--transicion-estandar);
+}
+
+.btn-primary {
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-acento-azul-claro);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-principal);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border-color: var(--color-acento-azul);
+    color: var(--color-texto-titulos);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    border-color: var(--color-acento-azul-claro);
+}
+
+.btn-whatsapp {
+    background-color: var(--color-boton-whatsapp);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-whatsapp:hover {
+    background-color: var(--color-boton-whatsapp-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-whatsapp);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+
+/* ==========================================================================
+   5. BARRA DE NAVEGACIÓN
+   ========================================================================== */
+.navbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-fondo-barra-navegacion);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid var(--color-borde-tarjeta);
+    padding: 0.9375rem 0;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    flex-shrink: 0;
+}
+
+.logo-icon > img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: var(--color-texto-titulos);
+    line-height: 1.1;
+}
+
+.logo-subtitle {
+    font-family: var(--fuente-titulos);
+    font-weight: 400;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 0.2rem + 1.7vw, 1.5625rem);
+}
+
+.nav-link {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--color-texto-principal);
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-btn-header {
+    padding: 0.5rem 1.125rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+.menu-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hamburger {
+    display: none;
+}
+
+.menu-toggle:focus-visible + .hamburger {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+
+/* ==========================================================================
+   6. SECCIÓN "QUIÉNES SOMOS" (texto + imagen)
+   ========================================================================== */
+.about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--espacio-entre-columnas);
+    align-items: center;
+}
+
+.about-image-wrapper {
+    border-radius: var(--radio-borde-tarjeta);
+    overflow: hidden;
+    border: 1px solid var(--color-borde-tarjeta);
+    box-shadow: 0 20px 40px var(--color-sombra-imagen-hero);
+    height: 100%;
+    display: flex;
+    min-width: 0;
+}
+
+.about-image {
+    width: 100%;
+    height: 100%;
+    min-height: 380px;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(0.4) contrast(1.05);
+}
+
+
+/* ==========================================================================
+   7. SECCIÓN MISIÓN, VISIÓN Y VALORES
+   ========================================================================== */
+.mvv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--espacio-entre-tarjetas);
+    margin-top: clamp(2rem, 1rem + 3vw, 3.125rem);
+}
+
+.mvv-card {
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    padding: clamp(1.75rem, 1.2rem + 1.5vw, 2.1875rem) clamp(1.25rem, 1rem + 1vw, 1.5625rem);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-width: 0;
+}
+
+.mvv-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-acento-azul);
+    box-shadow: 0 10px 25px var(--color-fondo-insignia-hero);
+}
+
+.mvv-icon {
+    width: 3.75rem;
+    height: 3.75rem;
+    background-color: var(--color-fondo-insignia-hero);
+    border: 1px solid var(--color-acento-azul);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem auto;
+    font-size: 1.6rem;
+    color: var(--color-acento-azul-claro);
+}
+
+.mvv-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.9375rem;
+    color: var(--color-texto-titulos);
+}
+
+.mvv-card p {
+    color: var(--color-texto-secundario);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   8. SECCIÓN NUESTRO EQUIPO
+   ========================================================================== */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--espacio-entre-tarjetas);
+    margin-top: clamp(2rem, 1rem + 3vw, 3.125rem);
+}
+
+.team-card {
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    padding: clamp(1.5rem, 1.2rem + 1vw, 1.875rem) clamp(1rem, 0.8rem + 1vw, 1.25rem);
+    text-align: center;
+    transition: transform 0.3s ease;
+    min-width: 0;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+}
+
+.team-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 1.25rem auto;
+    border: 2px solid var(--color-acento-azul);
+    background-color: var(--color-fondo-tarjeta);
+    display: block;
+}
+
+.team-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.team-card h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3125rem;
+}
+
+.team-role {
+    color: var(--color-acento-azul-claro);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.9375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.team-bio {
+    color: var(--color-texto-secundario);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   9. PIE DE PÁGINA
+   ========================================================================== */
+.footer {
+    background-color: var(--color-fondo-pie-pagina);
+    border-top: 1px solid var(--color-borde-tarjeta);
+    padding: clamp(2.5rem, 1.5rem + 3vw, 3.75rem) 0 1.875rem 0;
+}
+
+/* Después (3 columnas, coincide con el HTML) */
+.footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    margin-bottom: 2.5rem;
+}
+
+.footer-about p {
+    color: var(--color-texto-secundario);
+    font-size: 0.88rem;
+    margin-top: 0.9375rem;
+}
+
+.footer-title {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    color: var(--color-texto-titulos);
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 0.625rem;
+}
+
+.footer-links a {
+    color: var(--color-texto-secundario);
+    font-size: 0.88rem;
+}
+
+.footer-links a:hover {
+    color: var(--color-acento-azul-claro);
+}
+
+.footer-contact-info {
+    color: var(--color-texto-secundario);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.footer-contact-space {
+    margin-bottom: 0.9375rem;
+}
+
+.footer-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--color-linea-inferior-pie);
+    padding-top: 1.5625rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    color: var(--color-texto-secundario);
+    font-size: 0.82rem;
+}
+
+
+/* ==========================================================================
+   10. FILTROS DE ESCALA (RESPONSIVE)
+   ========================================================================== */
+
+/* ---- Pantallas ultra anchas (4K / TV): todo crece un 25 % ---- */
+@media (min-width: 2200px) {
+    html { font-size: 125%; }
+}
+
+/* ---- Monitores grandes (2K): todo crece un 12,5 % ---- */
+@media (min-width: 1600px) and (max-width: 2199px) {
+    html { font-size: 112.5%; }
+}
+
+/* ---- Laptops pequeñas: menú compacto ---- */
+@media (max-width: 1100px) {
+    .nav-link { font-size: 0.86rem; }
+    .nav-btn-header { padding: 0.5rem 0.875rem; font-size: 0.84rem; }
+    .logo-title { font-size: 1.05rem; }
+}
+
+/* ---- Tabletas y menor: menú hamburguesa, hero apilado, grid a 1 columna ---- */
+@media (max-width: 992px) {
+    .about-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about-image-wrapper {
+        max-width: 37.5rem;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .mvv-grid,
+    .team-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Menú hamburguesa */
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+
+    .hamburger span {
+        width: 1.5625rem;
+        height: 3px;
+        background-color: var(--color-texto-principal);
+        border-radius: 2px;
+    }
+
+    .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--color-fondo-pagina);
+        border-bottom: 1px solid var(--color-borde-tarjeta);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+        padding: 1rem var(--relleno-lateral-contenedor) 1.5rem;
+        display: none;
+        max-height: calc(100vh - var(--alto-barra-navegacion));
+        max-height: calc(100dvh - var(--alto-barra-navegacion));
+        overflow-y: auto;
+    }
+
+    .menu-toggle:checked ~ .nav-menu {
+        display: flex;
+    }
+
+    .nav-link {
+        font-size: 1rem;
+        padding: 0.75rem 0.25rem;
+        border-bottom: 1px solid var(--color-linea-inferior-pie);
+    }
+
+    .nav-btn-header {
+        margin-top: 0.75rem;
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.125rem;
+    }
+}
+
+/* ---- Móviles grandes: pie a 1 columna ---- */
+@media (max-width: 768px) {
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* ---- Móviles: pie a 1 columna ---- */
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ---- Móviles muy pequeños: marca compacta ---- */
+@media (max-width: 380px) {
+    .logo-title { font-size: 0.95rem; letter-spacing: 1px; }
+    .logo-subtitle { font-size: 0.72rem; letter-spacing: 1.5px; }
+    .brand-logo { gap: 0.5rem; }
+    .btn { padding: 0.75rem 1rem; font-size: 0.9rem; }
+}
+
+/* ---- Pantallas bajas (móvil horizontal): menos aire vertical ---- */
+@media (max-height: 520px) and (orientation: landscape) {
+    .section-padding {
+        padding: 2.5rem 0;
+    }
+}
+
+/* ---- Pantallas táctiles: sin "saltos" al pasar el dedo ---- */
+@media (hover: none) {
+    .btn-primary:hover,
+    .btn-whatsapp:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* ---- Usuarios que prefieren menos movimiento ---- */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    *, *::before, *::after {
+        transition: none !important;
+    }
+}
+</file>
+
+<file path="admin/index.html">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Backoffice | Imagenología Veterinaria</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="../css/estilo_home.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <script type="module" src="../js/ui/admin.js"></script>
+</head>
+<body>
+    <header class="navbar">
+    <div class="container navbar-container admin-navbar">
+        <a href="../index.html" class="brand-logo"
+           aria-label="Imagenología Veterinaria, ir al sitio público">
+            <div class="logo-icon">
+                <img
+                    src="../img/logo-imagenologia-veterinaria.png"
+                    alt=""
+                    width="40"
+                    height="40"
+                >
+            </div>
+
+            <div class="logo-text">
+                <span class="logo-title">IMAGENOLOGIA</span>
+                <span class="logo-subtitle">VETERINARIA</span>
+            </div>
+        </a>
+
+        <a href="../index.html" class="btn btn-outline admin-volver">
+            Volver al sitio público
+        </a>
+    </div>
+</header>
+
+    <main class="container admin-contenido">
+        <div class="admin-introduccion">
+            <span class="section-subtitle">Administración</span>
+            <h1 class="section-title">Contenido de la clínica</h1>
+            <p class="section-description">
+                Gestioná los datos de contacto, los servicios y los requisitos del paciente.
+            </p>
+        </div>
+
+        <p id="mensaje" role="status" aria-live="polite">
+            Comprobando sesión…
+        </p>
+
+        <section id="acceso" class="panel acceso" hidden>
+            <h2>Acceso del personal</h2>
+            <p class="admin-ayuda">
+                Ingresá con tu cuenta del personal.
+            </p>
+
+            <form id="form-login">
+                <label for="email">Correo electrónico</label>
+                <input id="email" name="email" type="email"
+                       autocomplete="username" required>
+
+                <label for="password">Contraseña</label>
+                <input id="password" name="password" type="password"
+                       autocomplete="current-password" required>
+
+                <button type="submit">Ingresar</button>
+            </form>
+        </section>
+
+        <section id="backoffice" hidden>
+            <div class="barra">
+                <p id="usuario"></p>
+                <button id="logout" type="button" class="secundario">
+                    Cerrar sesión
+                </button>
+            </div>
+
+            <section class="panel">
+                <h2>Datos de contacto</h2>
+                <p class="admin-ayuda">
+                    Se muestran en la página de contacto y en el pie de página del sitio.
+                </p>
+
+                <form id="form-contacto">
+                    <fieldset id="campos-contacto">
+                        <legend>Editar datos de contacto</legend>
+                        <div class="contacto-grid">
+                            <div>
+                                <label for="telefono">Teléfono</label>
+                                <input id="telefono" name="telefono" type="tel"
+                                       maxlength="25" autocomplete="tel" required>
+                            </div>
+
+                            <div>
+                                <label for="correo-contacto">Correo electrónico</label>
+                                <input id="correo-contacto" name="correo" type="email"
+                                       maxlength="254" autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <label for="horarios">Horarios de atención</label>
+                        <textarea id="horarios" name="horarios" rows="4"
+                                  aria-describedby="ayuda-horarios" required></textarea>
+                        <small id="ayuda-horarios">
+                            Escribí un horario por línea.
+                        </small>
+
+                        <div class="acciones">
+                            <button type="submit">Guardar contacto</button>
+                        </div>
+                    </fieldset>
+
+                    <p id="mensaje-contacto" role="status" aria-live="polite" hidden></p>
+                </form>
+            </section>
+
+            <section class="panel">
+                <div class="barra">
+                    <h2>Servicios y requisitos</h2>
+                    <button id="recargar" type="button" class="secundario">
+                        Recargar contenido
+                    </button>
+                </div>
+
+                <h3>Servicios</h3>
+                <ul id="lista-servicios" class="lista"></ul>
+
+                <h3>Requisitos del paciente</h3>
+                <ul id="lista-requisitos" class="lista"></ul>
+            </section>
+
+            <section id="editor" class="panel" hidden>
+                <h2 id="titulo-editor">Editar contenido</h2>
+
+                <form id="form-editor">
+                    <fieldset id="campos-editor">
+                        <legend>Editar contenido</legend>
+                        <label for="nombre">Nombre o título</label>
+                        <input id="nombre" name="nombre" type="text"
+                               maxlength="150" required>
+
+                        <label for="descripcion">Descripción o indicaciones</label>
+                        <textarea id="descripcion" name="descripcion"
+                                  rows="5" maxlength="3000" required></textarea>
+
+                        <div id="campos-servicio">
+                            <label for="precio">Precio en USD</label>
+                            <input id="precio" name="precio" type="number"
+                                   min="0" max="99999999.99" step="0.01">
+
+                            <label for="detalles">Detalles del servicio</label>
+                            <textarea id="detalles" name="detalles"
+                                      rows="5"
+                                      aria-describedby="ayuda-detalles"></textarea>
+                            <small id="ayuda-detalles">
+                                Escribí un detalle por línea.
+                            </small>
+                        </div>
+
+                        <div class="acciones">
+                            <button type="submit">Guardar cambios</button>
+                            <button id="cancelar" type="button"
+                                    class="secundario">Cancelar</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </section>
+        </section>
+
+        <noscript>Activá JavaScript para utilizar el backoffice.</noscript>
+    </main>
+</body>
+</html>
+</file>
+
+<file path="css/estilo_servicios.css">
+:root {
+
+    /* ---------- COLORES DE FONDO ---------- */
+    --color-fondo-pagina: #030b30;                    /* Fondo general de toda la página (body), base del degradado del hero y del menú móvil desplegado */
+    --color-fondo-seccion-alterna: #091238;           /* Fondo de las secciones alternas (clase .section-navy); separa visualmente un bloque del siguiente */
+    --color-fondo-hero-luz: #0f1f5c;                  /* Tono más claro que ilumina la esquina superior derecha del degradado del hero */
+    --color-fondo-barra-navegacion: rgba(3, 11, 48, 0.94); /* Fondo semitransparente de la barra de navegación superior */
+    --color-fondo-pie-pagina: #020720;                /* Fondo del pie de página, un tono más oscuro que el resto */
+    --color-fondo-tarjeta: #0f1942;                   /* Fondo de las tarjetas de contenido (testimonios y futuras tarjetas) */
+    --color-fondo-etiqueta-flotante: rgba(15, 25, 66, 0.92); /* Fondo de la etiqueta flotante que se apoya sobre la imagen del hero */
+    --color-fondo-insignia-hero: rgba(58, 134, 173, 0.15);   /* Fondo de la insignia "Ecografía Clínica Especializada" del hero */
+    --color-fondo-boton-contorno-hover: rgba(58, 134, 173, 0.15); /* Fondo que aparece al pasar el cursor sobre un botón de solo contorno */
+
+    /* ---------- COLORES DE BORDES Y LÍNEAS ---------- */
+    --color-borde-tarjeta: #1e2d66;                   /* Borde de tarjetas, barra de navegación, marco de la imagen del hero y pie de página */
+    --color-linea-inferior-pie: rgba(255, 255, 255, 0.05); /* Línea fina que separa el copyright del resto del pie de página */
+
+    /* ---------- COLORES DE ACENTO (botones, resaltados, iconos) ---------- */
+    --color-acento-azul: #3a86ad;                     /* Botón principal, borde de botones de contorno, borde de la insignia del hero, icono flotante y avatar de testimonios */
+    --color-acento-azul-claro: #62a3c7;               /* Subtítulos de sección, texto resaltado del título del hero, texto de la insignia y color de enlaces al pasar el cursor */
+    --color-acento-turquesa: #2db3be;                 /* Reservado para acentos médicos; actualmente sin uso en la página de inicio */
+    --color-boton-whatsapp: #25d366;                  /* Botones de WhatsApp (hero y pie de página), verde institucional */
+    --color-boton-whatsapp-hover: #20ba5a;            /* Botón de WhatsApp al pasar el cursor */
+    --color-estrellas-testimonio: #f59e0b;            /* Estrellas de calificación de las tarjetas de testimonios */
+
+    /* ---------- COLORES DE SOMBRAS ---------- */
+    --color-sombra-boton-principal: rgba(58, 134, 173, 0.35); /* Resplandor del botón principal al pasar el cursor */
+    --color-sombra-boton-whatsapp: rgba(37, 211, 102, 0.3);   /* Resplandor del botón de WhatsApp al pasar el cursor */
+    --color-sombra-imagen-hero: rgba(0, 0, 0, 0.4);           /* Sombra que da profundidad al marco de la imagen del hero */
+
+    /* ---------- COLORES DE TEXTO ---------- */
+    --color-texto-principal: #f1f5f9;                 /* Texto de lectura general (párrafos, enlaces del menú, citas de testimonios) */
+    --color-texto-secundario: #94a3b8;                /* Texto de apoyo: descripciones, leyendas, enlaces del pie de página */
+    --color-texto-titulos: #ffffff;                   /* Títulos (h1 a h6) y nombre de la marca */
+    --color-texto-sobre-acento: #ffffff;              /* Texto que va encima de botones y elementos de color de acento */
+
+    /* ---------- TIPOGRAFÍA: FAMILIAS ---------- */
+    --fuente-titulos: 'Montserrat', sans-serif;       /* Títulos, marca, botones y datos destacados */
+    --fuente-cuerpo: 'Open Sans', sans-serif;         /* Párrafos y texto corrido */
+
+    /* ---------- TIPOGRAFÍA: TAMAÑOS FLUIDOS (se adaptan solos al ancho de pantalla) ---------- */
+    --tamano-titulo-hero: clamp(1.9rem, 1.25rem + 2.8vw, 3.1rem);      /* Título principal (h1) de la portada */
+    --tamano-titulo-seccion: clamp(1.6rem, 1.2rem + 1.7vw, 2.4rem);    /* Título (h2) de cada sección */
+    --tamano-texto-hero: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);       /* Párrafo descriptivo del hero */
+    --tamano-texto-seccion: clamp(0.95rem, 0.92rem + 0.2vw, 1.05rem);  /* Descripción bajo el título de cada sección */
+
+    /* ---------- MEDIDAS DE ESTRUCTURA ---------- */
+    --ancho-maximo-contenedor: 75rem;                 /* Ancho máximo del contenido (1200 px a tamaño normal; crece en pantallas muy grandes) */
+    --relleno-lateral-contenedor: clamp(1rem, 0.6rem + 1.6vw, 1.5rem); /* Margen interior izquierdo y derecho del contenedor */
+    --relleno-vertical-seccion: clamp(3.25rem, 2rem + 4.5vw, 5.625rem); /* Espacio arriba y abajo de cada sección (clase .section-padding) */
+    --relleno-hero-superior: clamp(2.5rem, 1.5rem + 4vw, 5rem);        /* Espacio sobre el contenido del hero */
+    --relleno-hero-inferior: clamp(3rem, 2rem + 4.5vw, 6.25rem);       /* Espacio bajo el contenido del hero */
+    --espacio-entre-columnas: clamp(1.5rem, 0.5rem + 3.5vw, 3.125rem); /* Separación entre columnas de las cuadrículas (hero) */
+    --espacio-entre-tarjetas: clamp(1.25rem, 0.8rem + 1.6vw, 1.875rem);/* Separación entre tarjetas (testimonios) */
+    --alto-barra-navegacion: 4.5rem;                  /* Altura aproximada de la barra superior; evita que tape los títulos al navegar por anclas */
+    --alto-maximo-imagen-hero: 26.25rem;              /* Altura máxima de la imagen principal del hero */
+
+    /* ---------- MEDIDAS DE FORMA ---------- */
+    --radio-borde-boton: 0.375rem;                    /* Redondeo de las esquinas de los botones */
+    --radio-borde-tarjeta: 0.75rem;                   /* Redondeo de las esquinas de las tarjetas */
+    --radio-borde-imagen-hero: 1rem;                  /* Redondeo del marco de la imagen del hero */
+    --radio-borde-insignia: 1.25rem;                  /* Redondeo tipo píldora de la insignia del hero y de las etiquetas */
+
+    /* ---------- ANIMACIONES ---------- */
+    --transicion-estandar: all 0.3s ease;             /* Transición suave usada en enlaces, botones y tarjetas */
+}
+
+/* ==========================================================================
+   2. REINICIO GLOBAL Y BASE DE ESCALA
+   ========================================================================== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;                                  /* Base de la escala: todas las medidas en rem crecen o se reducen desde aquí */
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--alto-barra-navegacion); /* Las anclas (#testimonios, etc.) quedan visibles bajo la barra fija */
+    overflow-x: hidden;                               /* Evita el desplazamiento horizontal */
+    width: 100%;
+    -webkit-text-size-adjust: 100%;                   /* Impide que el móvil agrande el texto por su cuenta */
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--fuente-cuerpo);
+    background-color: var(--color-fondo-pagina);
+    color: var(--color-texto-principal);
+    line-height: 1.6;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;                                 /* Recorta lo que se salga sin romper la barra fija (sticky) */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fuente-titulos);
+    color: var(--color-texto-titulos);
+    font-weight: 700;
+    overflow-wrap: break-word;                        /* Los títulos largos nunca desbordan su caja */
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transicion-estandar);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 3px;
+}
+
+
+/* ==========================================================================
+   3. CONTENEDOR Y UTILIDADES DE SECCIÓN
+   ========================================================================== */
+.container {
+    width: 100%;
+    max-width: var(--ancho-maximo-contenedor);
+    margin: 0 auto;
+    padding-left: max(var(--relleno-lateral-contenedor), env(safe-area-inset-left));   /* Respeta el "notch" de los móviles */
+    padding-right: max(var(--relleno-lateral-contenedor), env(safe-area-inset-right));
+}
+
+.section-padding {
+    padding: var(--relleno-vertical-seccion) 0;
+}
+
+.section-navy {
+    background-color: var(--color-fondo-seccion-alterna);
+}
+
+.section-header {
+    text-align: center;
+    max-width: 43.75rem;
+    margin: 0 auto clamp(2rem, 1rem + 3vw, 3.125rem) auto;
+}
+
+.section-subtitle {
+    color: var(--color-acento-azul-claro);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-size: var(--tamano-titulo-seccion);
+    margin-bottom: 1rem;
+}
+
+.section-description {
+    color: var(--color-texto-secundario);
+    font-size: var(--tamano-texto-seccion);
+}
+
+.section-desc-space {
+    margin-top: 1rem;
+}
+
+.section-desc-space-sm {
+    margin-top: 0.625rem;
+}
+
+
+/* ==========================================================================
+   4. BOTONES REUTILIZABLES
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;                              /* Área táctil cómoda en móviles */
+    padding: 0.75rem 1.625rem;
+    border-radius: var(--radio-borde-boton);
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: var(--transicion-estandar);
+}
+
+.btn-primary {
+    background-color: var(--color-acento-azul);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-acento-azul-claro);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-principal);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border-color: var(--color-acento-azul);
+    color: var(--color-texto-titulos);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-fondo-boton-contorno-hover);
+    border-color: var(--color-acento-azul-claro);
+}
+
+.btn-whatsapp {
+    background-color: var(--color-boton-whatsapp);
+    color: var(--color-texto-sobre-acento);
+}
+
+.btn-whatsapp:hover {
+    background-color: var(--color-boton-whatsapp-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--color-sombra-boton-whatsapp);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+
+/* ==========================================================================
+   5. BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================================================== */
+.navbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-fondo-barra-navegacion);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid var(--color-borde-tarjeta);
+    padding: 0.9375rem 0;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;                                   /* La marca nunca se aplasta */
+}
+
+.logo-icon {
+    flex-shrink: 0;
+}
+
+.logo-icon > img{
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: var(--color-texto-titulos);
+    line-height: 1.1;
+}
+
+.logo-subtitle {
+    font-family: var(--fuente-titulos);
+    font-weight: 400;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 0.2rem + 1.7vw, 1.5625rem);   /* La separación entre enlaces se ajusta al ancho */
+}
+
+.nav-link {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--color-texto-principal);
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: var(--color-acento-azul-claro);
+}
+
+.nav-btn-header {
+    padding: 0.5rem 1.125rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+/* Casilla oculta que abre el menú móvil (sigue siendo accesible con teclado) */
+.menu-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hamburger {
+    display: none;
+}
+
+.menu-toggle:focus-visible + .hamburger {
+    outline: 3px solid var(--color-acento-azul-claro);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   8. PIE DE PÁGINA (FOOTER)
+   ========================================================================== */
+.footer {
+    background-color: var(--color-fondo-pie-pagina);
+    border-top: 1px solid var(--color-borde-tarjeta);
+    padding: clamp(2.5rem, 1.5rem + 3vw, 3.75rem) 0 1.875rem 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    margin-bottom: 2.5rem;
+}
+
+.footer-about p {
+    color: var(--color-texto-secundario);
+    font-size: 0.88rem;
+    margin-top: 0.9375rem;
+}
+
+.footer-title {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    color: var(--color-texto-titulos);
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 0.625rem;
+}
+
+.footer-links a {
+    color: var(--color-texto-secundario);
+    font-size: 0.88rem;
+}
+
+.footer-links a:hover {
+    color: var(--color-acento-azul-claro);
+}
+
+.footer-contact-info {
+    color: var(--color-texto-secundario);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;                          /* El correo largo baja de línea en vez de desbordar */
+}
+
+.footer-contact-space {
+    margin-bottom: 0.9375rem;
+}
+
+.footer-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--color-linea-inferior-pie);
+    padding-top: 1.5625rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    color: var(--color-texto-secundario);
+    font-size: 0.82rem;
+}
+
+/* ---------- SERVICIOS ---------- */
+.servicios{
+    background-image: linear-gradient(rgba(3, 11, 48, 0.65), rgba(3, 11, 48, 0.85)), url("../img/diagnostico-por-imagen.webp");
+    background-size: cover;
+    background-position: center;
+}
+.servicios-grid {
+    display: flex;
+    flex-wrap: wrap;                       /* si no caben, bajan a otra fila */
+    gap: var(--espacio-entre-tarjetas);
+}
+
+.servicio-card {
+    flex: 1 1 16rem;                       /* crece igual, mínimo 16rem de ancho */
+    display: flex;
+    flex-direction: column;                /* contenido de arriba hacia abajo */
+    gap: 0.875rem;
+    padding: 1.5rem;
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-radius: var(--radio-borde-tarjeta);
+    transition: var(--transicion-estandar);
+}
+
+.servicio-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-acento-azul);
+    box-shadow: 0 10px 25px var(--color-fondo-insignia-hero);
+}
+
+.servicio-card p {
+    color: var(--color-texto-secundario);
+    font-size: 0.95rem;
+}
+
+.servicio-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.servicio-card .btn {
+    margin-top: auto;                      /* el botón siempre queda abajo */
+}
+
+/*------------ requirements ----------------*/
+
+.requirements{
+    padding: clamp(3.25rem, 2rem + 4.5vw, 5.625rem) 0;
+    width: 100%;
+    background-color: var(--color-fondo-pagina);
+}
+
+.requirements article {
+    max-width: 62rem;
+    margin: 0 auto;
+}
+
+.requirements .section-title,
+.requirements .section-description {
+    text-align: center;
+}
+
+.requirements .lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    max-width: 56rem;
+    margin: 2rem auto 0;
+    padding: 0;
+    list-style: none;
+}
+
+.requirements .lista > li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.125rem 1.25rem;
+    background-color: var(--color-fondo-tarjeta);
+    border: 1px solid var(--color-borde-tarjeta);
+    border-left: 4px solid var(--color-acento-azul);
+    border-radius: var(--radio-borde-tarjeta);
+    transition: var(--transicion-estandar);
+}
+
+.requirements .lista > li:hover {
+    border-color: var(--color-acento-azul);
+    transform: translateY(-2px);
+}
+
+.requirements .lista > li > strong {
+    color: var(--color-acento-azul-claro);
+    font-family: var(--fuente-titulos);
+    font-size: 1rem;
+}
+
+.requirements .lista > li > span {
+    color: var(--color-texto-principal);
+}
+
+.requirements .sublista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.25rem 0 0;
+    padding: 0 0 0 1rem;
+    list-style: none;
+    color: var(--color-texto-principal);
+}
+
+.requirements .sublista li {
+    position: relative;
+    padding-left: 1rem;
+}
+
+.requirements .sublista li::before {
+    position: absolute;
+    left: 0;
+    color: var(--color-acento-azul-claro);
+    content: "•";
+}
+
+/* ==========================================================================
+   9. FILTROS DE ESCALA (ADAPTACIÓN A TODAS LAS RESOLUCIONES)
+   ========================================================================== */
+
+/* Pantallas ultra anchas (4K / TV) */
+@media (min-width: 2200px) {
+    html { font-size: 125%; }
+}
+
+/* Monitores grandes (Full HD ancho / 2K) */
+@media (min-width: 1600px) and (max-width: 2199px) {
+    html { font-size: 112.5%; }
+}
+
+/* Laptops pequeñas: menú más compacto para que quepa completo */
+@media (max-width: 1100px) {
+    .nav-link { font-size: 0.86rem; }
+    .nav-btn-header { padding: 0.5rem 0.875rem; font-size: 0.84rem; }
+    .logo-title { font-size: 1.05rem; }
+}
+
+/* Tabletas y menor: menú hamburguesa, tarjetas en dos columnas y pie en 2 columnas */
+@media (max-width: 992px) {
+    .servicio-card {
+        flex-basis: calc(50% - var(--espacio-entre-tarjetas));
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+
+    .hamburger span {
+        width: 1.5625rem;
+        height: 3px;
+        background-color: var(--color-texto-principal);
+        border-radius: 2px;
+    }
+
+    .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--color-fondo-pagina);
+        border-bottom: 1px solid var(--color-borde-tarjeta);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+        padding: 1rem var(--relleno-lateral-contenedor) 1.5rem;
+        display: none;
+        max-height: calc(100vh - var(--alto-barra-navegacion));
+        max-height: calc(100dvh - var(--alto-barra-navegacion));
+        overflow-y: auto;
+    }
+
+    .menu-toggle:checked ~ .nav-menu {
+        display: flex;
+    }
+
+    .nav-link {
+        font-size: 1rem;
+        padding: 0.75rem 0.25rem;
+        border-bottom: 1px solid var(--color-linea-inferior-pie);
+    }
+
+    .nav-btn-header {
+        margin-top: 0.75rem;
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.125rem;
+    }
+}
+
+/* Móviles: pie en una columna y tarjetas de servicio apiladas */
+@media (max-width: 576px) {
+    .servicio-card {
+        flex-basis: 100%;
+    }
+
+    .footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Móviles muy pequeños (320–380 px): marca compacta */
+@media (max-width: 380px) {
+    .logo-title { font-size: 0.95rem; letter-spacing: 1px; }
+    .logo-subtitle { font-size: 0.72rem; letter-spacing: 1.5px; }
+    .logo-icon svg { width: 34px; height: 34px; }
+    .brand-logo { gap: 0.5rem; }
+    .btn { padding: 0.75rem 1rem; font-size: 0.9rem; }
+}
+
+/* Pantallas bajas (móvil horizontal): menos espacio vertical */
+@media (max-height: 520px) and (orientation: landscape) {
+    .section-padding {
+        padding: 2.5rem 0;
+    }
+}
+
+/* Pantallas táctiles: sin saltos al tocar los botones */
+@media (hover: none) {
+    .btn-primary:hover,
+    .btn-whatsapp:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* Usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    *, *::before, *::after {
+        transition: none !important;
+    }
+}
+</file>
+
+<file path="quienSomos.html">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosotros - Imagenología Veterinaria</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Única hoja de estilos -->
+    <link rel="stylesheet" href="css/estilo_quienSomos.css">
+</head>
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <header class="navbar">
+        <div class="container navbar-container">
+            <a href="index.html" class="brand-logo">
+                <div class="logo-icon">
+                    <img src="img/logo-imagenologia-veterinaria.png" alt="Logo principal">
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">IMAGENOLOGIA</span>
+                    <span class="logo-subtitle">VETERINARIA</span>
+                </div>
+            </a>
+
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="#nosotros" class="nav-link">Quienes somos</a>
+                <a href="servicios.html" class="nav-link">Servicios</a>
+                <a href="contacto.html" class="nav-link">Contacto</a>
+                <a href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ========== QUIÉNES SOMOS ========== -->
+    <section id="nosotros" class="section-padding">
+        <div class="container">
+            <div class="about-grid">
+                <div>
+                    <h2 class="section-title">Quiénes Somos</h2>
+                    <p class="section-description section-desc-space">
+                        En Imagenología Veterinaria entendemos que detrás de cada estudio hay un miembro más de la familia. Por eso trabajamos con equipos de vanguardia y un enfoque humano, ofreciendo diagnósticos confiables que ayudan a los médicos veterinarios a tomar mejores decisiones.
+                    </p>
+                </div>
+
+                <!-- Imagen que reemplaza el cuadro de tarjetas -->
+                <div class="about-image-wrapper">
+                    <!-- Reemplaza "img/nosotros.jpg" por tu imagen real -->
+                    <img src="img/owie.jpg" alt="Nosotros - Imagenología Veterinaria" class="about-image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== MISIÓN, VISIÓN Y VALORES ========== -->
+    <section id="mision-vision" class="section-padding section-navy">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Nuestra Filosofía</span>
+                <h2 class="section-title">Misión, Visión y Valores</h2>
+                <p class="section-description">Las ideas que nos guian a nosotros</p>
+            </div>
+
+            <div class="mvv-grid">
+    <div class="mvv-card">
+        <div class="mvv-icon"><i class="fa-solid fa-bullseye"></i></div>
+        <h3>Misión</h3>
+        <p>
+            Ofrecer diagnósticos ecográficos veterinarios precisos y oportunos, con
+            tecnología de alta resolución y un trato cálido que respete el bienestar
+            de cada paciente.
+        </p>
+    </div>
+    <div class="mvv-card">
+        <div class="mvv-icon"><i class="fa-solid fa-eye"></i></div>
+        <h3>Visión</h3>
+        <p>
+            Ser el centro de referencia en diagnóstico por imagen veterinaria de la
+            región, reconocido por su excelencia técnica y confianza.
+        </p>
+    </div>
+    <div class="mvv-card">
+        <div class="mvv-icon"><i class="fa-solid fa-heart"></i></div>
+        <h3>Valores</h3>
+        <p>
+            Precisión, empatía, confianza, innovación y compromiso con la salud animal.
+        </p>
+    </div>
+</div>
+        </div>
+    </section>
+
+    <!-- ========== NUESTRO EQUIPO ========== -->
+    <section id="equipo" class="section-padding">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Profesionales</span>
+                <h2 class="section-title">Nuestro Equipo</h2>
+                <p class="section-description">Los expertos que lo hacen posible</p>
+            </div>
+
+            <!--FOTOS DE PLACEHOLDER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+
+            <div class="team-grid">
+                <!-- Fila 1 -->
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fst2.depositphotos.com%2F3261171%2F8636%2Fi%2F950%2Fdepositphotos_86366336-stock-photo-professional-vet-examining-a-dog.jpg&f=1&nofb=1&ipt=b9f4f6c5e6346dc2df66d7cc5902d121434c201064960f9b4d321b1f1e60539c&ipo=images"
+                        alt="Miembro del equipo" class="team-img">
+                    </div>
+                    <h4>Juan Antonio Duarte</h4>
+                    <p class="team-role">Especialista en Ecografía Veterinaria</p>
+                    <p class="team-bio">Con más de 15 años de experiencia en el diagnóstico por imagen veterinaria.</p>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+        <!-- PIE DE PÁGINA (FOOTER) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="index.html" class="brand-logo">
+                        <div class="logo-text">
+                            <span class="logo-title">IMAGENOLOGIA</span>
+                            <span class="logo-subtitle">VETERINARIA</span>
+                        </div>
+                    </a>
+                    <p>Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Navegación</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="quienSomos.html">Quienes Somos</a></li>
+                        <li><a href="servicios.html">Servicios</a></li>
+                        <li><a href="contacto.html">Contactenos</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Contacto Rápido</h4>
+                    <p class="footer-contact-info">WhatsApp: <span data-contacto="telefono">77222775</span></p>
+                    <p class="footer-contact-info footer-contact-space"><span data-contacto="correo">ecografia@imagenologiaveterinaria.com</span></p>
+                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
+                        <i class="fa-brands fa-whatsapp"></i> Chat Directo
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Imagenología Veterinaria. Todos los derechos reservados.</p>
+                <p>Diagnóstico Ecográfico Especializado</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/ui/contacto-publico.js"></script>
+</body>
+</html>
+</file>
+
+<file path="contacto.html">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Imagenología Veterinaria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/estilo_home.css">
+    <link rel="stylesheet" href="css/estilo_contacto.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container navbar-container">
+            <a href="index.html" class="brand-logo">
+                <div class="logo-icon">
+                    <img src="img/logo-imagenologia-veterinaria.png" alt="Logo principal">
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">IMAGENOLOGIA</span>
+                    <span class="logo-subtitle">VETERINARIA</span>
+                </div>
+            </a>
+
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="quienSomos.html" class="nav-link">Quienes somos</a>
+                <a href="servicios.html" class="nav-link">Servicios</a>
+                <a href="#contacto" class="nav-link">Contacto</a>
+                <a href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="contacto">
+        <div class="container">
+            <h1>Contacto</h1>
+            <p class="contacto-intro">Para programar una cita o solicitar más información, contáctanos.</p>
+
+            <ul class="contacto-lista">
+                <li>
+                    <h2>Celular</h2>
+                    <a href="tel:+50377222775" data-contacto="telefono">+503 7722 2775</a>
+                </li>
+                <li>
+                    <h2>Email</h2>
+                    <a href="mailto:ecografia@imagenologiaveterinaria.com" data-contacto="correo">ecografia@imagenologiaveterinaria.com</a>
+                </li>
+                <li>
+                    <h2>Servicio a domicilio</h2>
+                    <p>El estudio se realiza a tu domicilio. Está pensado para clínicas que no tienen equipo de ultrasonido propio.</p>
+                </li>
+                <li>
+                    <h2>Horario de atención</h2>
+                    <ul class="horario" data-contacto="horarios">
+                        <li>Lunes: 8:30 AM - 1:00 PM</li>
+                        <li>Martes: de 8:30 AM - 5:00 PM</li>
+                        <li>Sábados: 2:00 PM - 6:00 PM</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="deja-datos">
+                <h2>Deja tus datos</h2>
+                <p>Completa el formulario con tu nombre, teléfono, correo y el motivo de la consulta.</p>
+                <form class="formulario" id="formulario-contacto">
+                    <div class="campo">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" required autocomplete="name" placeholder="Tu nombre">
+                    </div>
+                    <div class="campo">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" required autocomplete="tel" placeholder="Tu número de teléfono">
+                    </div>
+                    <div class="campo">
+                        <label for="correo">Correo</label>
+                        <input type="email" id="correo" name="correo" required autocomplete="email" placeholder="tu@correo.com">
+                    </div>
+                    <div class="campo">
+                        <label for="motivo">Motivo de la consulta</label>
+                        <textarea id="motivo" name="motivo" required rows="4" placeholder="Cuéntanos en qué podemos ayudarte"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar datos</button>
+                    <p class="formulario-aviso" id="formulario-aviso" hidden>Se abrió WhatsApp con tus datos. Envíalos desde ahí para completar la solicitud.</p>
+                </form>
+            </div>
+
+            <a class="contacto-whatsapp" href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank">Agendar por WhatsApp</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="index.html" class="brand-logo">
+                        <div class="logo-text">
+                            <span class="logo-title">IMAGENOLOGIA</span>
+                            <span class="logo-subtitle">VETERINARIA</span>
+                        </div>
+                    </a>
+                    <p>Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Navegación</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="quienSomos.html">Quienes Somos</a></li>
+                        <li><a href="servicios.html">Servicios</a></li>
+                        <li><a href="contacto.html">Contactenos</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Contacto Rápido</h4>
+                    <p class="footer-contact-info">WhatsApp: <span data-contacto="telefono">+503 7722 2775</span></p>
+                    <p class="footer-contact-info footer-contact-space"><span data-contacto="correo">ecografia@imagenologiaveterinaria.com</span></p>
+                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
+                        <i class="fa-brands fa-whatsapp"></i> Chat Directo
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Imagenología Veterinaria. Todos los derechos reservados.</p>
+                <p>Diagnóstico Ecográfico Especializado</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById("formulario-contacto").addEventListener("submit", function (evento) {
+            evento.preventDefault();
+            var datos = new FormData(evento.target);
+            var mensaje = "Hola, quiero dejar mis datos para una consulta.\n"
+                + "Nombre: " + datos.get("nombre") + "\n"
+                + "Teléfono: " + datos.get("telefono") + "\n"
+                + "Correo: " + datos.get("correo") + "\n"
+                + "Motivo: " + datos.get("motivo");
+            var numero = document.documentElement.dataset.whatsapp || "50377222775";
+            window.open("https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje), "_blank", "noopener");
+            document.getElementById("formulario-aviso").hidden = false;
+        });
+    </script>
+
+    <script type="module" src="js/ui/contacto-publico.js"></script>
+</body>
+</html>
+</file>
+
+<file path="servicios.html">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/estilo_servicios.css">
+</head>
+<body>
+    <!-- BARRA DE NAVEGACIÓN -->
+    <header class="navbar">
+        <div class="container navbar-container">
+            <a href="index.html" class="brand-logo">
+                <div class="logo-icon">
+                    <img src="img/logo-imagenologia-veterinaria.png" alt="Logo principal">
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">IMAGENOLOGIA</span>
+                    <span class="logo-subtitle">VETERINARIA</span>
+                </div>
+            </a>
+
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="quienSomos.html" class="nav-link">Quienes somos</a>
+                <a href="#servicios" class="nav-link">Servicios</a>
+                <a href="contacto.html" class="nav-link">Contacto</a>
+                <a href="https://wa.me/50377222775?text=Hola,%20quisiera%20agendar%20una%20cita%20para%20una%20ecograf%C3%ADa%20veterinaria." target="_blank" class="btn btn-primary nav-btn-header">Agendar Cita</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="servicios section-padding" id="servicios">
+        <div class="container">
+
+            <!-- Título (usa clases que ya tienes) -->
+            <div class="section-header">
+                <span class="section-subtitle">Lo que hacemos</span>
+                <h1 class="section-title">Servicios</h1>
+                <p class="section-description">
+                    Diagnóstico por imagen veterinario de alta precisión.
+                </p>
+            </div>
+
+            <!-- Contenedor flex de las tarjetas -->
+            <div class="servicios-grid">
+
+                <article class="servicio-card">
+                    <h3>ultrasonido abdominal</h3>
+                    <p>Evaluación de hígado, riñones, vejiga y más órganos.</p>
+                    <ul>
+                        <li>Resultado el mismo día</li>
+                        <li>Informe incluido</li>
+                    </ul>
+                    <h3>$35</h3>
+                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-outline">Consultar</a>
+                </article>
+
+                <article class="servicio-card">
+                    <h3>Ecografía gestacional</h3>
+                    <p>Confirmación y seguimiento de gestación.</p>
+                    <ul>
+                        <li>Conteo de cachorros</li>
+                        <li>Control de viabilidad</li>
+                    </ul>
+                    <h3>$25</h3>
+                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-outline">Consultar</a>
+                </article>
+
+                <article class="servicio-card">
+                    <h3>Ultrasonido de urgencia</h3>
+                    <p>Evaluación ecográfica rápida en el momento para detectar problemas urgentes</p>
+                    <ul>
+                        <li>POCUS abdominal</li>
+                        <li>POCUS toracico</li>
+                        <li>POCUS Cardiaco y vascular</li>
+                    </ul>
+                    <h3>$25</h3>
+                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-outline">Consultar</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="requirements">
+        <div class="container">
+            <article>
+                <h1 class="section-title">Requisitos del paciente</h1>
+                <p class="section-description">
+                    Para asegurar la mejor calidad de imagen y la comodidad del paciente, solicitamos lo siguiente:
+                </p>
+                <ul class="lista">
+                    <li>
+                        <strong>Ayuno</strong>
+                        <ul class="sublista">
+                            <li>Ultrasonido abdominal: ayuno de 8-12 horas (agua permitida).</li>
+                            <li>Otros estudios: consulte con nosotros.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Vejiga llena</strong>
+                        <span>En algunos casos, se requiere que la vejiga esté llena para una mejor visualización. Siga las instrucciones proporcionadas al programar la cita.</span>
+                    </li>
+                    <li>
+                        <strong>Afeitado</strong>
+                        <span>Es posible que sea necesario afeitar el área a examinar para obtener una mejor calidad de imagen. Esto se realizará en la clínica antes del estudio.</span>
+                    </li>
+                    <li>
+                        <strong>Historial clínico</strong>
+                        <span>Al momento de programar la cita, proporcione un historial clínico completo del paciente, incluyendo exámenes realizados, medicamentos que esté tomando y cualquier condición preexistente.</span>
+                    </li>
+                </ul>
+            </article>
+        </div>
+    </section>
+    <!-- PIE DE PÁGINA (FOOTER) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="#inicio" class="brand-logo">
+                        <div class="logo-text">
+                            <span class="logo-title">IMAGENOLOGIA</span>
+                            <span class="logo-subtitle">VETERINARIA</span>
+                        </div>
+                    </a>
+                    <p>Servicio especializado en ultrasonido y diagnóstico por imagen veterinaria de alta precisión.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Navegación</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="quienSomos.html">Quienes Somos</a></li>
+                        <li><a href="servicios.html">Servicios</a></li>
+                        <li><a href="contacto.html">Contactenos</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Contacto Rápido</h4>
+                    <p class="footer-contact-info">WhatsApp: <span data-contacto="telefono">77222775</span></p>
+                    <p class="footer-contact-info footer-contact-space"><span data-contacto="correo">ecografia@imagenologiaveterinaria.com</span></p>
+                    <a href="https://wa.me/50377222775" target="_blank" class="btn btn-whatsapp footer-btn">
+                        <i class="fa-brands fa-whatsapp"></i> Chat Directo
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Imagenología Veterinaria. Todos los derechos reservados.</p>
+                <p>Diagnóstico Ecográfico Especializado</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/ui/contacto-publico.js"></script>
+</body>
+</html>
+</file>
+
+</files>

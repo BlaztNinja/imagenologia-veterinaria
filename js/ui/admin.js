@@ -252,7 +252,7 @@ async function acceder() {
         }
     } catch (error) {
         console.error("Error al verificar el acceso administrativo", error);
-        mostrarAcceso("error");
+        mostrarAcceso(error.code === "sin_permiso" ? "sin-permiso" : "error");
     } finally {
         establecerOcupado(false);
     }

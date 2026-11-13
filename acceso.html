@@ -26,7 +26,15 @@
     <main class="acceso-contenido">
             <section id="panel-acceso" class="acceso-tarjeta" aria-labelledby="titulo-acceso">
                 <h1 id="titulo-acceso">Iniciar sesión</h1>
-                <p class="acceso-ayuda">Ingresa con tu correo y contraseña.</p>
+                <p class="acceso-ayuda" id="ayuda-acceso">Ingresa con tu correo y contraseña.</p>
+
+                <div class="acceso-modos" role="group" aria-label="Modo de acceso">
+                    <button id="modo-login" type="button" class="btn btn-outline"
+                            aria-pressed="true">Iniciar sesión</button>
+                    <button id="modo-registro" type="button" class="btn btn-outline"
+                            aria-pressed="false">Registrarse</button>
+                </div>
+
                 <form id="formulario-acceso" class="acceso-formulario" method="post">
                     <div class="campo">
                         <label for="correo">Correo electrónico</label>
@@ -36,7 +44,7 @@
                         <label for="contrasena">Contraseña</label>
                         <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" disabled>Iniciar sesión</button>
+                    <button id="boton-acceso" type="submit" class="btn btn-primary" disabled>Iniciar sesión</button>
                     <p id="estado-acceso" class="acceso-estado" role="status" aria-atomic="true"></p>
                     <a href="./index.html" class="btn btn-outline">Continuar como visitante</a>
                 </form>
